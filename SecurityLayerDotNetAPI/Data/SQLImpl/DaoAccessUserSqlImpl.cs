@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SecurityLayerDotNetAPI.Commons;
-using SecurityLayerDotNetAPI.Data.SQLImpl.Entities;
-using SecurityLayerDotNetAPI.DTO.Data;
-using SecurityLayerDotNetAPI.Errors;
+using SiecaAPI.Commons;
+using SiecaAPI.Data.SQLImpl.Entities;
+using SiecaAPI.DTO.Data;
+using SiecaAPI.Errors;
 
-namespace SecurityLayerDotNetAPI.Data.SQLImpl
+namespace SiecaAPI.Data.SQLImpl
 {
     public class DaoAccessUserSqlImpl : IDaoAccessUsers
     {

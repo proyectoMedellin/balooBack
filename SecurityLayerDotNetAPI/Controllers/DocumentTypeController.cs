@@ -1,17 +1,17 @@
 ﻿using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SecurityLayerDotNetAPI.Data.SQLImpl.Entities;
-using SecurityLayerDotNetAPI.DTO;
-using SecurityLayerDotNetAPI.DTO.Data;
-using SecurityLayerDotNetAPI.DTO.Requests;
-using SecurityLayerDotNetAPI.DTO.Response;
-using SecurityLayerDotNetAPI.Errors;
-using SecurityLayerDotNetAPI.Models;
-using SecurityLayerDotNetAPI.Services;
+using SiecaAPI.Data.SQLImpl.Entities;
+using SiecaAPI.DTO;
+using SiecaAPI.DTO.Data;
+using SiecaAPI.DTO.Requests;
+using SiecaAPI.DTO.Response;
+using SiecaAPI.Errors;
+using SiecaAPI.Models;
+using SiecaAPI.Services;
 using System.Net;
 
-namespace SecurityLayerDotNetAPI.Controllers
+namespace SiecaAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]

@@ -1,6 +1,6 @@
-﻿using SecurityLayerDotNetAPI.Data.SQLImpl.Entities;
+﻿using SiecaAPI.Data.SQLImpl.Entities;
 
-namespace SecurityLayerDotNetAPI.Models
+namespace SiecaAPI.Models
 {
     public class DocumentType
     {

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SecurityLayerDotNetAPI.Data.SQLImpl.Entities
+namespace SiecaAPI.Data.SQLImpl.Entities
 {
     [Table("DocumentTypes")]
     public class DocumentTypeEntity

@@ -1,7 +1,7 @@
-﻿using SecurityLayerDotNetAPI.Data.SQLImpl.Entities;
-using SecurityLayerDotNetAPI.DTO.Data;
+﻿using SiecaAPI.Data.SQLImpl.Entities;
+using SiecaAPI.DTO.Data;
 
-namespace SecurityLayerDotNetAPI.Models
+namespace SiecaAPI.Models
 {
     public class Permission
     {

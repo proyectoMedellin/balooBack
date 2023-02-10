@@ -1,6 +1,6 @@
-﻿using SecurityLayerDotNetAPI.Models;
+﻿using SiecaAPI.Models;
 
-namespace SecurityLayerDotNetAPI.DTO.Response
+namespace SiecaAPI.DTO.Response
 {
     public class DtoAccessUserResp
     {

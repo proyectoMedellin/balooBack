@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "SecurityLayerDotNetAPI": {
+    "SiecaAPI": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,

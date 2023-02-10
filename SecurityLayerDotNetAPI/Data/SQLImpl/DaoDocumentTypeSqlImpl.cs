@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SecurityLayerDotNetAPI.Data.SQLImpl.Entities;
-using SecurityLayerDotNetAPI.DTO.Data;
+using SiecaAPI.Data.SQLImpl.Entities;
+using SiecaAPI.DTO.Data;
 
-namespace SecurityLayerDotNetAPI.Data.SQLImpl
+namespace SiecaAPI.Data.SQLImpl
 {
     public class DaoDocumentTypeSqlImpl : IDaoDocumentTypes
     {

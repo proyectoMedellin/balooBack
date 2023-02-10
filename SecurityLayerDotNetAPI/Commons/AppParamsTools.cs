@@ -1,4 +1,4 @@
-﻿namespace SecurityLayerDotNetAPI.Commons
+﻿namespace SiecaAPI.Commons
 {
     public static class AppParamsTools
     {

@@ -1,10 +1,10 @@
 ﻿using Newtonsoft.Json;
-using SecurityLayerDotNetAPI.Commons;
-using SecurityLayerDotNetAPI.Data;
-using SecurityLayerDotNetAPI.DTO.Data;
-using SecurityLayerDotNetAPI.Errors;
+using SiecaAPI.Commons;
+using SiecaAPI.Data;
+using SiecaAPI.DTO.Data;
+using SiecaAPI.Errors;
 
-namespace SecurityLayerDotNetAPI.Models.Services
+namespace SiecaAPI.Models.Services
 {
     public static class AuthenticationServices
     {

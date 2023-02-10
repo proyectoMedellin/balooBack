@@ -1,4 +1,4 @@
-﻿namespace SecurityLayerDotNetAPI.DTO
+﻿namespace SiecaAPI.DTO
 {
     public class DtoRequestResult<T>
     {

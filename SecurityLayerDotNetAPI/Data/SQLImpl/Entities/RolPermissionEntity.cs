@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
-namespace SecurityLayerDotNetAPI.Data.SQLImpl.Entities
+namespace SiecaAPI.Data.SQLImpl.Entities
 {
     [Table("RolPermission")]
     public class RolPermissionEntity

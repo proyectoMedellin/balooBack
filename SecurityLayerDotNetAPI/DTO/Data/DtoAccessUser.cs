@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SecurityLayerDotNetAPI.DTO.Data
+namespace SiecaAPI.DTO.Data
 {
     public class DtoAccessUser
     {

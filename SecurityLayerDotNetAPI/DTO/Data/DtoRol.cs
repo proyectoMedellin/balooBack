@@ -1,4 +1,4 @@
-﻿namespace SecurityLayerDotNetAPI.DTO.Data
+﻿namespace SiecaAPI.DTO.Data
 {
     public class DtoRol
     {

@@ -1,8 +1,8 @@
 ﻿using Microsoft.VisualBasic;
-using SecurityLayerDotNetAPI.Commons;
-using SecurityLayerDotNetAPI.Data.DataverseImpl;
-using SecurityLayerDotNetAPI.Data.SQLImpl;
-namespace SecurityLayerDotNetAPI.Data
+using SiecaAPI.Commons;
+using SiecaAPI.Data.DataverseImpl;
+using SiecaAPI.Data.SQLImpl;
+namespace SiecaAPI.Data
 {
     public static class DaoDocumentTypeFactory
     {

@@ -1,4 +1,4 @@
-﻿namespace SecurityLayerDotNetAPI.DTO.Requests
+﻿namespace SiecaAPI.DTO.Requests
 {
     public class DtoNotification
     {

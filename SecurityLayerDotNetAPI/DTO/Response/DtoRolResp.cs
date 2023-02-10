@@ -1,4 +1,4 @@
-﻿namespace SecurityLayerDotNetAPI.DTO.Response
+﻿namespace SiecaAPI.DTO.Response
 {
     public class DtoRolResp
     {

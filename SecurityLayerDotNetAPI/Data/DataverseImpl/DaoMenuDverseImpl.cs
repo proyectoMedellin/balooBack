@@ -1,6 +1,6 @@
-﻿using SecurityLayerDotNetAPI.DTO.Data;
+﻿using SiecaAPI.DTO.Data;
 
-namespace SecurityLayerDotNetAPI.Data.DataverseImpl
+namespace SiecaAPI.Data.DataverseImpl
 {
     public class DaoMenuDverseImpl : IDaoMenu
     {

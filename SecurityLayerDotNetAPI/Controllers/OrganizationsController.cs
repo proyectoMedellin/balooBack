@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SecurityLayerDotNetAPI.DTO;
-using SecurityLayerDotNetAPI.DTO.Requests;
-using SecurityLayerDotNetAPI.Models;
-using SecurityLayerDotNetAPI.Services;
+using SiecaAPI.DTO;
+using SiecaAPI.DTO.Requests;
+using SiecaAPI.Models;
+using SiecaAPI.Services;
 using System.Net;
 
-namespace SecurityLayerDotNetAPI.Controllers
+namespace SiecaAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]

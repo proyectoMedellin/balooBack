@@ -1,4 +1,4 @@
-﻿namespace SecurityLayerDotNetAPI.Errors
+﻿namespace SiecaAPI.Errors
 {
     [Serializable]
     public class InvalidLoginException: Exception

@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SecurityLayerDotNetAPI.Commons;
-using SecurityLayerDotNetAPI.Data.SQLImpl.Entities;
+using SiecaAPI.Commons;
+using SiecaAPI.Data.SQLImpl.Entities;
 
-namespace SecurityLayerDotNetAPI.Data.SQLImpl
+namespace SiecaAPI.Data.SQLImpl
 {
     public class SqlContext: DbContext
     {

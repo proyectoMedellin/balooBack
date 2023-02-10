@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SecurityLayerDotNetAPI.Data.SQLImpl.Entities
+namespace SiecaAPI.Data.SQLImpl.Entities
 {
     [Table("AccessUser")]
     public class AccessUserEntity

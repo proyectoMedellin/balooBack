@@ -1,4 +1,4 @@
-﻿namespace SecurityLayerDotNetAPI.Models
+﻿namespace SiecaAPI.Models
 {
     public class Organization
     {

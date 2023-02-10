@@ -1,8 +1,8 @@
 ﻿using System.Net;
 using System.Net.Mail;
-using SecurityLayerDotNetAPI.Commons;
+using SiecaAPI.Commons;
 
-namespace SecurityLayerDotNetAPI.Services
+namespace SiecaAPI.Services
 {
     public static class MailServices
     {

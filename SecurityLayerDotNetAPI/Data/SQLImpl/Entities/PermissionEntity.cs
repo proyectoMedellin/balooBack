@@ -1,8 +1,8 @@
-﻿using SecurityLayerDotNetAPI.Commons;
+﻿using SiecaAPI.Commons;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SecurityLayerDotNetAPI.Data.SQLImpl.Entities
+namespace SiecaAPI.Data.SQLImpl.Entities
 {
     [Table("Permission")]
     public class PermissionEntity

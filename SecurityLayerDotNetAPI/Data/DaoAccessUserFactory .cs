@@ -1,9 +1,9 @@
 ﻿using Microsoft.VisualBasic;
-using SecurityLayerDotNetAPI.Commons;
-using SecurityLayerDotNetAPI.Data.DataverseImpl;
-using SecurityLayerDotNetAPI.Data.SQLImpl;
+using SiecaAPI.Commons;
+using SiecaAPI.Data.DataverseImpl;
+using SiecaAPI.Data.SQLImpl;
 
-namespace SecurityLayerDotNetAPI.Data
+namespace SiecaAPI.Data
 {
     public static class DaoAccessUserFactory
     {

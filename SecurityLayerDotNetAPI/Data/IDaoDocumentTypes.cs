@@ -1,6 +1,6 @@
-﻿using SecurityLayerDotNetAPI.DTO.Data;
+﻿using SiecaAPI.DTO.Data;
 
-namespace SecurityLayerDotNetAPI.Data
+namespace SiecaAPI.Data
 {
     public interface IDaoDocumentTypes
     {

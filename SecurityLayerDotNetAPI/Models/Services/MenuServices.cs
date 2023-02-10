@@ -1,8 +1,8 @@
-﻿using SecurityLayerDotNetAPI.Data;
-using SecurityLayerDotNetAPI.DTO.Data;
-using SecurityLayerDotNetAPI.Models;
+﻿using SiecaAPI.Data;
+using SiecaAPI.DTO.Data;
+using SiecaAPI.Models;
 
-namespace SecurityLayerDotNetAPI.Services
+namespace SiecaAPI.Services
 {
     public static class MenuServices
     {
