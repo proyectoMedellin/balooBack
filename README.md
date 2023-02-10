@@ -1,15 +1,14 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+# Introduction
+Componente de seguridad para reutilizar en distintos proyectos de invait para la contrucción de nuevas aplicaciones, funionará como proyecto base de arquitectura de tipo plantilla con la funcionalidad de la capa de seguridad construida para ser configurada, este repositorio contiene el api de servicios, se utilizará una arquitectura general basada en servicios
 
 # Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+Installation process
+Software dependencies
+Latest releases
+API references
 
 # Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+.Net 6
 
 # Contribute
 TODO: Explain how other users and developers can contribute to make your code better. 
