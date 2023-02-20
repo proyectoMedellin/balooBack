@@ -14,7 +14,7 @@ namespace SiecaAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    //[Authorize]
+    [Authorize]
     public class TrainingCenterController : ControllerBase
     {
         private readonly ILogger<UsersController> _logger;
