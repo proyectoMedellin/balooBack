@@ -14,20 +14,20 @@ namespace SiecaAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
-    public class TrainingCenterController : ControllerBase
+    //[Authorize]
+    public class CampusController : ControllerBase
     {
-        private readonly ILogger<TrainingCenterController> _logger;
+        private readonly ILogger<CampusController> _logger;
 
-        public TrainingCenterController(ILogger<TrainingCenterController> logger)
+        public CampusController(ILogger<CampusController> logger)
         {
             _logger = logger;
         }
 
         [HttpPost("Create")]
-        public async Task<IActionResult> Create(DtoTrainingCenterCreateReq request)
+        public async Task<IActionResult> Create(DtoCampusCreateReq request)
         {
-            DtoRequestResult<DtoTrainingCenterCreateResp> response = new DtoRequestResult<DtoTrainingCenterCreateResp>
+            DtoRequestResult<DtoCampusCreateResp> response = new()
             {
                 CodigoRespuesta = HttpStatusCode.OK.ToString()
             };
@@ -40,29 +40,32 @@ namespace SiecaAPI.Controllers
                     response.MensajeRespuesta = "Params not found";
                     return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.BadRequest };
                 }
-                DtoTrainingCenter newCenter = new()
+                DtoCampus newCampus = new()
                 {
+                    TrainingCenterId = request.TrainingCenterId,
                     Code = request.Code,
                     Name = request.Name,
                     IntegrationCode = request.IntegrationCode,
                     Enabled = request.Enabled,
                     CreatedBy = request.CreatedBy
                 };
-                newCenter = await TrainingCenterServices.CreateAsync(newCenter);
-                if (newCenter.Id != Guid.Empty)
+                newCampus = await CampusesServices.CreateAsync(newCampus);
+                if (newCampus.Id != Guid.Empty)
                 {
-                    response.Registros.Add(new DtoTrainingCenterCreateResp() { 
-                        Id = newCenter.Id,
-                        Name = newCenter.Name,  
-                        Code = newCenter.Code,
-                        IntegrationCode = newCenter.IntegrationCode,
-                        Enabled = newCenter.Enabled
+                    response.Registros.Add(new DtoCampusCreateResp() { 
+                        Id = newCampus.Id,
+                        OrganizationId = newCampus.OrganizationId,
+                        TrainingCenterId=newCampus.TrainingCenterId,
+                        Name = newCampus.Name,  
+                        Code = newCampus.Code,
+                        IntegrationCode = newCampus.IntegrationCode,
+                        Enabled = newCampus.Enabled
                     });
                 }
                 else
                 {
                     response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
-                    response.MensajeRespuesta = "The new center was not created";
+                    response.MensajeRespuesta = "The new campus was not created";
                     return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
                 }
 
@@ -70,7 +73,7 @@ namespace SiecaAPI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError("TrainingCenterController: Create -> " + ex.Message);
+                _logger.LogError("CampusController: Create -> " + ex.Message);
                 response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
                 response.MensajeRespuesta = ex.Message;
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
@@ -78,9 +81,9 @@ namespace SiecaAPI.Controllers
         }
 
         [HttpPost("Update")]
-        public async Task<IActionResult> Update(DtoTrainingCenterUpdateReq request)
+        public async Task<IActionResult> Update(DtoCampusUpdateReq request)
         {
-            DtoRequestResult<DtoTrainingCenterCreateResp> response = new DtoRequestResult<DtoTrainingCenterCreateResp>
+            DtoRequestResult<DtoCampusCreateResp> response = new()
             {
                 CodigoRespuesta = HttpStatusCode.OK.ToString()
             };
@@ -94,32 +97,34 @@ namespace SiecaAPI.Controllers
                     response.MensajeRespuesta = "Params not found";
                     return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.BadRequest };
                 }
-                DtoTrainingCenter center = new()
+                DtoCampus campus = new()
                 {
                     Id = request.Id,
+                    TrainingCenterId = request.TrainingCenterId,
                     Code = request.Code,
                     Name = request.Name,
                     IntegrationCode = request.IntegrationCode,
                     Enabled = request.Enabled,
                     ModifiedBy = request.ModifiedBy,
                 };
-                center = await TrainingCenterServices.UpdateAsync(center);
-                if (center.Id != Guid.Empty)
+                campus = await CampusesServices.UpdateAsync(campus);
+                if (campus.Id != Guid.Empty)
                 {
-                    response.Registros.Add(new DtoTrainingCenterCreateResp()
+                    response.Registros.Add(new DtoCampusCreateResp()
                     {
-                        Id = center.Id,
-                        OrganizationId = center.OrganizationId,
-                        Name = center.Name,
-                        Code = center.Code,
-                        IntegrationCode = center.IntegrationCode,
-                        Enabled = center.Enabled
+                        Id = campus.Id,
+                        OrganizationId = campus.OrganizationId,
+                        TrainingCenterId = campus.TrainingCenterId,
+                        Name = campus.Name,
+                        Code = campus.Code,
+                        IntegrationCode = campus.IntegrationCode,
+                        Enabled = campus.Enabled
                     });
                 }
                 else
                 {
                     response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
-                    response.MensajeRespuesta = "The new center was not updated";
+                    response.MensajeRespuesta = "The campus was not updated";
                     return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
                 }
 
@@ -127,7 +132,7 @@ namespace SiecaAPI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError("TrainingCenterController: Update -> " + ex.Message);
+                _logger.LogError("CampusController: Update -> " + ex.Message);
                 response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
                 response.MensajeRespuesta = ex.Message;
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
@@ -137,7 +142,7 @@ namespace SiecaAPI.Controllers
         [HttpGet("Delete")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            DtoRequestResult<bool> response = new DtoRequestResult<bool>
+            DtoRequestResult<bool> response = new()
             {
                 CodigoRespuesta = HttpStatusCode.OK.ToString()
             };
@@ -150,13 +155,13 @@ namespace SiecaAPI.Controllers
                     response.MensajeRespuesta = "Id not found";
                     return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.BadRequest };
                 }
-                response.Registros.Add(await TrainingCenterServices.DeleteAsync(id));
+                response.Registros.Add(await CampusesServices.DeleteAsync(id));
 
                 return Ok(response);
             }
             catch (Exception ex)
             {
-                _logger.LogError("TrainingCenterController: Delete -> " + ex.Message);
+                _logger.LogError("CampusController: Delete -> " + ex.Message);
                 response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
                 response.MensajeRespuesta = ex.Message;
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
@@ -164,10 +169,10 @@ namespace SiecaAPI.Controllers
         }
 
         [HttpGet("ViewGrid")]
-        public async Task<IActionResult> ViewGrid(int page, int pageSize, string? fCode,
+        public async Task<IActionResult> ViewGrid(int page, int pageSize, Guid? trainingCenterId, string? fCode,
             string? fName, bool? fEnabled)
         {
-            DtoRequestResult<DtoTrainingCenterViewGridResp> response = new DtoRequestResult<DtoTrainingCenterViewGridResp>
+            DtoRequestResult<DtoCampusViewGridResp> response = new()
             {
                 CodigoRespuesta = HttpStatusCode.OK.ToString()
             };
@@ -177,13 +182,16 @@ namespace SiecaAPI.Controllers
                 string filterCode = !string.IsNullOrEmpty(fCode) && fCode != "null" ? fCode : string.Empty;
                 string filterName = !string.IsNullOrEmpty(fName) && fName != "null" ? fName : string.Empty; 
 
-                List<DtoTrainingCenter> tCenters = await TrainingCenterServices
-                    .GetAllAsync(page, pageSize, filterCode, filterName, fEnabled);
+                List<DtoCampus> tCenters = await CampusesServices
+                    .GetAllAsync(page, pageSize, trainingCenterId, filterCode, filterName, fEnabled);
 
-                foreach (DtoTrainingCenter dto in tCenters)
+                foreach (DtoCampus dto in tCenters)
                 {
-                    response.Registros.Add(new DtoTrainingCenterViewGridResp() { 
+                    response.Registros.Add(new DtoCampusViewGridResp() { 
                         Id = dto.Id,
+                        TrainingCenterId = dto.TrainingCenterId,
+                        TrainingCenterCode = dto.TrainingCenterCode,
+                        TrainingCenterName = dto.TrainingCenterName,
                         Code = dto.Code,    
                         Name = dto.Name,
                         Enabled = dto.Enabled
@@ -201,17 +209,17 @@ namespace SiecaAPI.Controllers
             }
         }
 
-        [HttpGet("GetEnabledTrainigCenterList")]
-        public async Task<IActionResult> GetEnabledTrainigCenterList()
+        [HttpGet("GetEnableCampusesByTrainingCenter")]
+        public async Task<IActionResult> GetEnableCampusesByTrainingCenter(Guid trainingCenterId)
         {
-            DtoRequestResult<DtoTrainingCenter> response = new()
+            DtoRequestResult<DtoCampus> response = new()
             {
                 CodigoRespuesta = HttpStatusCode.OK.ToString()
             };
 
             try
             {
-                response.Registros = await TrainingCenterServices.GetEnabledTrainigCenterList();
+                response.Registros = await CampusesServices.GetEnableCampusesByTrainingCenter(trainingCenterId);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -226,7 +234,7 @@ namespace SiecaAPI.Controllers
         [HttpGet("GetById")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            DtoRequestResult<DtoTrainingCenter> response = new DtoRequestResult<DtoTrainingCenter>
+            DtoRequestResult<DtoCampus> response = new DtoRequestResult<DtoCampus>
             {
                 CodigoRespuesta = HttpStatusCode.OK.ToString()
             };
@@ -240,12 +248,12 @@ namespace SiecaAPI.Controllers
                     return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.BadRequest };
                 }
 
-                response.Registros.Add(await TrainingCenterServices.GetByIdAsync(id));
+                response.Registros.Add(await CampusesServices.GetByIdAsync(id));
                 return Ok(response);
             }
             catch (Exception ex)
             {
-                _logger.LogError("TrainingCenterController: getAllById -> " + ex.Message);
+                _logger.LogError("CampusController: getAllById -> " + ex.Message);
                 response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
                 response.MensajeRespuesta = ex.Message;
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };

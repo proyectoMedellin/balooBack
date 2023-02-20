@@ -11,7 +11,7 @@ namespace SiecaAPI.Data.SQLImpl.Entities
 
         [Required]
         public Guid OrganizationId { get; set; }
-        public virtual OrganizationEntity Organization { get; set; } = new OrganizationEntity();
+        public virtual OrganizationEntity Organization { get; set; } = new();
 
         public bool Enabled { get; set; } = false;
         public string CreatedBy { get; set; } = string.Empty;

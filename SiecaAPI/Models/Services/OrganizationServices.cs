@@ -17,6 +17,7 @@ namespace SiecaAPI.Services
             return new Organization(org.Id.Value, org.Name);
            
         }
+
         public static async Task<Organization> GetActiveOrganization()
         {
             var orgResult = await DaoOrganizationFactory.GetDaoOrganizations().GetAllEnabledAsync();
@@ -27,6 +28,16 @@ namespace SiecaAPI.Services
             }
             throw new InvalidOperationException("No organization Found");
             
+        }
+
+        public static async Task<DtoOrganization> GetOrganizationById(Guid id)
+        {
+            DtoOrganization orgResult = await DaoOrganizationFactory.GetDaoOrganizations().GetByIdAsync(id);
+            if (orgResult != null)
+            {
+                return orgResult;
+            }
+            throw new InvalidOperationException("No organization Found");
         }
     }
 }

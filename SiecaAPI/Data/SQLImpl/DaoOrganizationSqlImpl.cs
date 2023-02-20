@@ -46,29 +46,22 @@ namespace SiecaAPI.Data.SQLImpl
         }
         public async Task<List<DtoOrganization>> GetAllEnabledAsync()
         {
-            try
+            using SqlContext context = new SqlContext();
+            List<OrganizationEntity> org = await context.Organizations.Where(o => o.Enabled).ToListAsync();
+            List<DtoOrganization> dTOOrganizations = new();
+            foreach (OrganizationEntity o in org)
             {
-                using SqlContext context = new SqlContext();
-                List<OrganizationEntity> org = await context.Organizations.Where(o => o.Enabled).ToListAsync();
-                List<DtoOrganization> dTOOrganizations = new();
-                foreach (OrganizationEntity o in org)
-                {
-                    dTOOrganizations.Add(new DtoOrganization(o.Id, o.Name, o.CreatedBy));
+                dTOOrganizations.Add(new DtoOrganization(o.Id, o.Name, o.CreatedBy));
 
-                }
-                return dTOOrganizations;
             }
-            catch(Exception ex)
-            {
-                throw ex;
-            }
-
+            return dTOOrganizations;
         }
-
 
         public async Task<DtoOrganization> GetByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            using SqlContext context = new SqlContext();
+            OrganizationEntity org = await context.Organizations.Where(o => o.Id.Equals(id)).FirstAsync();
+            return new DtoOrganization(org.Id, org.Name, org.CreatedBy);
         }
 
         public async Task<DtoOrganization> GetByNameAsync(string name)
