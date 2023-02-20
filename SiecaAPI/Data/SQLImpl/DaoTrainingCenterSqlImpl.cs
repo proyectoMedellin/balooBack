@@ -84,6 +84,33 @@ namespace SiecaAPI.Data.SQLImpl
             }
         }
 
+        public async Task<List<DtoTrainingCenter>> GetAllEnabledAsync()
+        {
+            List<DtoTrainingCenter> centers = new();
+
+            using SqlContext context = new();
+
+            List<TrainingCenterEntity> tCenters = await context.TrainingCenters
+                .Where(tc => tc.Enabled)
+                .OrderBy(tc => tc.Code)
+                .ToListAsync();
+
+            foreach (TrainingCenterEntity tc in tCenters)
+            {
+                centers.Add(new DtoTrainingCenter()
+                {
+                    Id = tc.Id,
+                    OrganizationId = tc.OrganizationId,
+                    OrganizationName = tc.Organization.Name,
+                    Code = tc.Code,
+                    Name = tc.Name,
+                    IntegrationCode = !string.IsNullOrEmpty(tc.IntegrationCode) ? tc.IntegrationCode : String.Empty,
+                    Enabled = tc.Enabled
+                });
+            }
+            return centers;
+        }
+
         public async Task<List<DtoTrainingCenter>> GetAllAsync(int page, int pageSize, string? fCode, 
             string? fName, bool? fEnabled)
         {

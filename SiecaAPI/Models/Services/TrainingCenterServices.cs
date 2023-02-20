@@ -10,6 +10,9 @@ namespace SiecaAPI.Models.Services
     {
         public static async Task<DtoTrainingCenter> CreateAsync(DtoTrainingCenter center)
         {
+            if(string.IsNullOrEmpty(center.Code) || string.IsNullOrEmpty(center.Name))
+                throw new MissingFieldException("The fields code and name cant be empty");
+
             Organization organization = await OrganizationServices.GetActiveOrganization();
             center.OrganizationId = organization.Id;
             center.OrganizationName = organization.Name;
@@ -19,6 +22,9 @@ namespace SiecaAPI.Models.Services
 
         public static async Task<DtoTrainingCenter> UpdateAsync(DtoTrainingCenter center)
         {
+            if (string.IsNullOrEmpty(center.Code) || string.IsNullOrEmpty(center.Name))
+                throw new MissingFieldException("The fields code and name cant be empty");
+
             return await DaoTrainingCenterFactory.GetDaoTrainingCenter().UpdateAsync(center);
         }
 
@@ -27,6 +33,11 @@ namespace SiecaAPI.Models.Services
         {
             return await DaoTrainingCenterFactory.GetDaoTrainingCenter().GetAllAsync(page, pageSize, 
                 fCode, fName, fEnabled);
+        }
+
+        public static async Task<List<DtoTrainingCenter>> GetEnabledTrainigCenterList()
+        {
+            return await DaoTrainingCenterFactory.GetDaoTrainingCenter().GetAllEnabledAsync();
         }
 
         public static async Task<DtoTrainingCenter> GetByIdAsync(Guid id)
