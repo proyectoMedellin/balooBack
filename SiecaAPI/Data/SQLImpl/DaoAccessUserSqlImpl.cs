@@ -45,12 +45,16 @@ namespace SiecaAPI.Data.SQLImpl
                     foreach( Guid rols in user.RolsId)
                     {
                         AccessUserRolEntity rolUser = new(org, null, user.Id, rols);
+                        await context.AccessUserRoles.AddAsync(rolUser);
                     }
                     foreach (Guid Campus in user.CampusId)
                     {
-                        CampusByAccessUserEntity rolUser = new(org.Id, user.TrainingCenterId, Campus, user.Id);
+                        CampusByAccessUserEntity CampusUser = new(org.Id, user.TrainingCenterId, Campus, user.Id);
+                        await context.CampusByAccessUsers.AddAsync(CampusUser);
                     }
+                    await context.SaveChangesAsync();
                     transaction.Commit();
+
                     return user;
                 }
                 throw new NoDataFoundException("No organization found");
