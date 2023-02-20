@@ -27,6 +27,7 @@ namespace SiecaAPI.Data.SQLImpl
         public DbSet<TrainingCenterEntity> TrainingCenters { get; set; }
         public DbSet<CampusEntity> Campuses { get; set; }
         public DbSet<DevelopmentRoomEntity> DevelopmentRooms { get; set; }
+        public DbSet<CampusByAccessUserEntity> CampusByAccessUsers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

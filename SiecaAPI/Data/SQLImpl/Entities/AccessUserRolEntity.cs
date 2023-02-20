@@ -26,17 +26,26 @@ namespace SiecaAPI.Data.SQLImpl.Entities
         [ForeignKey("RolId")]
         public Guid RolId { get; set; } = Guid.Empty;
         public virtual RolEntity Rol { get; set; } = new RolEntity();
-        public AccessUserRolEntity(Guid id, Guid organizationId, OrganizationEntity organization, string? accessUserExternalId, Guid? accessUserId, AccessUserEntity accessUser, Guid rolId, RolEntity rol)
+        //public AccessUserRolEntity(Guid id, Guid organizationId, OrganizationEntity organization, string? accessUserExternalId, Guid? accessUserId, AccessUserEntity accessUser, Guid rolId, RolEntity rol)
+        //{
+        //    Id = id;
+        //    OrganizationId = organizationId;
+        //    Organization = organization;
+        //    AccessUserExternalId = accessUserExternalId;
+        //    AccessUserId = accessUserId;
+        //    AccessUser = accessUser;
+        //    RolId = rolId;
+        //    Rol = rol;
+        //}
+        public AccessUserRolEntity( OrganizationEntity organization, string? accessUserExternalId, Guid? accessUserId, Guid rolId)
         {
-            Id = id;
-            OrganizationId = organizationId;
+            OrganizationId = organization.Id;
             Organization = organization;
             AccessUserExternalId = accessUserExternalId;
             AccessUserId = accessUserId;
-            AccessUser = accessUser;
             RolId = rolId;
-            Rol = rol;
         }
+
         public AccessUserRolEntity()
         {
             OrganizationId = Guid.Empty;

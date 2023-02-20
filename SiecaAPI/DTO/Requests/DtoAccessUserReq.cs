@@ -13,5 +13,8 @@
         public string? Phone { get; set; }
         public Guid? DocumentTypeId { get; set; }
         public string? DocumentNo { get; set; }
+        public Guid TrainingCenterId { get; set; }
+        public List<Guid> CampusId { get; set; }
+        public List<Guid> RolsId { get; set; }
     }
 }

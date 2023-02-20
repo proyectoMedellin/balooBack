@@ -20,12 +20,14 @@ namespace SiecaAPI.Data.SQLImpl
 
                 OrganizationEntity org = await context.Organizations
                     .Where(o => o.Id == user.OrganizationId).FirstAsync();
+                TrainingCenterEntity tra = await context.TrainingCenters
+                    .Where(t => t.Id == user.TrainingCenterId).FirstAsync();
                 if (org != null)
                 {
                     AccessUserEntity accessUser = new(org, user.UserName, user.Email, 
                         user.FirstName, user.OtherNames, user.LastName, user.OtherLastName, 
                         user.RequirePaswordChange, true, user.CreatedBy, DateTime.Now, 
-                        null, null, user.Phone, user.DocumentTypeId, user.DocumentNo);
+                        null, null, user.Phone, user.DocumentTypeId, user.DocumentNo, tra);
 
                     await context.AccessUsers.AddAsync(accessUser);
      
@@ -40,6 +42,14 @@ namespace SiecaAPI.Data.SQLImpl
                     await context.AccessUsersPassword.AddAsync(password);
                     await context.SaveChangesAsync();
 
+                    foreach( Guid rols in user.RolsId)
+                    {
+                        AccessUserRolEntity rolUser = new(org, null, user.Id, rols);
+                    }
+                    foreach (Guid Campus in user.CampusId)
+                    {
+                        CampusByAccessUserEntity rolUser = new(org.Id, user.TrainingCenterId, Campus, user.Id);
+                    }
                     transaction.Commit();
                     return user;
                 }

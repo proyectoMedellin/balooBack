@@ -37,7 +37,7 @@ namespace SiecaAPI.Controllers
                     && !string.IsNullOrEmpty(request.FirstName) && !string.IsNullOrEmpty(request.LastName))
                 {
                     AccessUser user = await UsersServices.CreateAccessUserAsync(request.UserName, request.Email, request.FirstName, request.OtherNames,
-                        request.LastName, request.OtherLastName, true, request.CreatedBy, request.Phone, request.DocumentTypeId.Value, request.DocumentNo);
+                        request.LastName, request.OtherLastName, true, request.CreatedBy, request.Phone, request.DocumentTypeId.Value, request.DocumentNo, request.TrainingCenterId);
                     response.Registros.Add(new DtoAccessUserResp(user.Id, user.OrganizationId, user.UserName,
                         user.Email, user.FirstName, user.OtherLastName,
                         user.LastName, user.OtherLastName, user.DocumentTypeId, user.DocumentNo));
