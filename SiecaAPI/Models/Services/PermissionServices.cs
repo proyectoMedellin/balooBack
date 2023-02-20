@@ -1,4 +1,4 @@
-﻿using SiecaAPI.Data;
+﻿using SiecaAPI.Data.Factory;
 using SiecaAPI.DTO.Data;
 using SiecaAPI.Models;
 

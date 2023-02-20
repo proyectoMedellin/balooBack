@@ -1,17 +1,19 @@
 ﻿using Microsoft.VisualBasic;
 using SiecaAPI.Commons;
 using SiecaAPI.Data.DataverseImpl;
+using SiecaAPI.Data.Interfaces;
 using SiecaAPI.Data.SQLImpl;
-namespace SiecaAPI.Data
+
+namespace SiecaAPI.Data.Factory
 {
-    public static class DaoDocumentTypeFactory
+    public static class DaoRolPermissionFactory
     {
-        public static IDaoDocumentTypes GetDaoDocumenTypes()
+        public static IDaoRolPermission GetDaoRolPermission()
         {
             return AppParamsTools.GetEnvironmentVariable("DBMS") switch
             {
-                PrConstants.DBMS_SQL => new DaoDocumentTypeSqlImpl(),
-                PrConstants.DBMS_DATAVERSE => new DaoDocumentTypeDverseImpl(),
+                PrConstants.DBMS_SQL => new DaoRolPermissionSqlImpl(),
+                PrConstants.DBMS_DATAVERSE => new DaoRolPermissionDverseImpl(),
                 _ => throw
                 new Exception(PrConstants.DBMS_WRONG_PARAM_ERROR),
             };

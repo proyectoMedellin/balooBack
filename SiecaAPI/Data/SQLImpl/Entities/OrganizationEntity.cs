@@ -35,7 +35,7 @@ namespace SiecaAPI.Data.SQLImpl.Entities
             if (!string.IsNullOrEmpty(modifiedBy))
             {
                 ModifiedBy = modifiedBy;
-                ModifiedOn = !modifiedOn.HasValue ? DateTime.Now : modifiedOn.Value;
+                ModifiedOn = modifiedOn ?? DateTime.UtcNow ;
             }
         }
 
@@ -44,9 +44,9 @@ namespace SiecaAPI.Data.SQLImpl.Entities
             Name = String.Empty;
             Enabled = true;
             CreatedBy = String.Empty;
-            CreatedOn = DateTime.MinValue;
+            CreatedOn = DateTime.UtcNow;
             ModifiedBy = String.Empty;
-            ModifiedOn = DateTime.MinValue;
+            ModifiedOn = DateTime.UtcNow;
         }
     }
 }

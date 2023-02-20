@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using SiecaAPI.Commons;
-using SiecaAPI.Data;
+using SiecaAPI.Data.Factory;
 using SiecaAPI.DTO.Data;
 using SiecaAPI.Errors;
 
@@ -12,7 +12,8 @@ namespace SiecaAPI.Models.Services
         {
             string userName = string.Empty;
 
-            string authStr = SecurityTools.DecryptAes(userData);
+            //string authStr = SecurityTools.DecryptAes(userData);
+            string authStr = userData;
 
             string[] userDataArray = authStr.Split(PrConstants.USERDATASEPARATOR);
             if(userDataArray.Length == PrConstants.USERDATAPARAMSCOUNT)

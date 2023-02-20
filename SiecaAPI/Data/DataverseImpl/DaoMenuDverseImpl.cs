@@ -1,4 +1,5 @@
-﻿using SiecaAPI.DTO.Data;
+﻿using SiecaAPI.Data.Interfaces;
+using SiecaAPI.DTO.Data;
 
 namespace SiecaAPI.Data.DataverseImpl
 {
@@ -29,7 +30,7 @@ namespace SiecaAPI.Data.DataverseImpl
             throw new NotImplementedException();
         }
 
-        public Task<List<DtoMenu>> GetItems(string user)
+        public Task<List<DtoMenu>> GetItems(string userName)
         {
             throw new NotImplementedException();
         }

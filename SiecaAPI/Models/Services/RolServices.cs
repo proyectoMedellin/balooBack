@@ -1,5 +1,5 @@
 ﻿using Azure.Core;
-using SiecaAPI.Data;
+using SiecaAPI.Data.Factory;
 using SiecaAPI.DTO.Data;
 using SiecaAPI.DTO.Requests;
 using SiecaAPI.Models;

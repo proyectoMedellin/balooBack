@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SiecaAPI.Data.Interfaces;
 using SiecaAPI.Data.SQLImpl.Entities;
 using SiecaAPI.DTO.Data;
 
@@ -35,19 +36,19 @@ namespace SiecaAPI.Data.SQLImpl
             foreach(var role in userRoles)
             {
                 userPermission.AddRange(await context.RolePermissions.
-                    Where(usp => usp.RolId == role.RolId )
-                    .Where(usp => usp.OrganizationId == role.OrganizationId).ToListAsync());
+                    Where(usp => usp.RolId == role.RolId && usp.OrganizationId == role.OrganizationId)
+                    .ToListAsync());
             }
 
             List<MenuEntity> Menu = new List<MenuEntity>();
             foreach(var permission in userPermission)
             {
                 Menu.AddRange(await context.Menu.
-                Where(o => o.Enabled).
-                Where(o => o.PermissionId == permission.PermissionId).ToListAsync());
+                Where(o => o.Enabled && o.PermissionId == permission.PermissionId)
+                .ToListAsync());
             }
             List<DtoMenu> dtoMenu = new();
-            foreach (MenuEntity item in Menu)
+            foreach (MenuEntity item in Menu.OrderBy(m => m.Position))
             {
                 dtoMenu.Add(new DtoMenu(
                     item.OrganizationId,

@@ -24,6 +24,9 @@ namespace SiecaAPI.Data.SQLImpl
         public DbSet<RolPermissionEntity> RolePermissions { get; set; }
         public DbSet<AccessUserRolEntity> AccessUserRoles { get; set; }
         public DbSet<MenuEntity> Menu { get; set; }
+        public DbSet<TrainingCenterEntity> TrainingCenters { get; set; }
+        //public DbSet<Campus> Campuses { get; set; }
+        //public DbSet<DevelopmentRoom> DevelopmentRooms { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

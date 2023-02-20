@@ -1,6 +1,6 @@
 ﻿using SiecaAPI.DTO.Data;
 
-namespace SiecaAPI.Data
+namespace SiecaAPI.Data.Interfaces
 {
     public interface IDaoOrganizations
     {
