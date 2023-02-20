@@ -17,9 +17,9 @@ namespace SiecaAPI.Controllers
     [Authorize]
     public class TrainingCenterController : ControllerBase
     {
-        private readonly ILogger<UsersController> _logger;
+        private readonly ILogger<TrainingCenterController> _logger;
 
-        public TrainingCenterController(ILogger<UsersController> logger)
+        public TrainingCenterController(ILogger<TrainingCenterController> logger)
         {
             _logger = logger;
         }
