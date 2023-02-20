@@ -1,6 +1,0 @@
-﻿namespace SiecaAPI.Data.SQLImpl.Entities
-{
-    public class DevelopmentRoom
-    {
-    }
-}

@@ -26,7 +26,7 @@ namespace SiecaAPI.Data.SQLImpl
         public DbSet<MenuEntity> Menu { get; set; }
         public DbSet<TrainingCenterEntity> TrainingCenters { get; set; }
         public DbSet<CampusEntity> Campuses { get; set; }
-        //public DbSet<DevelopmentRoom> DevelopmentRooms { get; set; }
+        public DbSet<DevelopmentRoomEntity> DevelopmentRooms { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
