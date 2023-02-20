@@ -17,11 +17,11 @@ namespace SiecaAPI.DTO.Data
         public string? Phone { get; set; }
         public Guid DocumentTypeId { get; set; }
         public string DocumentNo { get; set; }
-        public Guid TrainingCenterId   { get; set; }
+        public Guid? TrainingCenterId   { get; set; }
         public List<Guid> CampusId { get; set; }
         public List<Guid> RolsId { get; set; }
         public DtoAccessUser(string userName, string email, string firstName, string? otherNames, string lastName, string? otherLastName,
-           bool requirePaswordChange, string createdBy, string? phone, Guid documentTypeId, string documentNo, Guid trainingCenterId)
+           bool requirePaswordChange, string createdBy, string? phone, Guid documentTypeId, string documentNo, Guid? trainingCenterId)
         {
             UserName = userName;
             Email = email;

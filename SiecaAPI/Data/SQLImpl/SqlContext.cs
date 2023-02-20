@@ -33,6 +33,9 @@ namespace SiecaAPI.Data.SQLImpl
         {
             modelBuilder.Entity<RolPermissionEntity>()
                 .HasKey(rp => new { rp.OrganizationId, rp.RolId, rp.PermissionId });
+            modelBuilder.Entity<CampusByAccessUserEntity>()
+                .HasKey(ca => new { ca.OrganizationId, ca.CampusId, ca.TrainingCenterId });
         }
+        
     }
 }

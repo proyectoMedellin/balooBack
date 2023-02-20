@@ -42,11 +42,11 @@ namespace SiecaAPI.Data.SQLImpl.Entities
         public string DocumentNo { get; set; }
         [Required]
         [ForeignKey("TraininCenterId")]
-        public Guid TrainingcerterId  { get; set; }
-        public virtual TrainingCenterEntity TrainingCenter  { get; set; }
+        public Guid? TrainingCenterId  { get; set; }
+        public virtual TrainingCenterEntity? TrainingCenter  { get; set; }
         public AccessUserEntity (OrganizationEntity organization, string userName, string email, string firstName, string? otherNames, 
             string lastName, string? otherLastName, bool requirePaswordChange, bool enabled, string createBy, DateTime createdOn,
-            string? modifiedBy, DateTime? modifiedOn, string? phone, Guid documentTypeId, string documentNo, TrainingCenterEntity trainingCenter)
+            string? modifiedBy, DateTime? modifiedOn, string? phone, Guid documentTypeId, string documentNo, TrainingCenterEntity? trainingCenter)
         {
             OrganizationId = organization.Id;
             Organization = organization;
@@ -68,7 +68,7 @@ namespace SiecaAPI.Data.SQLImpl.Entities
             }
             DocumentTypeId = documentTypeId;
             DocumentNo = documentNo;
-            TrainingcerterId = trainingCenter.Id;
+            TrainingCenterId = trainingCenter.Id;
             TrainingCenter = trainingCenter;
         }
 
@@ -88,7 +88,7 @@ namespace SiecaAPI.Data.SQLImpl.Entities
             Phone = String.Empty;
             DocumentTypeId = Guid.Empty;
             DocumentNo = string.Empty;
-            TrainingcerterId = Guid.Empty;
+            TrainingCenterId = Guid.Empty;
             TrainingCenter = new TrainingCenterEntity();
         }
     }
