@@ -4,8 +4,10 @@ using System.Reflection;
 
 namespace SiecaAPI.DTO.Data
 {
-    public class DtoBeneficiariesCreateReq
+    public class DtoBeneficiariesUpdateReq
     {
+        public Guid Id { get; set; }
+        public Guid OrganizationId { get; set; }
         public Guid DocumentTypeId { get; set; } = Guid.Empty;
         public string DocumentNumber { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;
@@ -27,7 +29,7 @@ namespace SiecaAPI.DTO.Data
         public string? AdressPhoneNumber { get; set; } = string.Empty;
         public string? AdressObservations { get; set; } = string.Empty;
         public bool Enabled { get; set; } = false;
-        public string CreationUser { get; set; } = string.Empty;
-        public List<DtoBeneficiariesCreateReqFamilyMember> Family { get; set; } = new();
+        public string ModificationUser { get; set; } = string.Empty;
+        public List<DtoBeneficiariesUpdateReqFamilyMember> Family { get; set; } = new();
     }
 }

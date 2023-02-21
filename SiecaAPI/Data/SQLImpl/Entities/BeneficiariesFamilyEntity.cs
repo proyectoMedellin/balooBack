@@ -3,9 +3,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SiecaAPI.Data.SQLImpl.Entities
 {
-    [Table("BeneficiariesFamiliy")]
+    [Table("BeneficiariesFamily")]
     public class BeneficiariesFamilyEntity: GenericEntity
     {
+        [Required]
+        [ForeignKey("BeneficiaryId")]
+        public Guid BeneficiaryId { get; set; }
+        public virtual BeneficiariesEntity Beneficiary { get; set; } = new();
         [Required]
         [ForeignKey("DocumentTypeId")]
         public Guid DocumentTypeId { get; set; } = Guid.Empty;

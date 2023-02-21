@@ -258,14 +258,26 @@ namespace SiecaAPI.Data.SQLImpl
                     .ThenInclude(tc => tc.Organization)
                     .ToListAsync();
             }
-            foreach (DevelopmentRoomGroupByYearEntity dg in 
+            foreach (DevelopmentRoomGroupByYearEntity dg in
                 grpYears.Where(gy => gy.DevelopmentRoom.Enabled))
             {
+                DevelopmentRoomEntity roomInfo = await context.DevelopmentRooms
+                    .Where(r => r.Id.Equals(dg.DevelopmentRoomId))
+                    .Include(r => r.Campus)
+                    .ThenInclude(r => r.TrainingCenter)
+                    .FirstAsync();
+
                 DtoDevelopmentRoomGroupByYear groupInfo = new()
                 {
                     Id = dg.Id,
                     OrganizationId = dg.OrganizationId,
                     OrganizationName = dg.Organization.Name,
+                    TrainingCenterId = roomInfo.TrainingCenterId,
+                    TrainingCenterCode = roomInfo.TrainingCenter.Code,
+                    TrainingCenterName = roomInfo.TrainingCenter.Name,
+                    CampusId = roomInfo.CampusId,
+                    CampusCode = roomInfo.Campus.Code,
+                    CampusName = roomInfo.Campus.Name,
                     DevelopmentRoomId = dg.DevelopmentRoomId,
                     DevelopmentRoomCode = dg.DevelopmentRoom.Code,
                     DevelopmentRoomName = dg.DevelopmentRoom.Name,
