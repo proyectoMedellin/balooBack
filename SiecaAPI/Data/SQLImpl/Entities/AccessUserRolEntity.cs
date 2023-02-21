@@ -14,38 +14,45 @@ namespace SiecaAPI.Data.SQLImpl.Entities
         [Required]
         [ForeignKey("OrganizationId")]
         public Guid OrganizationId { get; set; } = Guid.Empty;
-        public virtual OrganizationEntity Organization { get; set; } = new OrganizationEntity();
+        //public virtual OrganizationEntity Organization { get; set; } = new OrganizationEntity();
 
         public string? AccessUserExternalId { get; set; } = string.Empty;
 
         [ForeignKey("AccessUserId")]
         public Guid? AccessUserId { get; set; } = Guid.Empty;
-        public virtual AccessUserEntity AccessUser { get; set; } = new AccessUserEntity();
+        //public virtual AccessUserEntity AccessUser { get; set; } = new AccessUserEntity();
 
         [Required]
         [ForeignKey("RolId")]
         public Guid RolId { get; set; } = Guid.Empty;
-        public virtual RolEntity Rol { get; set; } = new RolEntity();
-        public AccessUserRolEntity(Guid id, Guid organizationId, OrganizationEntity organization, string? accessUserExternalId, Guid? accessUserId, AccessUserEntity accessUser, Guid rolId, RolEntity rol)
+        //public virtual RolEntity Rol { get; set; } = new RolEntity();
+        //public AccessUserRolEntity(Guid id, Guid organizationId, OrganizationEntity organization, string? accessUserExternalId, Guid? accessUserId, AccessUserEntity accessUser, Guid rolId, RolEntity rol)
+        //{
+        //    Id = id;
+        //    OrganizationId = organizationId;
+        //    Organization = organization;
+        //    AccessUserExternalId = accessUserExternalId;
+        //    AccessUserId = accessUserId;
+        //    AccessUser = accessUser;
+        //    RolId = rolId;
+        //    Rol = rol;
+        //}
+        public AccessUserRolEntity( Guid organizationId, string? accessUserExternalId, Guid? accessUserId, Guid rolId)
         {
-            Id = id;
             OrganizationId = organizationId;
-            Organization = organization;
             AccessUserExternalId = accessUserExternalId;
             AccessUserId = accessUserId;
-            AccessUser = accessUser;
             RolId = rolId;
-            Rol = rol;
         }
+
         public AccessUserRolEntity()
         {
             OrganizationId = Guid.Empty;
-            Organization = new OrganizationEntity();
             AccessUserExternalId = String.Empty;
             AccessUserId = Guid.Empty;
-            AccessUser = new AccessUserEntity();
+            //AccessUser = new AccessUserEntity();
             RolId = Guid.Empty;
-            Rol = new RolEntity();
+           // Rol = new RolEntity();
         }
     }
 }

@@ -8,12 +8,12 @@ namespace SiecaAPI.Services
     {
         public static async Task<AccessUser> CreateAccessUserAsync(string userName, string email,
             string firstName, string? otherNames, string lastName, string? otherLastName,
-            bool requiredPaswordChange, string createdBy, string? phone, Guid documentTypeId, string documentNo)
+            bool requiredPaswordChange, string createdBy, string? phone, Guid documentTypeId, string documentNo, Guid trainingCenterId, List<Guid> campusId, List<Guid> rolsId)
         {
             Organization org = await OrganizationServices.GetActiveOrganization();
 
             DtoAccessUser user = new(userName, email, firstName, otherNames, lastName,
-                otherLastName, requiredPaswordChange, createdBy, phone, documentTypeId, documentNo);
+                otherLastName, requiredPaswordChange, createdBy, phone, documentTypeId, documentNo, trainingCenterId, campusId, rolsId);
             user.OrganizationId = org.Id;
             user = await DaoAccessUserFactory.GetDaoAccessUsers().CreateAsync(user);
 
@@ -31,11 +31,12 @@ namespace SiecaAPI.Services
         }
         public static async Task<bool> UpdateAccessUserAsync(string oldUserName, string userName, string email,
             string firstName, string? otherNames, string lastName, string? otherLastName,
-            bool requiredPaswordChange, string createdBy, string? phone, Guid documentTypeId, string documentNo)
+            bool requiredPaswordChange, string createdBy, string? phone, Guid documentTypeId, string documentNo, Guid trainingCenterId, List<Guid> campusId, 
+            List<Guid> rolsId)
         {
             Organization org = await OrganizationServices.GetActiveOrganization();
             DtoAccessUser user = new(userName, email, firstName, otherNames, lastName,
-                otherLastName, requiredPaswordChange, createdBy, phone, documentTypeId, documentNo);
+                otherLastName, requiredPaswordChange, createdBy, phone, documentTypeId, documentNo, trainingCenterId, campusId, rolsId);
             user.OrganizationId = org.Id;
             bool response = await DaoAccessUserFactory.GetDaoAccessUsers().UpdateAsync(user, oldUserName);
             if (!response) throw new InvalidOperationException("El usuario no fue creada exitosamente");

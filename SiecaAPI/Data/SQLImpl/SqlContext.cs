@@ -36,14 +36,18 @@ namespace SiecaAPI.Data.SQLImpl
         public DbSet<BeneficiariesParametersEntity> BeneficiariesParameters { get; set; }
         public DbSet<BeneficiariesEntity> Beneficiaries { get; set; }
         public DbSet<BeneficiariesFamilyEntity> BeneficiariesFamilies { get; set; }
+        public DbSet<CampusByAccessUserEntity> CampusByAccessUsers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<RolPermissionEntity>()
                 .HasKey(rp => new { rp.OrganizationId, rp.RolId, rp.PermissionId });
+            modelBuilder.Entity<CampusByAccessUserEntity>()
+                .HasKey(ca => new { ca.OrganizationId, ca.CampusId, ca.TrainingCenterId });
 
             modelBuilder.Entity<DevelopmentRoomGroupAgentEntity>()
                 .HasKey(drga => new { drga.DevelopmentRoomGroupByYearId, drga.AccessUserId });
         }
+        
     }
 }

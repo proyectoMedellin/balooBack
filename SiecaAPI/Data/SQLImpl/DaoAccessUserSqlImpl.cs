@@ -20,12 +20,14 @@ namespace SiecaAPI.Data.SQLImpl
 
                 OrganizationEntity org = await context.Organizations
                     .Where(o => o.Id == user.OrganizationId).FirstAsync();
+                TrainingCenterEntity tra = await context.TrainingCenters
+                    .Where(t => t.Id == user.TrainingCenterId).FirstAsync();
                 if (org != null)
                 {
                     AccessUserEntity accessUser = new(org, user.UserName, user.Email, 
                         user.FirstName, user.OtherNames, user.LastName, user.OtherLastName, 
                         user.RequirePaswordChange, true, user.CreatedBy, DateTime.Now, 
-                        null, null, user.Phone, user.DocumentTypeId, user.DocumentNo);
+                        null, null, user.Phone, user.DocumentTypeId, user.DocumentNo, tra);
 
                     await context.AccessUsers.AddAsync(accessUser);
      
@@ -34,13 +36,25 @@ namespace SiecaAPI.Data.SQLImpl
 
                     string tmpPassword = SecurityTools.GeneratePassword();
 
-                    AccessUserPasswordEntity password = new(user.Id.Value, tmpPassword, user.CreatedBy, 
+                    AccessUserPasswordEntity password = new(accessUser.Id, tmpPassword, accessUser.CreatedBy, 
                         DateTime.Now, null, null);
 
                     await context.AccessUsersPassword.AddAsync(password);
                     await context.SaveChangesAsync();
 
+                    foreach( Guid rols in user.RolsId)
+                    {
+                        AccessUserRolEntity rolUser = new(accessUser.OrganizationId, null, accessUser.Id, rols);
+                        await context.AccessUserRoles.AddAsync(rolUser);
+                    }
+                    foreach (Guid Campus in user.CampusId)
+                    {
+                        CampusByAccessUserEntity CampusUser = new(accessUser.OrganizationId, accessUser.TrainingCenterId, Campus, accessUser.Id);
+                        await context.CampusByAccessUsers.AddAsync(CampusUser);
+                    }
+                    await context.SaveChangesAsync();
                     transaction.Commit();
+
                     return user;
                 }
                 throw new NoDataFoundException("No organization found");
@@ -95,7 +109,7 @@ namespace SiecaAPI.Data.SQLImpl
             {
                 dtoAccessUser.Add(new DtoAccessUser(user.UserName, user.Email, user.FirstName, user.OtherNames,
                     user.LastName,user.OtherLastName,user.RequirePaswordChange,
-                    user.CreatedBy,user.Phone,user.DocumentTypeId,user.DocumentNo));
+                    user.CreatedBy,user.Phone,user.DocumentTypeId,user.DocumentNo, user.TrainingCenterId));
             }
             return dtoAccessUser;
         }
