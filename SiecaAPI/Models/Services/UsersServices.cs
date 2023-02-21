@@ -20,7 +20,7 @@ namespace SiecaAPI.Services
             if (!user.Id.HasValue) throw new InvalidOperationException("El usuario no fue creada exitosamente");
 
             return new AccessUser(user.Id.Value, user.OrganizationId, user.UserName, user.Email, user.FirstName,
-                user.OtherNames, user.LastName, user.OtherLastName, user.DocumentTypeId, user.DocumentNo);
+                user.OtherNames, user.LastName, user.OtherLastName, user.DocumentTypeId, user.DocumentNo, user.TrainingCenterId);
         }
 
         public static async Task<DtoAccessUser> GetUserInfo(string userName)
@@ -31,12 +31,12 @@ namespace SiecaAPI.Services
         }
         public static async Task<bool> UpdateAccessUserAsync(string oldUserName, string userName, string email,
             string firstName, string? otherNames, string lastName, string? otherLastName,
-            bool requiredPaswordChange, string createdBy, string? phone, Guid documentTypeId, string documentNo, Guid trainingCenterId, List<Guid> campusId, 
+            bool requiredPaswordChange, string? phone, Guid documentTypeId, string documentNo, Guid trainingCenterId, List<Guid> campusId, 
             List<Guid> rolsId)
         {
             Organization org = await OrganizationServices.GetActiveOrganization();
             DtoAccessUser user = new(userName, email, firstName, otherNames, lastName,
-                otherLastName, requiredPaswordChange, createdBy, phone, documentTypeId, documentNo, trainingCenterId, campusId, rolsId);
+                otherLastName, requiredPaswordChange, phone, documentTypeId, documentNo, trainingCenterId, campusId, rolsId);
             user.OrganizationId = org.Id;
             bool response = await DaoAccessUserFactory.GetDaoAccessUsers().UpdateAsync(user, oldUserName);
             if (!response) throw new InvalidOperationException("El usuario no fue creada exitosamente");
@@ -55,6 +55,12 @@ namespace SiecaAPI.Services
             List<DtoAccessUser> users = await DaoAccessUserFactory.
                 GetDaoAccessUsers().GetAllAsync();
             return users;
+        }
+        public static async Task<bool> DeletedById(Guid id)
+        {
+            bool user = await DaoAccessUserFactory.
+               GetDaoAccessUsers().DeleteByIdAsync(id);
+            return user;
         }
     }
 }

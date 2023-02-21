@@ -15,6 +15,7 @@
         public bool Enabled { get; set; } = true;
         public Guid DocumentTypeId { get; set; }
         public string DocumentNo { get; set; }
+        public Guid? TrainingCenterId { get; set; }
 
         public AccessUser(string userName, string email, string firstName, string lastName)
         {
@@ -23,7 +24,7 @@
             FirstName = firstName;
             LastName = lastName;
         }
-        public AccessUser(Guid id, Guid organizationId, string userName, string email, string firstName, string? otherNames, string lastName, string? otherLastName, Guid documentTypeId, string documentNo)
+        public AccessUser(Guid id, Guid organizationId, string userName, string email, string firstName, string? otherNames, string lastName, string? otherLastName, Guid documentTypeId, string documentNo, Guid? trainingCenterId)
         {
             Id = id;
             OrganizationId = organizationId;
@@ -35,6 +36,7 @@
             OtherLastName = otherLastName;
             DocumentTypeId = documentTypeId;
             DocumentNo = documentNo;
+            TrainingCenterId = trainingCenterId;
         }
     }
 }
