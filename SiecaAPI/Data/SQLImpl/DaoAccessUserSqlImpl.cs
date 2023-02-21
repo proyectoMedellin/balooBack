@@ -75,16 +75,17 @@ namespace SiecaAPI.Data.SQLImpl
 
         public async Task<bool> DeleteByIdAsync(Guid id)
         {
-            try
-            {
+
                 using SqlContext context = new SqlContext();
                 if (id != Guid.Empty)
                 {
                     AccessUserEntity accessUser = await context.AccessUsers.FindAsync(id);
                     if (accessUser != null)
                     {
+                        context.AccessUsersPassword.RemoveRange(context.AccessUsersPassword.Where(p => p.AccessUserId == accessUser.Id));
                         context.AccessUserRoles.RemoveRange(context.AccessUserRoles.Where(ur => ur.AccessUserId == accessUser.Id));
                         context.CampusByAccessUsers.RemoveRange(context.CampusByAccessUsers.Where(cu => cu.AccessUserId == accessUser.Id));
+                        await context.SaveChangesAsync();
                         context.AccessUsers.RemoveRange(context.AccessUsers.Where(au => au.Id == accessUser.Id));
                         await context.SaveChangesAsync();
                         return true;
@@ -98,12 +99,7 @@ namespace SiecaAPI.Data.SQLImpl
                 {
                     return false;
                 }
-            }
-            catch
-            {
-                return false;
-                throw;
-            }
+
         }
 
         public async Task<bool> ExistUserByUserNamePass(string userName, string pass)
