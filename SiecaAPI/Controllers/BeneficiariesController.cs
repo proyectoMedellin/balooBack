@@ -1,6 +1,7 @@
 ﻿using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.Extensions.Azure;
 using SiecaAPI.DTO;
 using SiecaAPI.DTO.Data;
@@ -25,7 +26,7 @@ namespace SiecaAPI.Controllers
         }
 
         [HttpPost("Create")]
-        public async Task<IActionResult> Create(DtoBeneficiaries request)
+        public async Task<IActionResult> Create(DtoBeneficiariesCreateReq request)
         {
             DtoRequestResult<DtoBeneficiaries> response = new()
             {
@@ -34,7 +35,49 @@ namespace SiecaAPI.Controllers
 
             try
             {
-                response.Registros.Add(await BeneficiariesServices.CreateAsync(request)); 
+                DtoBeneficiaries beneficiary = new()
+                {
+                    DocumentTypeId = request.DocumentTypeId,
+                    DocumentNumber = request.DocumentNumber,
+                    FirstName = request.FirstName,
+                    OtherNames = request.OtherNames ?? string.Empty,
+                    LastName = request.LastName,
+                    OtherLastName = request.OtherLastName ?? string.Empty,
+                    GenderId = request.GenderId,
+                    BirthDate = request.BirthDate,
+                    BirthCountryId = request.BirthCountryId,
+                    BirthDepartmentId = request.BirthDepartmentId,
+                    BirthCityId = request.BirthCityId,
+                    RhId = request.RhId,
+                    BloodTypeId = request.BloodTypeId,
+                    EmergencyPhoneNumber = request.EmergencyPhoneNumber,
+                    PhotoUrl = request.PhotoUrl ?? string.Empty,
+                    AdressZoneId = request.AdressZoneId,
+                    Adress = request.Adress ?? string.Empty,
+                    Neighborhood = request.Neighborhood ?? string.Empty,
+                    AdressPhoneNumber = request.AdressPhoneNumber ?? string.Empty,
+                    AdressObservations = request.AdressObservations ?? string.Empty,
+                    Enabled = request.Enabled,
+                    CreatedBy = request.CreationUser
+                };
+
+                foreach(DtoBeneficiariesCreateReqFamilyMember dcfm in request.Family)
+                {
+                    beneficiary.FamilyMembers.Add(new DtoBeneficiariesFamily() {
+                        DocumentTypeId = dcfm.DocumentTypeId,
+                        DocumentNumber = dcfm.DocumentNumber,
+                        FirstName = dcfm.FirstName,
+                        OtherNames = dcfm.OtherNames ?? string.Empty,
+                        LastName = dcfm.LastName,
+                        OtherLastName = dcfm.OtherLastName ?? string.Empty,
+                        FamilyRelationId = dcfm.FamilyRelation,
+                        Attendant = dcfm.Attendant,
+                        Enabled = dcfm.Enabled,
+                        CreatedBy = request.CreationUser
+                    });
+                }
+
+                response.Registros.Add(await BeneficiariesServices.CreateAsync(beneficiary)); 
                 return Ok(response);
             }
             catch (Exception ex)
@@ -119,7 +162,7 @@ namespace SiecaAPI.Controllers
                     response.MensajeRespuesta = "Id not found";
                     return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.BadRequest };
                 }
-                response.Registros.Add(await TrainingCenterServices.DeleteAsync(id));
+                response.Registros.Add(await BeneficiariesServices.DeleteAsync(id));
 
                 return Ok(response);
             }
@@ -195,7 +238,7 @@ namespace SiecaAPI.Controllers
         [HttpGet("GetById")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            DtoRequestResult<DtoTrainingCenter> response = new DtoRequestResult<DtoTrainingCenter>
+            DtoRequestResult<DtoBeneficiaries> response = new()
             {
                 CodigoRespuesta = HttpStatusCode.OK.ToString()
             };
@@ -209,12 +252,12 @@ namespace SiecaAPI.Controllers
                     return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.BadRequest };
                 }
 
-                response.Registros.Add(await TrainingCenterServices.GetByIdAsync(id));
+                response.Registros.Add(await BeneficiariesServices.GetById(id));
                 return Ok(response);
             }
             catch (Exception ex)
             {
-                _logger.LogError("BeneficiariesController: getAllById -> " + ex.Message);
+                _logger.LogError("BeneficiariesController: getById -> " + ex.Message);
                 response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
                 response.MensajeRespuesta = ex.Message;
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };

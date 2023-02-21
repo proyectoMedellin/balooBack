@@ -10,5 +10,6 @@
         public string OtherLastName { get; set; } = string.Empty;
         public Guid FamilyRelation { get; set; } = Guid.Empty;
         public bool Attendant { get; set; } = false;
+        public bool Enabled { get; set; } = false;
     }
 }
