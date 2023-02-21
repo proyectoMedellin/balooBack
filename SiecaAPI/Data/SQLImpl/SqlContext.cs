@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using SiecaAPI.Commons;
 using SiecaAPI.Data.SQLImpl.Entities;
 
@@ -27,6 +28,14 @@ namespace SiecaAPI.Data.SQLImpl
         public DbSet<TrainingCenterEntity> TrainingCenters { get; set; }
         public DbSet<CampusEntity> Campuses { get; set; }
         public DbSet<DevelopmentRoomEntity> DevelopmentRooms { get; set; }
+        public DbSet<DevelopmentRoomGroupByYearEntity> DevelopmentRoomGroupByYearEntities { get; set; }
+        public DbSet<DevelopmentRoomGroupAgentEntity> DevelopmentRoomGroupAgentEntities { get; set; }
+        public DbSet<CountryEntity> Countries { get; set; }
+        public DbSet<DepartmentEntity> Departments { get; set; } 
+        public DbSet<CityEntity> Cities { get; set; }
+        public DbSet<BeneficiariesParametersEntity> BeneficiariesParameters { get; set; }
+        public DbSet<BeneficiariesEntity> Beneficiaries { get; set; }
+        public DbSet<BeneficiariesFamilyEntity> BeneficiariesFamilies { get; set; }
         public DbSet<CampusByAccessUserEntity> CampusByAccessUsers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -35,6 +44,9 @@ namespace SiecaAPI.Data.SQLImpl
                 .HasKey(rp => new { rp.OrganizationId, rp.RolId, rp.PermissionId });
             modelBuilder.Entity<CampusByAccessUserEntity>()
                 .HasKey(ca => new { ca.OrganizationId, ca.CampusId, ca.TrainingCenterId });
+
+            modelBuilder.Entity<DevelopmentRoomGroupAgentEntity>()
+                .HasKey(drga => new { drga.DevelopmentRoomGroupByYearId, drga.AccessUserId });
         }
         
     }

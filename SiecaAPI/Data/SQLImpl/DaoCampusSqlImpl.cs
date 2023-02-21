@@ -123,6 +123,7 @@ namespace SiecaAPI.Data.SQLImpl
                     (string.IsNullOrEmpty(fName) || (!string.IsNullOrEmpty(fName) && tc.Name.Contains(fName.ToLower()))) &&
                     (!fEnabled.HasValue || (fEnabled.HasValue && tc.Enabled == fEnabled.Value))
                 )
+                .Include(tc => tc.TrainingCenter)
                 .Skip(skipData).Take(pageSize).ToListAsync();
 
             foreach (CampusEntity tc in campuses)
@@ -131,6 +132,9 @@ namespace SiecaAPI.Data.SQLImpl
                     Id = tc.Id,
                     OrganizationId = tc.OrganizationId,
                     OrganizationName = tc.Organization.Name,
+                    TrainingCenterId = tc.TrainingCenterId,
+                    TrainingCenterCode = tc.TrainingCenter.Code,
+                    TrainingCenterName = tc.TrainingCenter.Name,
                     Code = tc.Code,
                     Name = tc.Name,
                     IntegrationCode = !string.IsNullOrEmpty(tc.IntegrationCode) ? tc.IntegrationCode : String.Empty,

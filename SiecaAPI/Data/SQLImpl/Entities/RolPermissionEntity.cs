@@ -52,13 +52,6 @@ namespace SiecaAPI.Data.SQLImpl.Entities
         }
         public RolPermissionEntity()
         {
-            OrganizationId = Guid.Empty;
-            Organization = new OrganizationEntity();
-            RolId = Guid.Empty;
-            Rol = new RolEntity();
-            PermissionId = Guid.Empty;
-            Permission = new PermissionEntity();
-         
         }
     }
 }

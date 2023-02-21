@@ -2,6 +2,8 @@
 using SiecaAPI.DTO.Data;
 using SiecaAPI.Errors;
 using SiecaAPI.Services;
+using System;
+using System.Collections.Generic;
 
 namespace SiecaAPI.Models.Services
 {
@@ -65,6 +67,45 @@ namespace SiecaAPI.Models.Services
         public static async Task<bool> DeleteAsync(Guid id)
         {
             return await DaoDevelopmentRoomFactory.GetDaoDevelopment().DeleteByIdAsync(id);
+        }
+
+        public static async Task<List<DtoDevelopmentRoomGroupByYear>> GetGroupsByYear(Guid? DevRoomId, 
+            int? year, int? page, int? pageSize)
+        {
+            if (year.HasValue && DateTime.TryParse(string.Format("1/1/{0}", year.Value), out _))
+            {
+                return await DaoDevelopmentRoomFactory.GetDaoDevelopment().GetAllGroupsByYear(DevRoomId, year, page, pageSize);
+            }else if (!year.HasValue)
+            {
+                return await DaoDevelopmentRoomFactory.GetDaoDevelopment().GetAllGroupsByYear(DevRoomId, null, page, pageSize);
+            }
+            else
+            {
+                throw new MissingArgumentsException("Assignment cant be done with the current params");
+            }
+        }
+
+        public static async Task<bool> AssignAgentsByYear(Guid DevRoomId, int year, string groupCode,
+            string groupName, List<Guid> agentsIds, string assignmentUser)
+        {
+            if (DateTime.TryParse(string.Format("1/1/{0}", year), out _) 
+                && !string.IsNullOrEmpty(groupCode) && !string.IsNullOrWhiteSpace(groupCode)
+                && !string.IsNullOrEmpty(groupName) && !string.IsNullOrWhiteSpace(groupName)
+                && agentsIds != null && agentsIds.Count > 0)
+            {
+                Organization org = await OrganizationServices.GetActiveOrganization();
+                return await DaoDevelopmentRoomFactory.GetDaoDevelopment().AssignAgentsByYear(org.Id, DevRoomId, 
+                    year, groupCode,groupName, agentsIds, assignmentUser);
+            }
+            else
+            {
+                throw new MissingArgumentsException("Assignment cant be done with the current params");
+            }
+        }
+
+        public static async Task<bool> DeleteGroupAssignment(Guid groupAssignmentId)
+        {
+            return await DaoDevelopmentRoomFactory.GetDaoDevelopment().DeleteGroupAssignment(groupAssignmentId);
         }
     }
 }
