@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using SiecaAPI.Commons;
 using SiecaAPI.Data.SQLImpl.Entities;
 
@@ -29,6 +30,12 @@ namespace SiecaAPI.Data.SQLImpl
         public DbSet<DevelopmentRoomEntity> DevelopmentRooms { get; set; }
         public DbSet<DevelopmentRoomGroupByYearEntity> DevelopmentRoomGroupByYearEntities { get; set; }
         public DbSet<DevelopmentRoomGroupAgentEntity> DevelopmentRoomGroupAgentEntities { get; set; }
+        public DbSet<CountryEntity> Countries { get; set; }
+        public DbSet<DepartmentEntity> Departments { get; set; } 
+        public DbSet<CityEntity> Cities { get; set; }
+        public DbSet<BeneficiariesParametersEntity> BeneficiariesParameters { get; set; }
+        public DbSet<BeneficiariesEntity> Beneficiaries { get; set; }
+        public DbSet<BeneficiariesFamilyEntity> BeneficiariesFamilies { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -15,65 +15,31 @@ namespace SiecaAPI.Controllers
     [ApiController]
     [Route("[controller]")]
     //[Authorize]
-    public class CampusController : ControllerBase
+    public class BeneficiariesController : ControllerBase
     {
-        private readonly ILogger<CampusController> _logger;
+        private readonly ILogger<BeneficiariesController> _logger;
 
-        public CampusController(ILogger<CampusController> logger)
+        public BeneficiariesController(ILogger<BeneficiariesController> logger)
         {
             _logger = logger;
         }
 
         [HttpPost("Create")]
-        public async Task<IActionResult> Create(DtoCampusCreateReq request)
+        public async Task<IActionResult> Create(DtoBeneficiaries request)
         {
-            DtoRequestResult<DtoCampusCreateResp> response = new()
+            DtoRequestResult<DtoBeneficiaries> response = new()
             {
                 CodigoRespuesta = HttpStatusCode.OK.ToString()
             };
 
             try
             {
-                if (string.IsNullOrEmpty(request.Code) || string.IsNullOrEmpty(request.Name))
-                {
-                    response.CodigoRespuesta = HttpStatusCode.BadRequest.ToString();
-                    response.MensajeRespuesta = "Params not found";
-                    return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.BadRequest };
-                }
-                DtoCampus newCampus = new()
-                {
-                    TrainingCenterId = request.TrainingCenterId,
-                    Code = request.Code,
-                    Name = request.Name,
-                    IntegrationCode = request.IntegrationCode,
-                    Enabled = request.Enabled,
-                    CreatedBy = request.CreatedBy
-                };
-                newCampus = await CampusesServices.CreateAsync(newCampus);
-                if (newCampus.Id != Guid.Empty)
-                {
-                    response.Registros.Add(new DtoCampusCreateResp() { 
-                        Id = newCampus.Id,
-                        OrganizationId = newCampus.OrganizationId,
-                        TrainingCenterId=newCampus.TrainingCenterId,
-                        Name = newCampus.Name,  
-                        Code = newCampus.Code,
-                        IntegrationCode = newCampus.IntegrationCode,
-                        Enabled = newCampus.Enabled
-                    });
-                }
-                else
-                {
-                    response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
-                    response.MensajeRespuesta = "The new campus was not created";
-                    return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
-                }
-
+                response.Registros.Add(await BeneficiariesServices.CreateAsync(request)); 
                 return Ok(response);
             }
             catch (Exception ex)
             {
-                _logger.LogError("CampusController: Create -> " + ex.Message);
+                _logger.LogError("BeneficiariesController: Create -> " + ex.Message);
                 response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
                 response.MensajeRespuesta = ex.Message;
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
@@ -81,9 +47,9 @@ namespace SiecaAPI.Controllers
         }
 
         [HttpPost("Update")]
-        public async Task<IActionResult> Update(DtoCampusUpdateReq request)
+        public async Task<IActionResult> Update(DtoTrainingCenterUpdateReq request)
         {
-            DtoRequestResult<DtoCampusCreateResp> response = new()
+            DtoRequestResult<DtoTrainingCenterCreateResp> response = new DtoRequestResult<DtoTrainingCenterCreateResp>
             {
                 CodigoRespuesta = HttpStatusCode.OK.ToString()
             };
@@ -97,34 +63,32 @@ namespace SiecaAPI.Controllers
                     response.MensajeRespuesta = "Params not found";
                     return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.BadRequest };
                 }
-                DtoCampus campus = new()
+                DtoTrainingCenter center = new()
                 {
                     Id = request.Id,
-                    TrainingCenterId = request.TrainingCenterId,
                     Code = request.Code,
                     Name = request.Name,
                     IntegrationCode = request.IntegrationCode,
                     Enabled = request.Enabled,
                     ModifiedBy = request.ModifiedBy,
                 };
-                campus = await CampusesServices.UpdateAsync(campus);
-                if (campus.Id != Guid.Empty)
+                center = await TrainingCenterServices.UpdateAsync(center);
+                if (center.Id != Guid.Empty)
                 {
-                    response.Registros.Add(new DtoCampusCreateResp()
+                    response.Registros.Add(new DtoTrainingCenterCreateResp()
                     {
-                        Id = campus.Id,
-                        OrganizationId = campus.OrganizationId,
-                        TrainingCenterId = campus.TrainingCenterId,
-                        Name = campus.Name,
-                        Code = campus.Code,
-                        IntegrationCode = campus.IntegrationCode,
-                        Enabled = campus.Enabled
+                        Id = center.Id,
+                        OrganizationId = center.OrganizationId,
+                        Name = center.Name,
+                        Code = center.Code,
+                        IntegrationCode = center.IntegrationCode,
+                        Enabled = center.Enabled
                     });
                 }
                 else
                 {
                     response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
-                    response.MensajeRespuesta = "The campus was not updated";
+                    response.MensajeRespuesta = "The new center was not updated";
                     return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
                 }
 
@@ -132,7 +96,7 @@ namespace SiecaAPI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError("CampusController: Update -> " + ex.Message);
+                _logger.LogError("BeneficiariesController: Update -> " + ex.Message);
                 response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
                 response.MensajeRespuesta = ex.Message;
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
@@ -142,7 +106,7 @@ namespace SiecaAPI.Controllers
         [HttpGet("Delete")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            DtoRequestResult<bool> response = new()
+            DtoRequestResult<bool> response = new DtoRequestResult<bool>
             {
                 CodigoRespuesta = HttpStatusCode.OK.ToString()
             };
@@ -155,13 +119,13 @@ namespace SiecaAPI.Controllers
                     response.MensajeRespuesta = "Id not found";
                     return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.BadRequest };
                 }
-                response.Registros.Add(await CampusesServices.DeleteAsync(id));
+                response.Registros.Add(await TrainingCenterServices.DeleteAsync(id));
 
                 return Ok(response);
             }
             catch (Exception ex)
             {
-                _logger.LogError("CampusController: Delete -> " + ex.Message);
+                _logger.LogError("BeneficiariesController: Delete -> " + ex.Message);
                 response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
                 response.MensajeRespuesta = ex.Message;
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
@@ -169,10 +133,10 @@ namespace SiecaAPI.Controllers
         }
 
         [HttpGet("ViewGrid")]
-        public async Task<IActionResult> ViewGrid(int page, int pageSize, Guid? trainingCenterId, string? fCode,
+        public async Task<IActionResult> ViewGrid(int page, int pageSize, string? fCode,
             string? fName, bool? fEnabled)
         {
-            DtoRequestResult<DtoCampusViewGridResp> response = new()
+            DtoRequestResult<DtoTrainingCenterViewGridResp> response = new DtoRequestResult<DtoTrainingCenterViewGridResp>
             {
                 CodigoRespuesta = HttpStatusCode.OK.ToString()
             };
@@ -182,16 +146,13 @@ namespace SiecaAPI.Controllers
                 string filterCode = !string.IsNullOrEmpty(fCode) && fCode != "null" ? fCode : string.Empty;
                 string filterName = !string.IsNullOrEmpty(fName) && fName != "null" ? fName : string.Empty; 
 
-                List<DtoCampus> tCenters = await CampusesServices
-                    .GetAllAsync(page, pageSize, trainingCenterId, filterCode, filterName, fEnabled);
+                List<DtoTrainingCenter> tCenters = await TrainingCenterServices
+                    .GetAllAsync(page, pageSize, filterCode, filterName, fEnabled);
 
-                foreach (DtoCampus dto in tCenters)
+                foreach (DtoTrainingCenter dto in tCenters)
                 {
-                    response.Registros.Add(new DtoCampusViewGridResp() { 
+                    response.Registros.Add(new DtoTrainingCenterViewGridResp() { 
                         Id = dto.Id,
-                        TrainingCenterId = dto.TrainingCenterId,
-                        TrainingCenterCode = dto.TrainingCenterCode,
-                        TrainingCenterName = dto.TrainingCenterName,
                         Code = dto.Code,    
                         Name = dto.Name,
                         Enabled = dto.Enabled
@@ -202,29 +163,29 @@ namespace SiecaAPI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError("TrainingCenterController: getAll -> " + ex.Message);
+                _logger.LogError("BeneficiariesController: getAll -> " + ex.Message);
                 response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
                 response.MensajeRespuesta = ex.Message;
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
             }
         }
 
-        [HttpGet("GetEnableCampusesByTrainingCenter")]
-        public async Task<IActionResult> GetEnableCampusesByTrainingCenter(Guid trainingCenterId)
+        [HttpGet("GetEnabledBeneficiaries")]
+        public async Task<IActionResult> GetEnabledBeneficiaries()
         {
-            DtoRequestResult<DtoCampus> response = new()
+            DtoRequestResult<DtoTrainingCenter> response = new()
             {
                 CodigoRespuesta = HttpStatusCode.OK.ToString()
             };
 
             try
             {
-                response.Registros = await CampusesServices.GetEnableCampusesByTrainingCenter(trainingCenterId);
+                response.Registros = await TrainingCenterServices.GetEnabledTrainigCenterList();
                 return Ok(response);
             }
             catch (Exception ex)
             {
-                _logger.LogError("TrainingCenterController: getAll -> " + ex.Message);
+                _logger.LogError("BeneficiariesController: getAll -> " + ex.Message);
                 response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
                 response.MensajeRespuesta = ex.Message;
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
@@ -234,7 +195,7 @@ namespace SiecaAPI.Controllers
         [HttpGet("GetById")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            DtoRequestResult<DtoCampus> response = new DtoRequestResult<DtoCampus>
+            DtoRequestResult<DtoTrainingCenter> response = new DtoRequestResult<DtoTrainingCenter>
             {
                 CodigoRespuesta = HttpStatusCode.OK.ToString()
             };
@@ -248,12 +209,41 @@ namespace SiecaAPI.Controllers
                     return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.BadRequest };
                 }
 
-                response.Registros.Add(await CampusesServices.GetByIdAsync(id));
+                response.Registros.Add(await TrainingCenterServices.GetByIdAsync(id));
                 return Ok(response);
             }
             catch (Exception ex)
             {
-                _logger.LogError("CampusController: getAllById -> " + ex.Message);
+                _logger.LogError("BeneficiariesController: getAllById -> " + ex.Message);
+                response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
+                response.MensajeRespuesta = ex.Message;
+                return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
+            }
+        }
+
+        [HttpGet("GetParmaDataByType")]
+        public async Task<IActionResult> GetParmaDataByType(string type)
+        {
+            DtoRequestResult<DtoBeneficiariesParameters> response = new()
+            {
+                CodigoRespuesta = HttpStatusCode.OK.ToString()
+            };
+
+            try
+            {
+                if (string.IsNullOrEmpty(type) || string.IsNullOrWhiteSpace(type))
+                {
+                    response.CodigoRespuesta = HttpStatusCode.BadRequest.ToString();
+                    response.MensajeRespuesta = "Param type not found";
+                    return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.BadRequest };
+                }
+
+                response.Registros = await BeneficiariesServices.GetBeneficiaryParameterInfoByType(type);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("BeneficiariesController: GetParmaDataByType -> " + ex.Message);
                 response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
                 response.MensajeRespuesta = ex.Message;
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
