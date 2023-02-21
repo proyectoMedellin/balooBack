@@ -40,7 +40,7 @@ namespace SiecaAPI.Controllers
                     MailServices.SendEmail(request.Body, request.Subject, user.Email);
                     response.Registros.Add(new DtoAccessUserResp(user.Id.Value, user.OrganizationId,
                         user.UserName, user.Email, user.FirstName, user.OtherNames, user.LastName,
-                        user.OtherLastName, user.DocumentTypeId, user.DocumentNo));
+                        user.OtherLastName, user.DocumentTypeId, user.DocumentNo, user.TrainingCenterId));
 
                 }
                 else

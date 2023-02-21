@@ -41,7 +41,7 @@ namespace SiecaAPI.Controllers
                         request.TrainingCenterId, request.CampusId, request.RolsId);
                     response.Registros.Add(new DtoAccessUserResp(user.Id, user.OrganizationId, user.UserName,
                         user.Email, user.FirstName, user.OtherLastName,
-                        user.LastName, user.OtherLastName, user.DocumentTypeId, user.DocumentNo));
+                        user.LastName, user.OtherLastName, user.DocumentTypeId, user.DocumentNo, user.TrainingCenterId));
                 }
                 else
                 {
@@ -77,7 +77,7 @@ namespace SiecaAPI.Controllers
 
                     response.Registros.Add(new DtoAccessUserResp(user.Id.Value, user.OrganizationId, 
                         user.UserName, user.Email, user.FirstName, user.OtherNames, user.LastName,
-                        user.OtherLastName, user.DocumentTypeId, user.DocumentNo));
+                        user.OtherLastName, user.DocumentTypeId, user.DocumentNo, user.TrainingCenterId, user.CampusId, user.RolsId));
                 }
                 else
                 {
@@ -105,18 +105,18 @@ namespace SiecaAPI.Controllers
 
             try
             {
-                if (!string.IsNullOrEmpty(request.UserName) && !string.IsNullOrEmpty(request.Email) && !string.IsNullOrEmpty(request.CreatedBy)
+                if (!string.IsNullOrEmpty(request.UserName) && !string.IsNullOrEmpty(request.Email) 
                     && !string.IsNullOrEmpty(request.FirstName) && !string.IsNullOrEmpty(request.LastName))
                 {
                     var user = await UsersServices.GetUserInfo(request.oldUserName);
                     if (user.Id == Guid.Empty) throw new NoDataFoundException("No exite el usuario");
                     
                     bool userResponse = await UsersServices.UpdateAccessUserAsync(request.oldUserName,request.UserName, request.Email, request.FirstName, request.OtherNames,
-                        request.LastName, request.OtherLastName, true, request.CreatedBy, request.Phone, request.DocumentTypeId.Value, request.DocumentNo,
+                        request.LastName, request.OtherLastName, true, request.Phone, request.DocumentTypeId.Value, request.DocumentNo,
                         request.TrainingCenterId, request.CampusId, request.RolsId);
                     response.Registros.Add(new DtoAccessUserResp(user.Id.Value, user.OrganizationId,
                         request.UserName, request.Email, request.FirstName, request.OtherNames,
-                        request.LastName, request.OtherLastName, request.DocumentTypeId.Value, request.DocumentNo));
+                        request.LastName, request.OtherLastName, request.DocumentTypeId.Value, request.DocumentNo, request.TrainingCenterId));
                 }
                 else
                 {
@@ -165,6 +165,38 @@ namespace SiecaAPI.Controllers
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
             }
 
+        }
+        [HttpGet("DeletedUser")]
+        public async Task<IActionResult> DeletedUser(string userName)
+        {
+            DtoRequestResult<bool> response = new DtoRequestResult<bool>
+            {
+                CodigoRespuesta = HttpStatusCode.OK.ToString()
+            };
+
+            try
+            {
+                if (!string.IsNullOrEmpty(userName))
+                {
+                    var user = await UsersServices.GetUserInfo(userName);
+                    if (user.Id == Guid.Empty) throw new NoDataFoundException("No exite el usuario");
+                    bool deleted = await UsersServices.DeletedById(user.Id.Value);
+                    response.Registros.Add(deleted);
+                }
+                else
+                {
+                    throw new MissingArgumentsException("el parametro userName no puede ser vacio");
+                }
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Deleted: Deleted -> " + ex.Message);
+                response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
+                response.MensajeRespuesta = ex.Message;
+                return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
+            }
         }
     }
 }

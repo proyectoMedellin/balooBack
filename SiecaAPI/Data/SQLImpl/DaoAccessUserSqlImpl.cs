@@ -66,6 +66,8 @@ namespace SiecaAPI.Data.SQLImpl
             }
         }
 
+      
+
         public async Task<bool> DeleteAsync(DtoAccessUser org)
         {
             throw new NotImplementedException();
@@ -73,7 +75,31 @@ namespace SiecaAPI.Data.SQLImpl
 
         public async Task<bool> DeleteByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+
+                using SqlContext context = new SqlContext();
+                if (id != Guid.Empty)
+                {
+                    AccessUserEntity accessUser = await context.AccessUsers.FindAsync(id);
+                    if (accessUser != null)
+                    {
+                        context.AccessUsersPassword.RemoveRange(context.AccessUsersPassword.Where(p => p.AccessUserId == accessUser.Id));
+                        context.AccessUserRoles.RemoveRange(context.AccessUserRoles.Where(ur => ur.AccessUserId == accessUser.Id));
+                        context.CampusByAccessUsers.RemoveRange(context.CampusByAccessUsers.Where(cu => cu.AccessUserId == accessUser.Id));
+                        await context.SaveChangesAsync();
+                        context.AccessUsers.RemoveRange(context.AccessUsers.Where(au => au.Id == accessUser.Id));
+                        await context.SaveChangesAsync();
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+
         }
 
         public async Task<bool> ExistUserByUserNamePass(string userName, string pass)
@@ -127,10 +153,21 @@ namespace SiecaAPI.Data.SQLImpl
             using SqlContext context = new SqlContext();
             AccessUserEntity user = await context.AccessUsers
                 .Where(u => u.UserName == name).FirstAsync();
-
+            List<CampusByAccessUserEntity> campus = await context.CampusByAccessUsers.Where(camp => camp.AccessUserId == user.Id).ToListAsync();
+            List<Guid> CampusId = new();
+            foreach(var camp in campus)
+            {
+                CampusId.Add(camp.CampusId);
+            }
+            List<AccessUserRolEntity> rols = await context.AccessUserRoles.Where(rol=> rol.AccessUserId == user.Id).ToListAsync();
+            List<Guid> RolsId= new();
+            foreach (var rol in rols)
+            {
+                RolsId.Add(rol.RolId);
+            }
             return new DtoAccessUser(user.Id, user.UserName, user.Email, user.FirstName, user.OtherNames,
                 user.LastName, user.OtherLastName, user.RequirePaswordChange, user.CreatedBy,
-                user.Phone, user.DocumentTypeId, user.DocumentNo);
+                user.Phone, user.DocumentTypeId, user.DocumentNo, user.TrainingCenterId, CampusId, RolsId);
         }
 
         public async Task<List<DtoUserRol>> GetRolesByUser(string userName)
@@ -176,8 +213,11 @@ namespace SiecaAPI.Data.SQLImpl
                 {
                     DtoAccessUser UserOld = await GetByUserNameAsync(oldUserName);
                     AccessUserEntity accessUser = await context.AccessUsers.FindAsync(UserOld.Id);
+
                     if (accessUser != null)
                     {
+                        context.AccessUserRoles.RemoveRange(context.AccessUserRoles.Where(ur => ur.AccessUserId == accessUser.Id));
+                        context.CampusByAccessUsers.RemoveRange(context.CampusByAccessUsers.Where(cu => cu.AccessUserId == accessUser.Id));
                         accessUser.OrganizationId = user.OrganizationId;
                         accessUser.UserName = user.UserName;
                         accessUser.Email = user.Email;
@@ -189,6 +229,18 @@ namespace SiecaAPI.Data.SQLImpl
                         accessUser.Phone = user.Phone;
                         accessUser.DocumentTypeId= user.DocumentTypeId;
                         accessUser.DocumentNo = user.DocumentNo;
+                        accessUser.TrainingCenterId = user.TrainingCenterId;
+                        context.Update(accessUser);
+                        foreach (Guid rols in user.RolsId)
+                        {
+                            AccessUserRolEntity rolUser = new(accessUser.OrganizationId, null, accessUser.Id, rols);
+                            await context.AccessUserRoles.AddAsync(rolUser);
+                        }
+                        foreach (Guid Campus in user.CampusId)
+                        {
+                            CampusByAccessUserEntity CampusUser = new(accessUser.OrganizationId, accessUser.TrainingCenterId, Campus, accessUser.Id);
+                            await context.CampusByAccessUsers.AddAsync(CampusUser);
+                        }
                         await context.SaveChangesAsync();
                     }
                     return true;
