@@ -77,7 +77,7 @@ namespace SiecaAPI.Controllers
 
                     response.Registros.Add(new DtoAccessUserResp(user.Id.Value, user.OrganizationId, 
                         user.UserName, user.Email, user.FirstName, user.OtherNames, user.LastName,
-                        user.OtherLastName, user.DocumentTypeId, user.DocumentNo, user.TrainingCenterId, user.CampusId, user.RolsId));
+                        user.OtherLastName, user.DocumentTypeId, user.DocumentNo, user.TrainingCenterId, user.CampusId, user.RolsId, user.Phone));
                 }
                 else
                 {

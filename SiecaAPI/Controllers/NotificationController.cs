@@ -11,6 +11,7 @@ using System.Net;
 
 namespace SiecaAPI.Controllers
 {
+
     [ApiController]
     [Route("[controller]")]
 
@@ -23,7 +24,7 @@ namespace SiecaAPI.Controllers
             _logger = logger;
         }
 
-        [HttpPost(Name = "RecoverPassword")]
+        [HttpPost("RecoverPassword")]
         public async Task<IActionResult> RecoverPassword(DtoNotification request)
         {
             DtoRequestResult<DtoAccessUserResp> response = new DtoRequestResult<DtoAccessUserResp>
@@ -62,3 +63,4 @@ namespace SiecaAPI.Controllers
         }
     }
 }
+

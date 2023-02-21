@@ -15,6 +15,7 @@ namespace SiecaAPI.DTO.Response
         public string? CreatedBy { get; set; }
         public Guid? DocumentTypeId { get; set; }
         public string? DocumentNo { get; set; }
+        public string? Phone { get; set; }
         public Guid? TrainingCenterId { get; set; }
         public List<Guid> CampusId { get; set; }
         public List<Guid> RolsId { get; set; }
@@ -34,7 +35,7 @@ namespace SiecaAPI.DTO.Response
             TrainingCenterId = trainingCenterId;
         }
         public DtoAccessUserResp(Guid? id, Guid? organizationId, string userName, string email, string firstName, string? otherNames, string lastName, string? otherLastName, Guid documentTypeId, string documentNo, Guid? trainingCenterId,
-            List<Guid> campusId, List<Guid> rolsid)
+            List<Guid> campusId, List<Guid> rolsid, string phone)
         {
             Id = id;
             OrganizationId = organizationId;
@@ -49,6 +50,7 @@ namespace SiecaAPI.DTO.Response
             TrainingCenterId = trainingCenterId;
             CampusId = campusId;
             RolsId = rolsid;
+            Phone = phone;
         }
         public DtoAccessUserResp(Guid? organizationId, string userName, string email, string firstName, string? otherNames, string lastName, string? otherLastName, Guid documentTypeId, string documentNo)
         {
