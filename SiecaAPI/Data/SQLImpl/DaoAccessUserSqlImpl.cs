@@ -36,7 +36,7 @@ namespace SiecaAPI.Data.SQLImpl
 
                     string tmpPassword = SecurityTools.GeneratePassword();
 
-                    AccessUserPasswordEntity password = new(user.Id.Value, tmpPassword, user.CreatedBy, 
+                    AccessUserPasswordEntity password = new(accessUser.Id, tmpPassword, accessUser.CreatedBy, 
                         DateTime.Now, null, null);
 
                     await context.AccessUsersPassword.AddAsync(password);
@@ -44,12 +44,12 @@ namespace SiecaAPI.Data.SQLImpl
 
                     foreach( Guid rols in user.RolsId)
                     {
-                        AccessUserRolEntity rolUser = new(org, null, user.Id, rols);
+                        AccessUserRolEntity rolUser = new(accessUser.OrganizationId, null, accessUser.Id, rols);
                         await context.AccessUserRoles.AddAsync(rolUser);
                     }
                     foreach (Guid Campus in user.CampusId)
                     {
-                        CampusByAccessUserEntity CampusUser = new(org.Id, user.TrainingCenterId, Campus, user.Id);
+                        CampusByAccessUserEntity CampusUser = new(accessUser.OrganizationId, accessUser.TrainingCenterId, Campus, accessUser.Id);
                         await context.CampusByAccessUsers.AddAsync(CampusUser);
                     }
                     await context.SaveChangesAsync();
