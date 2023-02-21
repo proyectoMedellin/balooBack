@@ -243,8 +243,6 @@ namespace SiecaAPI.Data.SQLImpl
                         ((DevRoomId.HasValue && gy.DevelopmentRoomId.Equals(DevRoomId.Value)) || !DevRoomId.HasValue) &&
                         ((year.HasValue && gy.Year.Equals(year.Value)) || !year.HasValue))
                     .Include(tc => tc.DevelopmentRoom)
-                    .ThenInclude(tc => tc.Campus)
-                    .ThenInclude(tc => tc.TrainingCenter)
                     .ThenInclude(tc => tc.Organization)
                     .Skip(skipData).Take(pageSize.Value)
                     .ToListAsync();
@@ -257,25 +255,29 @@ namespace SiecaAPI.Data.SQLImpl
                         ((DevRoomId.HasValue && gy.DevelopmentRoomId.Equals(DevRoomId.Value)) || !DevRoomId.HasValue) &&
                         ((year.HasValue && gy.Year.Equals(year.Value)) || !year.HasValue))
                     .Include(tc => tc.DevelopmentRoom)
-                    .ThenInclude(tc => tc.Campus)
-                    .ThenInclude(tc => tc.TrainingCenter)
                     .ThenInclude(tc => tc.Organization)
                     .ToListAsync();
             }
-            foreach (DevelopmentRoomGroupByYearEntity dg in 
+            foreach (DevelopmentRoomGroupByYearEntity dg in
                 grpYears.Where(gy => gy.DevelopmentRoom.Enabled))
             {
+                DevelopmentRoomEntity roomInfo = await context.DevelopmentRooms
+                    .Where(r => r.Id.Equals(dg.DevelopmentRoomId))
+                    .Include(r => r.Campus)
+                    .ThenInclude(r => r.TrainingCenter)
+                    .FirstAsync();
+
                 DtoDevelopmentRoomGroupByYear groupInfo = new()
                 {
                     Id = dg.Id,
                     OrganizationId = dg.OrganizationId,
                     OrganizationName = dg.Organization.Name,
-                    TrainingCenterId = dg.TrainingCenterId,
-                    TrainingCenterCode = dg.TrainingCenter.Code,
-                    TrainingCenterName = dg.TrainingCenter.Name,
-                    CampusId = dg.CampusId,
-                    CampusCode = dg.Campus.Code,
-                    CampusName = dg.Campus.Name,
+                    TrainingCenterId = roomInfo.TrainingCenterId,
+                    TrainingCenterCode = roomInfo.TrainingCenter.Code,
+                    TrainingCenterName = roomInfo.TrainingCenter.Name,
+                    CampusId = roomInfo.CampusId,
+                    CampusCode = roomInfo.Campus.Code,
+                    CampusName = roomInfo.Campus.Name,
                     DevelopmentRoomId = dg.DevelopmentRoomId,
                     DevelopmentRoomCode = dg.DevelopmentRoom.Code,
                     DevelopmentRoomName = dg.DevelopmentRoom.Name,
