@@ -11,5 +11,9 @@ namespace SiecaAPI.Data.Interfaces
             string? fCode, string? fName, bool? fEnabled);
         public Task<List<DtoDevelopmentRoom>> GetActiveByCampusAsync(Guid campusId);
         public Task<DtoDevelopmentRoom> GetByIdAsync(Guid id);
+        public Task<List<DtoDevelopmentRoomGroupByYear>> GetAllGroupsByYear(Guid? DevRoomId, int? year, int? page, int? pageSize);
+        public Task<bool> AssignAgentsByYear(Guid OrganizationId, Guid DevRoomId, int year, string groupCode,
+            string groupName, List<Guid> agentsIds, string createdBy);
+        public Task<bool> DeleteGroupAssignment(Guid groupAssignmetId);
     }
 }

@@ -27,11 +27,16 @@ namespace SiecaAPI.Data.SQLImpl
         public DbSet<TrainingCenterEntity> TrainingCenters { get; set; }
         public DbSet<CampusEntity> Campuses { get; set; }
         public DbSet<DevelopmentRoomEntity> DevelopmentRooms { get; set; }
+        public DbSet<DevelopmentRoomGroupByYearEntity> DevelopmentRoomGroupByYearEntities { get; set; }
+        public DbSet<DevelopmentRoomGroupAgentEntity> DevelopmentRoomGroupAgentEntities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<RolPermissionEntity>()
                 .HasKey(rp => new { rp.OrganizationId, rp.RolId, rp.PermissionId });
+
+            modelBuilder.Entity<DevelopmentRoomGroupAgentEntity>()
+                .HasKey(drga => new { drga.DevelopmentRoomGroupByYearId, drga.AccessUserId });
         }
     }
 }

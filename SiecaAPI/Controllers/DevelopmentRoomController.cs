@@ -14,12 +14,12 @@ namespace SiecaAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
-    public class DeveleopmentRoomController : ControllerBase
+    //[Authorize]
+    public class DevelopmentRoomController : ControllerBase
     {
-        private readonly ILogger<DeveleopmentRoomController> _logger;
+        private readonly ILogger<DevelopmentRoomController> _logger;
 
-        public DeveleopmentRoomController(ILogger<DeveleopmentRoomController> logger)
+        public DevelopmentRoomController(ILogger<DevelopmentRoomController> logger)
         {
             _logger = logger;
         }
@@ -264,6 +264,75 @@ namespace SiecaAPI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError("DevelopmentRoomController: getById -> " + ex.Message);
+                response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
+                response.MensajeRespuesta = ex.Message;
+                return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
+            }
+        }
+
+        [HttpGet("GetGroupsByYear")]
+        public async Task<IActionResult> GetGroupsByYear(Guid? DevRoomId, int? year, int? page, int? pageSize)
+        {
+            DtoRequestResult<DtoDevelopmentRoomGroupByYear> response = new()
+            {
+                CodigoRespuesta = HttpStatusCode.OK.ToString()
+            };
+
+            try
+            {
+                response.Registros = await DevelopmentRoomsServices.GetGroupsByYear(DevRoomId, year, page, pageSize);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("DevelopmentRoomController: AssignAgentesByYearToDevRoom -> " + ex.Message);
+                response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
+                response.MensajeRespuesta = ex.Message;
+                return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
+            }
+        }
+
+        [HttpPost("AssignAgentesByYearToDevRoom")]
+        public async Task<IActionResult> GroupAssignmentByYearToDevRoom(DtoDevRoomGroupYearCreateReq assignment)
+        {
+            DtoRequestResult<bool> response = new()
+            {
+                CodigoRespuesta = HttpStatusCode.OK.ToString()
+            };
+
+            try
+            {
+                response.Registros.Add(await DevelopmentRoomsServices.AssignAgentsByYear(
+                    assignment.DevelopmentRoomId, assignment.Year, assignment.GroupCode, assignment.GroupName,
+                    assignment.UsersIds, assignment.AssignmentUser));
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("DevelopmentRoomController: AssignAgentesByYearToDevRoom -> " + ex.Message);
+                response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
+                response.MensajeRespuesta = ex.Message;
+                return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
+            }
+        }
+
+        [HttpGet("DeleteGroupAssignment")]
+        public async Task<IActionResult> DeleteGroupAssignment(Guid groupAssignmentId)
+        {
+            DtoRequestResult<bool> response = new()
+            {
+                CodigoRespuesta = HttpStatusCode.OK.ToString()
+            };
+
+            try
+            {
+                response.Registros.Add(
+                    await DevelopmentRoomsServices.DeleteGroupAssignment(groupAssignmentId));
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("DevelopmentRoomController: DeleteGroupAssignment -> " + ex.Message);
                 response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
                 response.MensajeRespuesta = ex.Message;
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };

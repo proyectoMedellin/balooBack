@@ -1,11 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SiecaAPI.Controllers;
 using SiecaAPI.Data.Interfaces;
 using SiecaAPI.Data.SQLImpl.Entities;
 using SiecaAPI.DTO.Data;
 using SiecaAPI.Errors;
-using System.Drawing.Printing;
-using System.Linq;
 
 namespace SiecaAPI.Data.SQLImpl
 {
@@ -137,8 +134,9 @@ namespace SiecaAPI.Data.SQLImpl
                     (string.IsNullOrEmpty(fName) || (!string.IsNullOrEmpty(fName) && tc.Name.Contains(fName.ToLower()))) &&
                     (!fEnabled.HasValue || (fEnabled.HasValue && tc.Enabled == fEnabled.Value))
                 )
-                .Include(tc => tc.TrainingCenter)
                 .Include(tc => tc.Campus)
+                .ThenInclude(tc => tc.TrainingCenter)
+                .ThenInclude(tc => tc.Organization)
                 .Skip(skipData).Take(pageSize).ToListAsync();
 
             foreach (DevelopmentRoomEntity tc in rooms)
@@ -170,8 +168,9 @@ namespace SiecaAPI.Data.SQLImpl
             using SqlContext context = new();
             List<DevelopmentRoomEntity> rooms = await context.DevelopmentRooms
                 .Where(tc => tc.CampusId.Equals(campusId))
-                .Include(tc => tc.TrainingCenter)
                 .Include(tc => tc.Campus)
+                .ThenInclude(tc => tc.TrainingCenter)
+                .ThenInclude(tc => tc.Organization)
                 .ToListAsync();
 
             foreach (DevelopmentRoomEntity tc in rooms)
@@ -200,13 +199,13 @@ namespace SiecaAPI.Data.SQLImpl
         public async Task<DtoDevelopmentRoom> GetByIdAsync(Guid id)
         {
             using SqlContext context = new();
-
             DevelopmentRoomEntity dr = await context.DevelopmentRooms
                 .Where(dr => dr.Id.Equals(id))
-                .Include(dr => dr.Organization)
-                .Include(dr => dr.TrainingCenter)
-                .Include(dr => dr.Campus)
+                .Include(tc => tc.Campus)
+                .ThenInclude(tc => tc.TrainingCenter)
+                .ThenInclude(tc => tc.Organization)
                 .FirstAsync();
+
 
             return new DtoDevelopmentRoom()
             {
@@ -225,6 +224,190 @@ namespace SiecaAPI.Data.SQLImpl
                 DahuaChannelCode = dr.DahuaChannelCode,
                 Enabled = dr.Enabled
             };
+        }
+
+        public async Task<List<DtoDevelopmentRoomGroupByYear>> GetAllGroupsByYear(
+            Guid? DevRoomId, int? year, int? page, int? pageSize)
+        {
+            List<DtoDevelopmentRoomGroupByYear> groupList = new();
+
+            using SqlContext context = new SqlContext();
+            List<DevelopmentRoomGroupByYearEntity> grpYears;
+
+            if (page.HasValue && pageSize.HasValue)
+            {
+                int skipData = page.Value > 0 ? (page.Value - 1) * pageSize.Value : 0;
+                grpYears = await context
+                    .DevelopmentRoomGroupByYearEntities
+                    .Where(gy =>
+                        ((DevRoomId.HasValue && gy.DevelopmentRoomId.Equals(DevRoomId.Value)) || !DevRoomId.HasValue) &&
+                        ((year.HasValue && gy.Year.Equals(year.Value)) || !year.HasValue))
+                    .Include(tc => tc.DevelopmentRoom)
+                    .ThenInclude(tc => tc.Organization)
+                    .Skip(skipData).Take(pageSize.Value)
+                    .ToListAsync();
+            }
+            else
+            {
+                grpYears = await context
+                    .DevelopmentRoomGroupByYearEntities
+                    .Where(gy =>
+                        ((DevRoomId.HasValue && gy.DevelopmentRoomId.Equals(DevRoomId.Value)) || !DevRoomId.HasValue) &&
+                        ((year.HasValue && gy.Year.Equals(year.Value)) || !year.HasValue))
+                    .Include(tc => tc.DevelopmentRoom)
+                    .ThenInclude(tc => tc.Organization)
+                    .ToListAsync();
+            }
+            foreach (DevelopmentRoomGroupByYearEntity dg in 
+                grpYears.Where(gy => gy.DevelopmentRoom.Enabled))
+            {
+                DtoDevelopmentRoomGroupByYear groupInfo = new()
+                {
+                    Id = dg.Id,
+                    OrganizationId = dg.OrganizationId,
+                    OrganizationName = dg.Organization.Name,
+                    DevelopmentRoomId = dg.DevelopmentRoomId,
+                    DevelopmentRoomCode = dg.DevelopmentRoom.Code,
+                    DevelopmentRoomName = dg.DevelopmentRoom.Name,
+                    Year = dg.Year,
+                    GroupCode = dg.GroupCode,
+                    GroupName = dg.GroupName,
+                    Enabled = dg.Enabled,
+                    Agents = new()
+                };
+
+                //DtoDevelopmentRoomGroupAgent
+                List<DevelopmentRoomGroupAgentEntity> agentsBase = await context.DevelopmentRoomGroupAgentEntities
+                    .Where(drga => drga.DevelopmentRoomGroupByYearId.Equals(dg.Id))
+                    .Include(drga => drga.AccessUser)
+                    .ToListAsync();
+                if (agentsBase != null && agentsBase.Count > 0)
+                {
+                    foreach (AccessUserEntity a in agentsBase.Select(a => a.AccessUser))
+                    {
+                        groupInfo.Agents.Add(
+                            a.FirstName
+                            + " "
+                            + a.OtherNames
+                            + " "
+                            + a.LastName
+                            + " "
+                            + a.OtherLastName);
+                    }
+                }
+                groupList.Add(groupInfo);
+            }
+            return groupList;
+        }
+
+        public async Task<bool> AssignAgentsByYear(Guid OrganizationId, Guid DevRoomId, int year, string groupCode, 
+            string groupName, List<Guid> agentsIds, string createdBy)
+        {
+            using SqlContext context = new SqlContext();
+            using var transaction = context.Database.BeginTransaction();
+            try
+            {
+                List<DevelopmentRoomGroupByYearEntity> currentAssignmentList = await context
+                    .DevelopmentRoomGroupByYearEntities
+                    .Where(dry => dry.DevelopmentRoomId.Equals(DevRoomId) && dry.Year.Equals(year))
+                    .ToListAsync();
+                
+                if (currentAssignmentList != null && currentAssignmentList.Count > 0)
+                {
+                    DevelopmentRoomGroupByYearEntity currentAssignment = currentAssignmentList.First();
+                    //se elimnan todos los datos de asignación existentes
+                    //primero los agentes
+                    context.RemoveRange(
+                            await context.DevelopmentRoomGroupAgentEntities
+                            .Where(drga => drga.DevelopmentRoomGroupByYearId.Equals(currentAssignment.Id))
+                            .ToListAsync()
+                        );
+                    await context.SaveChangesAsync();
+                    //elimino la asignación exsitente
+                    context.Remove(currentAssignment);
+                    await context.SaveChangesAsync();
+                }
+
+
+                OrganizationEntity org = await context.Organizations.Where(o => o.Id.Equals(OrganizationId)).FirstAsync();
+                DevelopmentRoomEntity room = await context.DevelopmentRooms.Where(r => r.Id.Equals(DevRoomId)).FirstAsync();
+
+                //se crea la nueva asignación
+                DevelopmentRoomGroupByYearEntity mewAssignment = new()
+                {
+                    OrganizationId = org.Id,
+                    Organization = org,
+                    DevelopmentRoomId = DevRoomId,
+                    DevelopmentRoom = room,
+                    Year = year,
+                    GroupCode = groupCode,
+                    GroupName = groupName,
+                    Enabled = true,
+                    CreatedBy = createdBy,
+                    CreatedOn = DateTime.UtcNow
+                };
+                context.DevelopmentRoomGroupByYearEntities.Add(mewAssignment);
+                await context.SaveChangesAsync();
+                foreach (Guid agent in agentsIds)
+                {
+                    AccessUserEntity user = await context.AccessUsers.Where(au => au.Id.Equals(agent)).FirstAsync();
+                    DevelopmentRoomGroupAgentEntity newAgent = new()
+                    {
+                        DevelopmentRoomGroupByYearId = mewAssignment.Id,
+                        DevelopmentRoomGroupByYear = mewAssignment,
+                        AccessUserId = agent,
+                        AccessUser = user,
+                    };
+                    await context.DevelopmentRoomGroupAgentEntities.AddAsync(newAgent);
+                    await context.SaveChangesAsync();
+                }
+
+                transaction.Commit();
+                return true;
+            }
+            catch
+            {
+                transaction.Rollback();
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteGroupAssignment(Guid groupAssignmetId)
+        {
+            using SqlContext context = new SqlContext();
+            using var transaction = context.Database.BeginTransaction();
+            try
+            {
+                List<DevelopmentRoomGroupByYearEntity> currentAssignmentList = await context
+                    .DevelopmentRoomGroupByYearEntities
+                    .Where(dry => dry.Id.Equals(groupAssignmetId))
+                    .ToListAsync();
+
+                if (currentAssignmentList != null && currentAssignmentList.Count > 0)
+                {
+                    DevelopmentRoomGroupByYearEntity currentAssignment = currentAssignmentList.First();
+                    //se elimnan todos los datos de asignación existentes
+                    //primero los agentes
+                    context.RemoveRange(
+                            await context.DevelopmentRoomGroupAgentEntities
+                            .Where(drga => drga.DevelopmentRoomGroupByYearId.Equals(currentAssignment.Id))
+                            .ToListAsync()
+                        );
+                    await context.SaveChangesAsync();
+                    //elimino la asignación exsitente
+                    context.Remove(currentAssignment);
+                    await context.SaveChangesAsync();
+
+                    transaction.Commit();
+                    return true;
+                }
+                return false;
+            }
+            catch
+            {
+                transaction.Rollback();
+                return false;
+            }
         }
     }
 }
