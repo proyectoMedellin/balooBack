@@ -90,56 +90,69 @@ namespace SiecaAPI.Controllers
         }
 
         [HttpPost("Update")]
-        public async Task<IActionResult> Update(DtoTrainingCenterUpdateReq request)
+        public async Task<IActionResult> Update(DtoBeneficiariesUpdateReq request)
         {
-            DtoRequestResult<DtoTrainingCenterCreateResp> response = new DtoRequestResult<DtoTrainingCenterCreateResp>
+            DtoRequestResult<DtoBeneficiaries> response = new()
             {
                 CodigoRespuesta = HttpStatusCode.OK.ToString()
             };
 
             try
             {
-                if (request.Id == Guid.Empty || string.IsNullOrEmpty(request.Code) || 
-                    string.IsNullOrEmpty(request.Name))
-                {
-                    response.CodigoRespuesta = HttpStatusCode.BadRequest.ToString();
-                    response.MensajeRespuesta = "Params not found";
-                    return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.BadRequest };
-                }
-                DtoTrainingCenter center = new()
+                DtoBeneficiaries beneficiary = new()
                 {
                     Id = request.Id,
-                    Code = request.Code,
-                    Name = request.Name,
-                    IntegrationCode = request.IntegrationCode,
+                    OrganizationId = request.OrganizationId,
+                    DocumentTypeId = request.DocumentTypeId,
+                    DocumentNumber = request.DocumentNumber,
+                    FirstName = request.FirstName,
+                    OtherNames = request.OtherNames ?? string.Empty,
+                    LastName = request.LastName,
+                    OtherLastName = request.OtherLastName ?? string.Empty,
+                    GenderId = request.GenderId,
+                    BirthDate = request.BirthDate,
+                    BirthCountryId = request.BirthCountryId,
+                    BirthDepartmentId = request.BirthDepartmentId,
+                    BirthCityId = request.BirthCityId,
+                    RhId = request.RhId,
+                    BloodTypeId = request.BloodTypeId,
+                    EmergencyPhoneNumber = request.EmergencyPhoneNumber,
+                    PhotoUrl = request.PhotoUrl ?? string.Empty,
+                    AdressZoneId = request.AdressZoneId,
+                    Adress = request.Adress ?? string.Empty,
+                    Neighborhood = request.Neighborhood ?? string.Empty,
+                    AdressPhoneNumber = request.AdressPhoneNumber ?? string.Empty,
+                    AdressObservations = request.AdressObservations ?? string.Empty,
                     Enabled = request.Enabled,
-                    ModifiedBy = request.ModifiedBy,
+                    ModifiedBy = request.ModificationUser
                 };
-                center = await TrainingCenterServices.UpdateAsync(center);
-                if (center.Id != Guid.Empty)
+
+                foreach (DtoBeneficiariesUpdateReqFamilyMember dcfm in request.Family)
                 {
-                    response.Registros.Add(new DtoTrainingCenterCreateResp()
+                    beneficiary.FamilyMembers.Add(new DtoBeneficiariesFamily()
                     {
-                        Id = center.Id,
-                        OrganizationId = center.OrganizationId,
-                        Name = center.Name,
-                        Code = center.Code,
-                        IntegrationCode = center.IntegrationCode,
-                        Enabled = center.Enabled
+                        Id = dcfm.Id,
+                        OrganizationId = dcfm.OrganizationId,
+                        BeneficiaryId = dcfm.BeneficiaryId,
+                        DocumentTypeId = dcfm.DocumentTypeId,
+                        DocumentNumber = dcfm.DocumentNumber,
+                        FirstName = dcfm.FirstName,
+                        OtherNames = dcfm.OtherNames ?? string.Empty,
+                        LastName = dcfm.LastName,
+                        OtherLastName = dcfm.OtherLastName ?? string.Empty,
+                        FamilyRelationId = dcfm.FamilyRelation,
+                        Attendant = dcfm.Attendant,
+                        Enabled = dcfm.Enabled,
+                        ModifiedBy = request.ModificationUser
                     });
                 }
-                else
-                {
-                    response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
-                    response.MensajeRespuesta = "The new center was not updated";
-                    return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
-                }
 
+                response.Registros.Add(await BeneficiariesServices.UpdateAsync(beneficiary));
                 return Ok(response);
             }
             catch (Exception ex)
             {
-                _logger.LogError("BeneficiariesController: Update -> " + ex.Message);
+                _logger.LogError("BeneficiariesController: Create -> " + ex.Message);
                 response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
                 response.MensajeRespuesta = ex.Message;
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
