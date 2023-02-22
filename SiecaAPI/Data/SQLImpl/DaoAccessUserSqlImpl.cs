@@ -190,7 +190,7 @@ namespace SiecaAPI.Data.SQLImpl
             List<DtoAccessUser> dtoAccessUser = new();
             foreach (AccessUserEntity user in users)
             {
-                dtoAccessUser.Add(new DtoAccessUser(user.UserName, user.Email, user.FirstName, user.OtherNames,
+                dtoAccessUser.Add(new DtoAccessUser(user.Id, user.UserName, user.Email, user.FirstName, user.OtherNames,
                     user.LastName, user.OtherLastName, user.RequirePaswordChange,
                     user.CreatedBy, user.Phone, user.DocumentTypeId, user.DocumentNo, user.TrainingCenterId));
             }

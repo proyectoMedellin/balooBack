@@ -36,6 +36,23 @@ namespace SiecaAPI.DTO.Data
             DocumentNo = documentNo;
             TrainingCenterId = trainingCenterId;
         }
+        public DtoAccessUser(Guid? id, string userName, string email, string firstName, string? otherNames, string lastName, string? otherLastName,
+           bool requirePaswordChange, string createdBy, string? phone, Guid documentTypeId, string documentNo, Guid? trainingCenterId)
+        {
+            Id = id;
+            UserName = userName;
+            Email = email;
+            FirstName = firstName;
+            OtherNames = otherNames;
+            LastName = lastName;
+            OtherLastName = otherLastName;
+            RequirePaswordChange = requirePaswordChange;
+            CreatedBy = createdBy;
+            Phone = phone;
+            DocumentTypeId = documentTypeId;
+            DocumentNo = documentNo;
+            TrainingCenterId = trainingCenterId;
+        }
         public DtoAccessUser( string userName, string email, string firstName, string? otherNames, string lastName, string? otherLastName,
             bool requirePaswordChange, string createdBy, string? phone, Guid documentTypeId, string documentNo, Guid trainingCenterId, List<Guid> campusId, List<Guid> rolsId)
         {
