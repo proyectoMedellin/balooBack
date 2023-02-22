@@ -14,6 +14,8 @@ namespace SiecaAPI.Data.Interfaces
         public Task<bool> UpdateUserPassword(Guid? id, string password);
         public Task<bool> ExistUserByUserNamePass(string userName, string pass);
         public Task<List<DtoUserRol>> GetRolesByUser(string userName);
+        public Task<bool> ExistUserByDocument(Guid id, string document);
+        public Task<bool> ExistUserByName(string UserName);
         public Task<List<DtoAccessUser>> GetByTrainingCenterIdCapusIdAsync(Guid trainingCenterId, Guid campusId, string roleName);
     }
 }

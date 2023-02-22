@@ -102,6 +102,37 @@ namespace SiecaAPI.Data.SQLImpl
 
         }
 
+        public async Task<bool> ExistUserByDocument(Guid id, string document)
+        {
+            bool result = false;
+
+            if (string.IsNullOrEmpty(document)) throw new MissingArgumentsException("Empty document");
+            using SqlContext context = new SqlContext();
+
+            List<AccessUserEntity> user = await context.AccessUsers
+                .Where(u => u.DocumentTypeId == id)
+                .Where(u => u.DocumentNo == document)
+                .ToListAsync();
+            if (user != null & user.Count > 0) result = true;
+
+            return result;
+        }
+
+        public async Task<bool> ExistUserByName(string userName)
+        {
+            bool result = false;
+
+            if (string.IsNullOrEmpty(userName)) throw new MissingArgumentsException("Empty username");
+            using SqlContext context = new SqlContext();
+
+            List<AccessUserEntity> user = await context.AccessUsers
+                .Where(u => u.UserName == userName)
+                .ToListAsync();
+            if (user != null & user.Count > 0) result = true;
+
+            return result;
+        }
+
         public async Task<bool> ExistUserByUserNamePass(string userName, string pass)
         {
             bool result = false;

@@ -20,6 +20,16 @@ namespace SiecaAPI.Data.DataverseImpl
             throw new NotImplementedException();
         }
 
+        public async Task<bool> ExistUserByDocument(Guid id, string document)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<bool> ExistUserByName(string name)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<bool> ExistUserByUserNamePass(string userName, string pass)
         {
             throw new NotImplementedException();

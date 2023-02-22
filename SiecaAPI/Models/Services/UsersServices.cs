@@ -68,5 +68,17 @@ namespace SiecaAPI.Services
                GetDaoAccessUsers().DeleteByIdAsync(id);
             return user;
         }
+        public static async Task<bool> ExistUserByDocument(Guid id, string document)
+        {
+            bool exist = await DaoAccessUserFactory.
+                GetDaoAccessUsers().ExistUserByDocument(id, document);
+            return exist;
+        }
+        public static async Task<bool> ExistUserByName(string UserName)
+        {
+            bool exist = await DaoAccessUserFactory.
+                GetDaoAccessUsers().ExistUserByName(UserName);
+            return exist;
+        }
     }
 }
