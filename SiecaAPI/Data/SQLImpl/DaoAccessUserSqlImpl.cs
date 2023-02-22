@@ -145,6 +145,27 @@ namespace SiecaAPI.Data.SQLImpl
             throw new NotImplementedException();
         }
 
+        public async Task<List<DtoAccessUser>> GetByTrainingCenterIdCapusIdAsync(Guid trainingCenterId, Guid campusId, string roleName)
+        {
+            using SqlContext context = new SqlContext();
+            List<AccessUserEntity> users = await context.CampusByAccessUsers
+                .Where(x => x.TrainingCenterId == trainingCenterId && x.CampusId == campusId)
+                .Join(context.AccessUserRoles,
+                    campusUser => campusUser.AccessUserId,
+                    accessUserRole => accessUserRole.AccessUserId,
+                    (campusUser, accessUserRole) => new { CampusUser = campusUser, AccessUserRole = accessUserRole })
+                .Where(x => roleName == null || x.AccessUserRole.Rol.Name.Contains(roleName))
+                .Select(x => x.CampusUser.AccessUser).Distinct().ToListAsync();
+            List<DtoAccessUser> dtoAccessUser = new();
+            foreach (AccessUserEntity user in users)
+            {
+                dtoAccessUser.Add(new DtoAccessUser(user.UserName, user.Email, user.FirstName, user.OtherNames,
+                    user.LastName, user.OtherLastName, user.RequirePaswordChange,
+                    user.CreatedBy, user.Phone, user.DocumentTypeId, user.DocumentNo, user.TrainingCenterId));
+            }
+            return dtoAccessUser;
+        }
+
         public async Task<DtoAccessUser> GetByUserNameAsync(string name)
         {
             if (string.IsNullOrEmpty(name))

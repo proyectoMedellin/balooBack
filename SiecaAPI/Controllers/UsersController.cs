@@ -166,6 +166,38 @@ namespace SiecaAPI.Controllers
             }
 
         }
+        [HttpGet("GetByByTrainingCenterIdCapusId")]
+        public async Task<IActionResult> GeByTrainingCenterIdCapusId(Guid trainingCenterId, Guid campusId, string roleName)
+        {
+            DtoRequestResult<List<DtoAccessUserResp>> response = new DtoRequestResult<List<DtoAccessUserResp>>
+            {
+                CodigoRespuesta = HttpStatusCode.OK.ToString()
+            };
+
+            try
+            {
+                List<DtoAccessUser> accessUsers = await UsersServices.GetByTrainingCenterIdCapusId(trainingCenterId, campusId, roleName);
+                List<DtoAccessUserResp> dtoAccessUserResp = new();
+                if (accessUsers.Count == 0) throw new NoDataFoundException("No exiten registros");
+                foreach (DtoAccessUser user in accessUsers)
+                {
+                    dtoAccessUserResp.Add(new DtoAccessUserResp(user.OrganizationId,
+                        user.UserName, user.Email, user.FirstName, user.OtherNames, user.LastName,
+                        user.OtherLastName, user.DocumentTypeId, user.DocumentNo));
+                }
+                response.Registros.Add(new List<DtoAccessUserResp>(dtoAccessUserResp));
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("AuthenticationController: Login -> " + ex.Message);
+                response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
+                response.MensajeRespuesta = ex.Message;
+                return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
+            }
+
+        }
+    
         [HttpGet("DeletedUser")]
         public async Task<IActionResult> DeletedUser(string userName)
         {
