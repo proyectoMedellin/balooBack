@@ -5,6 +5,7 @@ using SiecaAPI.DTO.Data;
 using SiecaAPI.Errors;
 using SiecaAPI.Models;
 using System.Collections.Generic;
+using System.Data.Entity.Core.Common;
 using System.Reflection;
 
 namespace SiecaAPI.Data.SQLImpl
@@ -247,6 +248,46 @@ namespace SiecaAPI.Data.SQLImpl
             }
         }
 
+        public async Task<DtoBeneficiaries> UpdatePhotoUrl(Guid beneficiaryId, string url)
+        {
+            using SqlContext context = new();
+            BeneficiariesEntity benReq = await context.Beneficiaries
+                    .Where(b => b.Id.Equals(beneficiaryId)).FirstAsync();
+
+            benReq.PhotoUrl = url;
+            await context.SaveChangesAsync();
+
+            DtoBeneficiaries response = new()
+            {
+                Id = benReq.Id,
+                OrganizationId = benReq.OrganizationId,
+                DocumentTypeId = benReq.DocumentTypeId,
+                DocumentNumber = benReq.DocumentNumber,
+                FirstName = benReq.FirstName,
+                OtherNames = benReq.OtherNames,
+                LastName = benReq.LastName,
+                OtherLastName = benReq.OtherLastName,
+                GenderId = benReq.GenderId,
+                BirthDate = benReq.BirthDate,
+                BirthCountryId = benReq.BirthCountryId,
+                BirthDepartmentId = benReq.BirthDepartmentId,
+                BirthCityId = benReq.BirthCityId,
+                RhId = benReq.RhId,
+                BloodTypeId = benReq.BloodTypeId,
+                EmergencyPhoneNumber = benReq.EmergencyPhoneNumber,
+                PhotoUrl = benReq.PhotoUrl,
+                AdressZoneId = benReq.AdressZoneId,
+                Adress = benReq.Adress,
+                Neighborhood = benReq.Neighborhood,
+                AdressPhoneNumber = benReq.AdressPhoneNumber,
+                AdressObservations = benReq.AdressObservations,
+                Enabled = benReq.Enabled,
+                FamilyMembers = new()
+            };
+
+            return response;
+        }
+
         public async Task<bool> DeleteAsync(Guid id)
         {
             using SqlContext context = new();
@@ -365,6 +406,73 @@ namespace SiecaAPI.Data.SQLImpl
             {
                 throw new NoDataFoundException("the requested beneficiary dosent exist");
             }
+        }
+
+        public async Task<List<DtoBeneficiaries>> GetAllAsync(int? year, Guid? TrainingCenterId, Guid? CampusId, 
+            Guid? DevelopmentRoomId, string? documentNumber, string? name, bool? fEnabled, 
+            int? page, int? pageSize)
+        {
+            List<DtoBeneficiaries> response = new();
+            List<BeneficiariesEntity> baseRsp;
+
+            using SqlContext context = new();
+
+            if (page.HasValue && pageSize.HasValue)
+            {
+                int skipData = page.Value > 0 ? (page.Value - 1) * pageSize.Value : 0;
+                baseRsp = await context.Beneficiaries.Where(b =>
+                        (string.IsNullOrEmpty(documentNumber) || b.DocumentNumber.Contains(documentNumber)) &&
+                        (string.IsNullOrEmpty(name) || (b.FirstName+b.OtherNames+b.LastName+b.OtherLastName).Contains(name)) &&
+                        ((!fEnabled.HasValue && b.Enabled) || (fEnabled.HasValue && b.Enabled == fEnabled))
+                    )
+                    .Skip(skipData).Take(pageSize.Value)
+                    .ToListAsync();
+            }
+            else
+            {
+                baseRsp = await context.Beneficiaries.Where(b =>
+                        (string.IsNullOrEmpty(documentNumber) || b.DocumentNumber.Contains(documentNumber)) &&
+                        (string.IsNullOrEmpty(name) || (b.FirstName + b.OtherNames + b.LastName + b.OtherLastName).Contains(name)) &&
+                        ((!fEnabled.HasValue && b.Enabled) || (fEnabled.HasValue && b.Enabled == fEnabled))
+                    )
+                    .ToListAsync();
+            }
+
+            if (baseRsp != null && baseRsp.Count > 0)
+            {
+                foreach (BeneficiariesEntity benReq in baseRsp)
+                {
+                    response.Add(new()
+                    {
+                        Id = benReq.Id,
+                        OrganizationId = benReq.OrganizationId,
+                        DocumentTypeId = benReq.DocumentTypeId,
+                        DocumentNumber = benReq.DocumentNumber,
+                        FirstName = benReq.FirstName,
+                        OtherNames = benReq.OtherNames,
+                        LastName = benReq.LastName,
+                        OtherLastName = benReq.OtherLastName,
+                        GenderId = benReq.GenderId,
+                        BirthDate = benReq.BirthDate,
+                        BirthCountryId = benReq.BirthCountryId,
+                        BirthDepartmentId = benReq.BirthDepartmentId,
+                        BirthCityId = benReq.BirthCityId,
+                        RhId = benReq.RhId,
+                        BloodTypeId = benReq.BloodTypeId,
+                        EmergencyPhoneNumber = benReq.EmergencyPhoneNumber,
+                        PhotoUrl = benReq.PhotoUrl,
+                        AdressZoneId = benReq.AdressZoneId,
+                        Adress = benReq.Adress,
+                        Neighborhood = benReq.Neighborhood,
+                        AdressPhoneNumber = benReq.AdressPhoneNumber,
+                        AdressObservations = benReq.AdressObservations,
+                        Enabled = benReq.Enabled,
+                        FamilyMembers = new()
+                    });
+                }
+            }
+
+            return response;
         }
     }
 }

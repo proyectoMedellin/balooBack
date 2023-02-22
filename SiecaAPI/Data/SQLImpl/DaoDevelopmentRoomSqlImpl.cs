@@ -3,6 +3,7 @@ using SiecaAPI.Data.Interfaces;
 using SiecaAPI.Data.SQLImpl.Entities;
 using SiecaAPI.DTO.Data;
 using SiecaAPI.Errors;
+using SiecaAPI.Models;
 
 namespace SiecaAPI.Data.SQLImpl
 {
@@ -319,54 +320,67 @@ namespace SiecaAPI.Data.SQLImpl
             using var transaction = context.Database.BeginTransaction();
             try
             {
+                OrganizationEntity org = await context.Organizations.Where(o => o.Id.Equals(OrganizationId)).FirstAsync();
+                DevelopmentRoomEntity room = await context.DevelopmentRooms.Where(r => r.Id.Equals(DevRoomId)).FirstAsync();
+
                 List<DevelopmentRoomGroupByYearEntity> currentAssignmentList = await context
                     .DevelopmentRoomGroupByYearEntities
                     .Where(dry => dry.DevelopmentRoomId.Equals(DevRoomId) && dry.Year.Equals(year))
                     .ToListAsync();
-                
+
+                DevelopmentRoomGroupByYearEntity assignment;
                 if (currentAssignmentList != null && currentAssignmentList.Count > 0)
                 {
-                    DevelopmentRoomGroupByYearEntity currentAssignment = currentAssignmentList.First();
+                    assignment = currentAssignmentList.First();
                     //se elimnan todos los datos de asignación existentes
-                    //primero los agentes
                     context.RemoveRange(
                             await context.DevelopmentRoomGroupAgentEntities
-                            .Where(drga => drga.DevelopmentRoomGroupByYearId.Equals(currentAssignment.Id))
+                            .Where(drga => drga.DevelopmentRoomGroupByYearId.Equals(assignment.Id))
                             .ToListAsync()
                         );
                     await context.SaveChangesAsync();
-                    //elimino la asignación exsitente
-                    context.Remove(currentAssignment);
+
+                    //se actualiza la asignacipon existente
+                    assignment.OrganizationId = org.Id;
+                    assignment.Organization = org;
+                    assignment.DevelopmentRoomId = DevRoomId;
+                    assignment.DevelopmentRoom = room;
+                    assignment.Year = year;
+                    assignment.GroupCode = groupCode;
+                    assignment.GroupName = groupName;
+                    assignment.Enabled = true;
+                    assignment.ModifiedBy = createdBy;
+                    assignment.ModifiedOn = DateTime.UtcNow;
                     await context.SaveChangesAsync();
                 }
-
-
-                OrganizationEntity org = await context.Organizations.Where(o => o.Id.Equals(OrganizationId)).FirstAsync();
-                DevelopmentRoomEntity room = await context.DevelopmentRooms.Where(r => r.Id.Equals(DevRoomId)).FirstAsync();
-
-                //se crea la nueva asignación
-                DevelopmentRoomGroupByYearEntity mewAssignment = new()
+                else
                 {
-                    OrganizationId = org.Id,
-                    Organization = org,
-                    DevelopmentRoomId = DevRoomId,
-                    DevelopmentRoom = room,
-                    Year = year,
-                    GroupCode = groupCode,
-                    GroupName = groupName,
-                    Enabled = true,
-                    CreatedBy = createdBy,
-                    CreatedOn = DateTime.UtcNow
-                };
-                context.DevelopmentRoomGroupByYearEntities.Add(mewAssignment);
-                await context.SaveChangesAsync();
+                    //se crea la nueva asignación en caso de no existir
+                    assignment = new()
+                    {
+                        OrganizationId = org.Id,
+                        Organization = org,
+                        DevelopmentRoomId = DevRoomId,
+                        DevelopmentRoom = room,
+                        Year = year,
+                        GroupCode = groupCode,
+                        GroupName = groupName,
+                        Enabled = true,
+                        CreatedBy = createdBy,
+                        CreatedOn = DateTime.UtcNow
+                    };
+                    context.DevelopmentRoomGroupByYearEntities.Add(assignment);
+                    await context.SaveChangesAsync();
+                }
+                
+                //se asignan los agentes
                 foreach (Guid agent in agentsIds)
                 {
                     AccessUserEntity user = await context.AccessUsers.Where(au => au.Id.Equals(agent)).FirstAsync();
                     DevelopmentRoomGroupAgentEntity newAgent = new()
                     {
-                        DevelopmentRoomGroupByYearId = mewAssignment.Id,
-                        DevelopmentRoomGroupByYear = mewAssignment,
+                        DevelopmentRoomGroupByYearId = assignment.Id,
+                        DevelopmentRoomGroupByYear = assignment,
                         AccessUserId = agent,
                         AccessUser = user,
                     };
@@ -406,6 +420,15 @@ namespace SiecaAPI.Data.SQLImpl
                             .ToListAsync()
                         );
                     await context.SaveChangesAsync();
+
+                    //se eliminan los beneficiarios
+                    context.RemoveRange(
+                            await context.DevelopmentRoomGroupBeneficiaries
+                            .Where(drga => drga.DevelopmentRoomGroupByYearId.Equals(currentAssignment.Id))
+                            .ToListAsync()
+                        );
+                    await context.SaveChangesAsync();
+
                     //elimino la asignación exsitente
                     context.Remove(currentAssignment);
                     await context.SaveChangesAsync();
@@ -420,6 +443,106 @@ namespace SiecaAPI.Data.SQLImpl
                 transaction.Rollback();
                 return false;
             }
+        }
+
+        public async Task<bool> AssignBeneficiariesByYear(Guid organizationId, Guid trainingCenterId, Guid campusId, 
+            Guid developmentRoomId, Guid developmentRoomGroupByYearId, List<Guid> beneficiariesList, string assignmentUser)
+        {
+            using SqlContext context = new SqlContext();
+            using var transaction = context.Database.BeginTransaction();
+            try
+            {
+                DevelopmentRoomGroupByYearEntity currentAssignment = await context
+                    .DevelopmentRoomGroupByYearEntities
+                    .Where(dry => dry.Id.Equals(developmentRoomGroupByYearId))
+                    .FirstAsync();
+
+                //elimino todas las asignaciones previas de beneficiarios a la sala
+                context.RemoveRange(
+                            await context.DevelopmentRoomGroupBeneficiaries
+                            .Where(drga => drga.DevelopmentRoomGroupByYearId.Equals(currentAssignment.Id))
+                            .ToListAsync()
+                        );
+                await context.SaveChangesAsync();
+
+                OrganizationEntity org = await context.Organizations.Where(o => o.Id.Equals(organizationId)).FirstAsync();
+                TrainingCenterEntity tc = await context.TrainingCenters.Where(tc => tc.Id.Equals(trainingCenterId)).FirstAsync();
+                CampusEntity cmp = await context.Campuses.Where(c => c.Id.Equals(campusId)).FirstAsync();
+                DevelopmentRoomEntity room = await context.DevelopmentRooms.Where(r => r.Id.Equals(developmentRoomId)).FirstAsync();
+
+                foreach (Guid bId in beneficiariesList)
+                {
+                    BeneficiariesEntity ben = await context.Beneficiaries.Where(b => b.Id.Equals(bId)).FirstAsync();
+                    DevelopmentRoomGroupBeneficiaryEntity newBen = new()
+                    {
+                        DevelopmentRoomGroupByYearId = currentAssignment.Id,
+                        DevelopmentRoomGroupByYear = currentAssignment,
+                        BeneficiaryId = ben.Id,
+                        Beneficiary = ben,
+                        OrganizationId = org.Id,
+                        Organization = org,
+                        TrainingCenterId = tc.Id,
+                        TrainingCenter = tc,
+                        CampusId = cmp.Id,
+                        Campus = cmp,
+                        DevelopmentRoomId = room.Id,
+                        DevelopmentRoom = room
+                    };
+                    await context.DevelopmentRoomGroupBeneficiaries.AddAsync(newBen);
+                    await context.SaveChangesAsync();
+                }
+
+                transaction.Commit();
+                return true;
+            }
+            catch
+            {
+                transaction.Rollback();
+                return false;
+            }
+        }
+
+        public async Task<List<DtoBeneficiaries>> GetBeneficiariesByRoom(Guid developmentRoomGroupByYearId)
+        {
+            using SqlContext context = new();
+            List<DevelopmentRoomGroupBeneficiaryEntity> assignments = await context.DevelopmentRoomGroupBeneficiaries
+                .Where(b => b.DevelopmentRoomGroupByYearId.Equals(developmentRoomGroupByYearId))
+                .Include(b => b.Beneficiary)
+                .ToListAsync();
+
+            List<DtoBeneficiaries> response = new();
+            foreach(BeneficiariesEntity benReq in assignments.Select(ben => ben.Beneficiary))
+            {
+                response.Add(new DtoBeneficiaries()
+                {
+                    Id = benReq.Id,
+                    OrganizationId = benReq.OrganizationId,
+                    DocumentTypeId = benReq.DocumentTypeId,
+                    DocumentNumber = benReq.DocumentNumber,
+                    FirstName = benReq.FirstName,
+                    OtherNames = benReq.OtherNames,
+                    LastName = benReq.LastName,
+                    OtherLastName = benReq.OtherLastName,
+                    GenderId = benReq.GenderId,
+                    BirthDate = benReq.BirthDate,
+                    BirthCountryId = benReq.BirthCountryId,
+                    BirthDepartmentId = benReq.BirthDepartmentId,
+                    BirthCityId = benReq.BirthCityId,
+                    RhId = benReq.RhId,
+                    BloodTypeId = benReq.BloodTypeId,
+                    EmergencyPhoneNumber = benReq.EmergencyPhoneNumber,
+                    PhotoUrl = benReq.PhotoUrl,
+                    AdressZoneId = benReq.AdressZoneId,
+                    Adress = benReq.Adress,
+                    Neighborhood = benReq.Neighborhood,
+                    AdressPhoneNumber = benReq.AdressPhoneNumber,
+                    AdressObservations = benReq.AdressObservations,
+                    Enabled = benReq.Enabled,
+                    FamilyMembers = new()
+                });
+            }
+
+            return response;
         }
     }
 }

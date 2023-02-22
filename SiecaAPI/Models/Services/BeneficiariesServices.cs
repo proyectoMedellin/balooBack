@@ -2,6 +2,7 @@
 using SiecaAPI.DTO.Data;
 using SiecaAPI.Errors;
 using SiecaAPI.Services;
+using System.Drawing.Printing;
 
 namespace SiecaAPI.Models.Services
 {
@@ -49,5 +50,33 @@ namespace SiecaAPI.Models.Services
         {
             return await DaoBeneficiariesFactory.GetDaoBeneficiaries().GetById(id);
         }
+
+        public static async Task<List<DtoBeneficiaries>> GetAllAsync(int? year, Guid? TrainingCenterId, Guid? CampusId,
+            Guid? DevelopmentRoomId, string? documentNumber, string? name, bool? fEnabled,
+            int? page, int? pageSize)
+        {
+            return await DaoBeneficiariesFactory.GetDaoBeneficiaries().GetAllAsync(year, TrainingCenterId, CampusId,
+            DevelopmentRoomId, documentNumber, name, fEnabled, page, pageSize);
+        }
+
+        public static async Task<DtoBeneficiaries> UploadPhotoAsync(Guid beneficiaryId, string photoData)
+        {
+            DtoBeneficiaries resp = await DaoBeneficiariesFactory.GetDaoBeneficiaries().GetById(beneficiaryId);
+
+            if (resp == null || resp.Id.Equals(Guid.Empty))
+            {
+                throw new NoDataFoundException("the beneficiary is not valid");
+            }
+            
+            return await UpdateBeneficiaryPhoto(beneficiaryId, photoData);
+        }
+
+        private static async Task<DtoBeneficiaries> UpdateBeneficiaryPhoto(Guid beneficiaryId, string photoData)
+        {
+            //cargo la foto
+            string url = "https://faros.hsjdbcn.org/sites/default/files/styles/ficha-contenido/public/nino-con-camiseta-azul.jpg?itok=7SZEIBtN";
+            //actualizo la url del beneficiario
+            return await DaoBeneficiariesFactory.GetDaoBeneficiaries().UpdatePhotoUrl(beneficiaryId, url);
+        } 
     }
 }

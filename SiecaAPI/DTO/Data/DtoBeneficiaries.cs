@@ -26,5 +26,14 @@ namespace SiecaAPI.DTO.Data
         public string AdressPhoneNumber { get; set; } = string.Empty;
         public string AdressObservations { get; set; } = string.Empty;
         public List<DtoBeneficiariesFamily> FamilyMembers { get; set; } = new();
+        public Guid? TrainigCenterId { get; set; }
+        public string? TrainigCenterCode { get; set; }
+        public string? TrainigCenterName { get; set; }
+        public Guid? CampusId { get; set; }
+        public string? CampusCode { get; set; }
+        public string? CampusName { get; set; }
+        public Guid? DevelopmentRoomId { get; set; }
+        public string? DevelopmentRoomCode { get; set; }
+        public string? DevelopmentRoomName { get; set; }
     }
 }

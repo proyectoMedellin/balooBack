@@ -107,5 +107,17 @@ namespace SiecaAPI.Models.Services
         {
             return await DaoDevelopmentRoomFactory.GetDaoDevelopment().DeleteGroupAssignment(groupAssignmentId);
         }
+
+        public static async Task<bool> AssignBeneficiariesByYear(Guid organizationId, Guid trainingCenterId, Guid campusId,
+            Guid developmentRoomId, Guid developmentRoomGroupByYearId, List<Guid> beneficiariesList, string assignmentUser)
+        {
+            return await DaoDevelopmentRoomFactory.GetDaoDevelopment().AssignBeneficiariesByYear(organizationId, trainingCenterId, campusId,
+                developmentRoomId, developmentRoomGroupByYearId, beneficiariesList, assignmentUser);
+        }
+
+        public static async Task<List<DtoBeneficiaries>> GetBeneficiariesByRoom(Guid developmentRoomGroupByYearId)
+        {
+            return await DaoDevelopmentRoomFactory.GetDaoDevelopment().GetBeneficiariesByRoom(developmentRoomGroupByYearId);
+        }
     }
 }

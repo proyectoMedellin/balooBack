@@ -14,7 +14,7 @@ namespace SiecaAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    //[Authorize]
+    [Authorize]
     public class DevelopmentRoomController : ControllerBase
     {
         private readonly ILogger<DevelopmentRoomController> _logger;
@@ -310,6 +310,52 @@ namespace SiecaAPI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError("DevelopmentRoomController: AssignAgentesByYearToDevRoom -> " + ex.Message);
+                response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
+                response.MensajeRespuesta = ex.Message;
+                return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
+            }
+        }
+
+        [HttpPost("AssignBeneficiariesByYearToDevRoom")]
+        public async Task<IActionResult> AssignBeneficiariesByYearToDevRoom(DtoDevRoomGroupBeneficiariesCreateReq assignment)
+        {
+            DtoRequestResult<bool> response = new()
+            {
+                CodigoRespuesta = HttpStatusCode.OK.ToString()
+            };
+
+            try
+            {
+                response.Registros.Add(await DevelopmentRoomsServices.AssignBeneficiariesByYear(assignment.OrganizationId,
+                    assignment.TrainingCenterId, assignment.CampusId, assignment.DevelopmentRoomId, assignment.DevelopmentRoomGroupByYearId,
+                    assignment.BeneficiariesIds, assignment.assignamentUser));
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("DevelopmentRoomController: AssignBeneficiariesByYearToDevRoom -> " + ex.Message);
+                response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
+                response.MensajeRespuesta = ex.Message;
+                return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
+            }
+        }
+
+        [HttpGet("GetBeneficiariesByRoom")]
+        public async Task<IActionResult> GetBeneficiariesByGroup(Guid groupAssignmentId)
+        {
+            DtoRequestResult<DtoBeneficiaries> response = new()
+            {
+                CodigoRespuesta = HttpStatusCode.OK.ToString()
+            };
+
+            try
+            {
+                response.Registros = await DevelopmentRoomsServices.GetBeneficiariesByRoom(groupAssignmentId);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("DevelopmentRoomController: DeleteGroupAssignment -> " + ex.Message);
                 response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
                 response.MensajeRespuesta = ex.Message;
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
