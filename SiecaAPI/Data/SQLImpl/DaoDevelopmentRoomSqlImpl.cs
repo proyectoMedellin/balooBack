@@ -286,7 +286,8 @@ namespace SiecaAPI.Data.SQLImpl
                     GroupCode = dg.GroupCode,
                     GroupName = dg.GroupName,
                     Enabled = dg.Enabled,
-                    Agents = new()
+                    Agents = new(),
+                    AgentsId = new()
                 };
 
                 //DtoDevelopmentRoomGroupAgent
@@ -306,6 +307,7 @@ namespace SiecaAPI.Data.SQLImpl
                             + a.LastName
                             + " "
                             + a.OtherLastName);
+                        groupInfo.AgentsId.Add(a.Id);
                     }
                 }
                 groupList.Add(groupInfo);
