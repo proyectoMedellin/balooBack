@@ -38,6 +38,8 @@ namespace SiecaAPI.Data.SQLImpl
         public DbSet<BeneficiariesFamilyEntity> BeneficiariesFamilies { get; set; }
         public DbSet<CampusByAccessUserEntity> CampusByAccessUsers { get; set; }
         public DbSet<DevelopmentRoomGroupBeneficiaryEntity> DevelopmentRoomGroupBeneficiaries { get; set; }
+        public DbSet<WorkingDayOfWeekEntity> WorkingDaysOfWeek { get; set; }
+        public DbSet<HolidayEntity> Holidays { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -52,7 +54,6 @@ namespace SiecaAPI.Data.SQLImpl
 
             modelBuilder.Entity<DevelopmentRoomGroupBeneficiaryEntity>()
                 .HasKey(drge => new { drge.DevelopmentRoomGroupByYearId, drge.BeneficiaryId });
-        }
-        
+        }        
     }
 }
