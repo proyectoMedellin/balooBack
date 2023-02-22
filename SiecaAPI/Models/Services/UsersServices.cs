@@ -56,7 +56,7 @@ namespace SiecaAPI.Services
                 GetDaoAccessUsers().GetAllAsync();
             return users;
         }
-        public static async Task<List<DtoAccessUser>> GetByTrainingCenterIdCapusId(Guid trainingCenterId, Guid campusId, string roleName)
+        public static async Task<List<DtoAccessUser>> GetByTrainingCenterIdCapusId(Guid trainingCenterId, Guid campusId, string? roleName)
         {
             List<DtoAccessUser> users = await DaoAccessUserFactory.
                 GetDaoAccessUsers().GetByTrainingCenterIdCapusIdAsync(trainingCenterId, campusId, roleName);

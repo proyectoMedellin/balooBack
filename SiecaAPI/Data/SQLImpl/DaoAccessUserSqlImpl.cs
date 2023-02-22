@@ -176,7 +176,7 @@ namespace SiecaAPI.Data.SQLImpl
             throw new NotImplementedException();
         }
 
-        public async Task<List<DtoAccessUser>> GetByTrainingCenterIdCapusIdAsync(Guid trainingCenterId, Guid campusId, string roleName)
+        public async Task<List<DtoAccessUser>> GetByTrainingCenterIdCapusIdAsync(Guid trainingCenterId, Guid campusId, string? roleName)
         {
             using SqlContext context = new SqlContext();
             List<AccessUserEntity> users = await context.CampusByAccessUsers

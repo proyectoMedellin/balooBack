@@ -45,7 +45,7 @@ namespace SiecaAPI.Data.DataverseImpl
             throw new NotImplementedException();
         }
 
-        public Task<List<DtoAccessUser>> GetByTrainingCenterIdCapusIdAsync(Guid trainingCenterId, Guid campusId, string roleName)
+        public Task<List<DtoAccessUser>> GetByTrainingCenterIdCapusIdAsync(Guid trainingCenterId, Guid campusId, string? roleName)
         {
             throw new NotImplementedException();
         }

@@ -167,7 +167,7 @@ namespace SiecaAPI.Controllers
 
         }
         [HttpGet("GetByByTrainingCenterIdCapusId")]
-        public async Task<IActionResult> GeByTrainingCenterIdCapusId(Guid trainingCenterId, Guid campusId, string roleName)
+        public async Task<IActionResult> GeByTrainingCenterIdCapusId(Guid trainingCenterId, Guid campusId, string? roleName)
         {
             DtoRequestResult<List<DtoAccessUserResp>> response = new DtoRequestResult<List<DtoAccessUserResp>>
             {

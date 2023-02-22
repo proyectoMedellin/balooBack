@@ -16,6 +16,6 @@ namespace SiecaAPI.Data.Interfaces
         public Task<List<DtoUserRol>> GetRolesByUser(string userName);
         public Task<bool> ExistUserByDocument(Guid id, string document);
         public Task<bool> ExistUserByName(string UserName);
-        public Task<List<DtoAccessUser>> GetByTrainingCenterIdCapusIdAsync(Guid trainingCenterId, Guid campusId, string roleName);
+        public Task<List<DtoAccessUser>> GetByTrainingCenterIdCapusIdAsync(Guid trainingCenterId, Guid campusId, string? roleName);
     }
 }
