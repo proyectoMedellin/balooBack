@@ -10,7 +10,13 @@
         public bool Friday { get; set; } = false;
         public bool Saturday { get; set; } = false;
         public bool Sunday { get; set; } = false;
-        public List<DateTime> Holidays { get; set; } = new();
+        public List<DtoHoliday> Holidays { get; set; } = new();
         public string ConfUser { get; set; } = string.Empty;
     }
+
+    public class DtoHoliday
+    {
+        public DateTime Day { get; set; }
+    }
+
 }
