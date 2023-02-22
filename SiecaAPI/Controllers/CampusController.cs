@@ -14,7 +14,7 @@ namespace SiecaAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    //[Authorize]
+    [Authorize]
     public class CampusController : ControllerBase
     {
         private readonly ILogger<CampusController> _logger;

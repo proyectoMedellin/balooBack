@@ -7,6 +7,7 @@ using SiecaAPI.DTO;
 using SiecaAPI.DTO.Data;
 using SiecaAPI.DTO.Requests;
 using SiecaAPI.DTO.Response;
+using SiecaAPI.Models;
 using SiecaAPI.Models.Services;
 using System.Drawing.Printing;
 using System.Net;
@@ -15,7 +16,7 @@ namespace SiecaAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    //[Authorize]
+    [Authorize]
     public class BeneficiariesController : ControllerBase
     {
         private readonly ILogger<BeneficiariesController> _logger;
@@ -189,32 +190,19 @@ namespace SiecaAPI.Controllers
         }
 
         [HttpGet("ViewGrid")]
-        public async Task<IActionResult> ViewGrid(int page, int pageSize, string? fCode,
-            string? fName, bool? fEnabled)
+        public async Task<IActionResult> ViewGrid(int? year, Guid? TrainingCenterId, Guid? CampusId,
+            Guid? DevelopmentRoomId, string? documentNumber, string? name, bool? fEnabled,
+            int? page, int? pageSize)
         {
-            DtoRequestResult<DtoTrainingCenterViewGridResp> response = new DtoRequestResult<DtoTrainingCenterViewGridResp>
+            DtoRequestResult<DtoBeneficiaries> response = new()
             {
                 CodigoRespuesta = HttpStatusCode.OK.ToString()
             };
 
             try
             {
-                string filterCode = !string.IsNullOrEmpty(fCode) && fCode != "null" ? fCode : string.Empty;
-                string filterName = !string.IsNullOrEmpty(fName) && fName != "null" ? fName : string.Empty; 
-
-                List<DtoTrainingCenter> tCenters = await TrainingCenterServices
-                    .GetAllAsync(page, pageSize, filterCode, filterName, fEnabled);
-
-                foreach (DtoTrainingCenter dto in tCenters)
-                {
-                    response.Registros.Add(new DtoTrainingCenterViewGridResp() { 
-                        Id = dto.Id,
-                        Code = dto.Code,    
-                        Name = dto.Name,
-                        Enabled = dto.Enabled
-                    });
-                }
-
+                response.Registros = await BeneficiariesServices.GetAllAsync(year, TrainingCenterId, CampusId, 
+                    DevelopmentRoomId, documentNumber, name, fEnabled, page, pageSize);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -227,16 +215,18 @@ namespace SiecaAPI.Controllers
         }
 
         [HttpGet("GetEnabledBeneficiaries")]
-        public async Task<IActionResult> GetEnabledBeneficiaries()
+        public async Task<IActionResult> GetEnabledBeneficiaries(int? year, Guid? TrainingCenterId, Guid? CampusId,
+            Guid? DevelopmentRoomId, string? documentNumber, string? name, int? page, int? pageSize)
         {
-            DtoRequestResult<DtoTrainingCenter> response = new()
+            DtoRequestResult<DtoBeneficiaries> response = new()
             {
                 CodigoRespuesta = HttpStatusCode.OK.ToString()
             };
 
             try
             {
-                response.Registros = await TrainingCenterServices.GetEnabledTrainigCenterList();
+                response.Registros = await BeneficiariesServices.GetAllAsync(year, TrainingCenterId, CampusId,
+                    DevelopmentRoomId, documentNumber, name, true, page, pageSize);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -300,6 +290,35 @@ namespace SiecaAPI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError("BeneficiariesController: GetParmaDataByType -> " + ex.Message);
+                response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
+                response.MensajeRespuesta = ex.Message;
+                return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
+            }
+        }
+
+        [HttpPost("PhotoUpload")]
+        public async Task<IActionResult> PhotoUpload(DtoPhotoUploadReq request)
+        {
+            DtoRequestResult<DtoBeneficiaries> response = new()
+            {
+                CodigoRespuesta = HttpStatusCode.OK.ToString()
+            };
+
+            try
+            {
+                if (request.BeneficiaryId == Guid.Empty || request.PhotoStream == null)
+                {
+                    response.CodigoRespuesta = HttpStatusCode.BadRequest.ToString();
+                    response.MensajeRespuesta = "Request incomplete data";
+                    return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.BadRequest };
+                }
+
+                response.Registros.Add(await BeneficiariesServices.UploadPhotoAsync(request.BeneficiaryId, request.PhotoStream));
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("BeneficiariesController: Create -> " + ex.Message);
                 response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
                 response.MensajeRespuesta = ex.Message;
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
