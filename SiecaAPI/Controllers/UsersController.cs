@@ -88,7 +88,7 @@ namespace SiecaAPI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError("CreateAccessUser: CreateAccessUser -> " + ex.Message);
+                _logger.LogError("UserController: GetAccessUserByName -> " + ex.Message);
                 response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
                 response.MensajeRespuesta = ex.Message;
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
@@ -193,6 +193,66 @@ namespace SiecaAPI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError("Deleted: Deleted -> " + ex.Message);
+                response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
+                response.MensajeRespuesta = ex.Message;
+                return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
+            }
+        }
+        [HttpGet("ExistUserByDocument")]
+        public async Task<IActionResult> ExistUserByDocument(Guid id, string document)
+        {
+            DtoRequestResult<bool> response = new DtoRequestResult<bool>
+            {
+                CodigoRespuesta = HttpStatusCode.OK.ToString()
+            };
+
+            try
+            {
+                if (!string.IsNullOrEmpty(document))
+                {
+                    bool exist = await UsersServices.ExistUserByDocument(id, document);
+                    response.Registros.Add(exist);
+                }
+                else
+                {
+                    throw new MissingArgumentsException("el parametro document no puede ser vacio");
+                }
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("UserController: ExistUserByDocument -> " + ex.Message);
+                response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
+                response.MensajeRespuesta = ex.Message;
+                return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
+            }
+        }
+        [HttpGet("ExistUserByName")]
+        public async Task<IActionResult> ExistUserByName(string userName)
+        {
+            DtoRequestResult<bool> response = new DtoRequestResult<bool>
+            {
+                CodigoRespuesta = HttpStatusCode.OK.ToString()
+            };
+
+            try
+            {
+                if (!string.IsNullOrEmpty(userName))
+                {
+                    bool exist = await UsersServices.ExistUserByName(userName);
+                    response.Registros.Add(exist);
+                }
+                else
+                {
+                    throw new MissingArgumentsException("el parametro userName no puede ser vacio");
+                }
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("UserController: ExistUserByDocument -> " + ex.Message);
                 response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
                 response.MensajeRespuesta = ex.Message;
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
