@@ -41,11 +41,11 @@ namespace SiecaAPI.Data.SQLImpl
                 await context.WorkingDaysOfWeek.AddAsync(newWdw);
                 await context.SaveChangesAsync();
 
-                foreach (DateTime h in wd.Holidays) {
+                foreach (DtoHoliday h in wd.Holidays) {
                     await context.Holidays.AddAsync(new HolidayEntity()
                     {
                         Year = wd.Year,
-                        Day = h,
+                        Day = h.Day,
                         CreatedBy = wd.ConfUser,
                         CreatedOn = DateTime.UtcNow
                     });
@@ -55,7 +55,7 @@ namespace SiecaAPI.Data.SQLImpl
                 transaction.Commit();
                 return true;
             }
-            catch(Exception e)
+            catch
             {
                 transaction.Rollback();
                 throw;
@@ -112,7 +112,12 @@ namespace SiecaAPI.Data.SQLImpl
                     Saturday = wdw.Saturday,
                     Sunday = wdw.Sunday,
                 };
-                response.Holidays.AddRange(holidays.Select(h => h.Day));
+
+                foreach (HolidayEntity h in holidays)
+                {
+                    response.Holidays.Add(new DtoHoliday() { Day = h.Day});
+                }
+                
             }
 
             return response;
@@ -139,7 +144,12 @@ namespace SiecaAPI.Data.SQLImpl
                     Saturday = wdw.Saturday,
                     Sunday = wdw.Sunday,
                 };
-                yearInfo.Holidays.AddRange(holidays.Select(h => h.Day));
+
+                foreach (HolidayEntity h in holidays)
+                {
+                    yearInfo.Holidays.Add(new DtoHoliday() { Day = h.Day });
+                }
+                
                 response.Add(yearInfo);
             }
 
