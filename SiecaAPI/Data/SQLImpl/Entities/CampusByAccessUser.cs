@@ -22,7 +22,7 @@ namespace SiecaAPI.Data.SQLImpl.Entities
         [Required]
         [ForeignKey("AccessUserId")]
         public Guid? AccessUserId { get; set; }
-        public virtual AccessUserEntity AccessUser { get; set; } = new AccessUserEntity();
+        public virtual AccessUserEntity? AccessUser { get; set; } 
 
         public CampusByAccessUserEntity(Guid organizationid, Guid? trainingCenterId, Guid campusId, Guid? accesUserId)
         {

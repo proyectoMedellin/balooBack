@@ -15,5 +15,6 @@
         public string GroupCode { get; set; } = string.Empty;
         public string GroupName { get; set; } = string.Empty;
         public List<string> Agents { get; set; } = new();
+        public List<Guid> AgentsId { get; set; } = new();
     }
 }
