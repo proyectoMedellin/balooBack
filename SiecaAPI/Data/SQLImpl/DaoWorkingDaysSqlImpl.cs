@@ -41,21 +41,24 @@ namespace SiecaAPI.Data.SQLImpl
                 await context.WorkingDaysOfWeek.AddAsync(newWdw);
                 await context.SaveChangesAsync();
 
+                List<HolidayEntity> hToCreate = new();
                 foreach (DtoHoliday h in wd.Holidays) {
-                    await context.Holidays.AddAsync(new HolidayEntity()
+                    hToCreate.Add(new HolidayEntity()
                     {
-                        Year = wd.Year,
+                        Year = newWdw.Year,
                         Day = h.Day,
                         CreatedBy = wd.ConfUser,
                         CreatedOn = DateTime.UtcNow
                     });
-                    await context.SaveChangesAsync();
                 }
+
+                await context.Holidays.AddRangeAsync(hToCreate);
+                await context.SaveChangesAsync();
 
                 transaction.Commit();
                 return true;
             }
-            catch
+            catch(Exception e)
             {
                 transaction.Rollback();
                 throw;

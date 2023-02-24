@@ -13,10 +13,4 @@
         public List<DtoHoliday> Holidays { get; set; } = new();
         public string ConfUser { get; set; } = string.Empty;
     }
-
-    public class DtoHoliday
-    {
-        public DateTime Day { get; set; }
-    }
-
 }

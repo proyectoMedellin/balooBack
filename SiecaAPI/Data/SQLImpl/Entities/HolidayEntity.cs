@@ -7,6 +7,9 @@ namespace SiecaAPI.Data.SQLImpl.Entities
     public class HolidayEntity
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public Guid Id { get; set; }
+        [Required]
         public int Year { get; set; }
         [Required]
         public DateTime Day { get; set; }
