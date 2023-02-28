@@ -6,6 +6,7 @@ namespace SiecaAPI.DTO.Data
     public class DtoBeneficiaries: GenericDataDto
     {
         public Guid DocumentTypeId { get; set; } = Guid.Empty;
+        public string DocumentTypeName { get; set; } = string.Empty;
         public string DocumentNumber { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;
         public string OtherNames { get; set; } = string.Empty;

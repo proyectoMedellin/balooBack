@@ -408,8 +408,8 @@ namespace SiecaAPI.Data.SQLImpl
             }
         }
 
-        public async Task<List<DtoBeneficiaries>> GetAllAsync(int? year, Guid? TrainingCenterId, Guid? CampusId, 
-            Guid? DevelopmentRoomId, string? documentNumber, string? name, bool? fEnabled, 
+        public async Task<List<DtoBeneficiaries>> GetAllAsync(int? year, Guid? trainingCenterId, Guid? campusId, 
+            Guid? developmentRoomId, string? documentNumber, string? name, bool? fEnabled, 
             int? page, int? pageSize)
         {
             List<DtoBeneficiaries> response = new();
@@ -425,6 +425,7 @@ namespace SiecaAPI.Data.SQLImpl
                         (string.IsNullOrEmpty(name) || (b.FirstName+b.OtherNames+b.LastName+b.OtherLastName).Contains(name)) &&
                         ((!fEnabled.HasValue && b.Enabled) || (fEnabled.HasValue && b.Enabled == fEnabled))
                     )
+                    .Include(b => b.DocumentType)
                     .Skip(skipData).Take(pageSize.Value)
                     .ToListAsync();
             }
@@ -435,6 +436,7 @@ namespace SiecaAPI.Data.SQLImpl
                         (string.IsNullOrEmpty(name) || (b.FirstName + b.OtherNames + b.LastName + b.OtherLastName).Contains(name)) &&
                         ((!fEnabled.HasValue && b.Enabled) || (fEnabled.HasValue && b.Enabled == fEnabled))
                     )
+                    .Include(b => b.DocumentType)
                     .ToListAsync();
             }
 
@@ -447,6 +449,7 @@ namespace SiecaAPI.Data.SQLImpl
                         Id = benReq.Id,
                         OrganizationId = benReq.OrganizationId,
                         DocumentTypeId = benReq.DocumentTypeId,
+                        DocumentTypeName = benReq.DocumentType.Name,
                         DocumentNumber = benReq.DocumentNumber,
                         FirstName = benReq.FirstName,
                         OtherNames = benReq.OtherNames,
