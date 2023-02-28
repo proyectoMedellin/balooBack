@@ -352,12 +352,16 @@ namespace SiecaAPI.Data.SQLImpl
             try
             {
                 BeneficiariesEntity benReq = await context
-                    .Beneficiaries.Where(b => b.Id.Equals(id)).FirstAsync();
+                    .Beneficiaries
+                    .Where(b => b.Id.Equals(id))
+                    .Include(b => b.DocumentType)
+                    .FirstAsync();
 
                 DtoBeneficiaries response = new() { 
                     Id = benReq.Id,
                     OrganizationId = benReq.OrganizationId,
                     DocumentTypeId = benReq.DocumentTypeId,
+                    DocumentTypeName = benReq.DocumentType.Name,
                     DocumentNumber = benReq.DocumentNumber,
                     FirstName = benReq.FirstName,
                     OtherNames = benReq.OtherNames,
@@ -382,7 +386,9 @@ namespace SiecaAPI.Data.SQLImpl
                 };
 
                 List<BeneficiariesFamilyEntity> family = await context
-                    .BeneficiariesFamilies.Where(bf => bf.BeneficiaryId.Equals(benReq.Id)).ToListAsync();
+                    .BeneficiariesFamilies.Where(bf => bf.BeneficiaryId.Equals(benReq.Id))
+                    .Include(f => f.DocumentType)
+                    .ToListAsync();
 
                 foreach(BeneficiariesFamilyEntity f in family)
                 {
@@ -390,6 +396,8 @@ namespace SiecaAPI.Data.SQLImpl
                         Id = f.Id,
                         BeneficiaryId = f.BeneficiaryId,
                         OrganizationId = f.OrganizationId,
+                        DocumentNumber = f.DocumentNumber,
+                        DocumentTypeId = f.DocumentTypeId,
                         FirstName = f.FirstName,
                         OtherNames = f.OtherNames,
                         LastName = f.LastName,

@@ -28,6 +28,7 @@ namespace SiecaAPI.Controllers
                 CodigoRespuesta = HttpStatusCode.OK.ToString()
             };
 
+
             try
             {
                 var formCollection = await Request.ReadFormAsync();
@@ -42,6 +43,10 @@ namespace SiecaAPI.Controllers
                     {
                         string fileName =  cdHeaderValue.FileName.Trim('"');
                         var folderName = Path.Combine("Resources", "Images");
+
+                        if (!Directory.Exists(folderName))
+                            Directory.CreateDirectory(folderName);
+
                         var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
                         var fullPath = Path.Combine(pathToSave, fileName);
                         var dbPath = Path.Combine(folderName, fileName);
