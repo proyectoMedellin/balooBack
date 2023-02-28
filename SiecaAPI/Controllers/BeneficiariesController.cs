@@ -295,34 +295,5 @@ namespace SiecaAPI.Controllers
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
             }
         }
-
-        [HttpPost("PhotoUpload")]
-        public async Task<IActionResult> PhotoUpload(DtoPhotoUploadReq request)
-        {
-            DtoRequestResult<DtoBeneficiaries> response = new()
-            {
-                CodigoRespuesta = HttpStatusCode.OK.ToString()
-            };
-
-            try
-            {
-                if (request.BeneficiaryId == Guid.Empty || request.PhotoStream == null)
-                {
-                    response.CodigoRespuesta = HttpStatusCode.BadRequest.ToString();
-                    response.MensajeRespuesta = "Request incomplete data";
-                    return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.BadRequest };
-                }
-
-                response.Registros.Add(await BeneficiariesServices.UploadPhotoAsync(request.BeneficiaryId, request.PhotoStream));
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("BeneficiariesController: Create -> " + ex.Message);
-                response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
-                response.MensajeRespuesta = ex.Message;
-                return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
-            }
-        }
     }
 }

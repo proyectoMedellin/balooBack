@@ -1,10 +1,15 @@
 ﻿using Azure.Core;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using SiecaAPI.DTO;
+using SiecaAPI.DTO.Data;
 using SiecaAPI.Models.Services;
+using System.Drawing;
+using System.IO;
 using System.Net;
 using System.Net.Http.Headers;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace SiecaAPI.Controllers
 {
@@ -20,7 +25,8 @@ namespace SiecaAPI.Controllers
             _logger = logger;
         }
 
-        [HttpPost("Configure")]
+        [HttpPost("UploadPhoto")]
+        [Consumes("multipart/form-data")]
         public async Task<IActionResult> UploadFile()
         {
             DtoRequestResult<string> response = new()
@@ -28,20 +34,30 @@ namespace SiecaAPI.Controllers
                 CodigoRespuesta = HttpStatusCode.OK.ToString()
             };
 
-
             try
             {
                 var formCollection = await Request.ReadFormAsync();
-                if (!formCollection.Files.IsNullOrEmpty() && formCollection.Files.Count > 0)
+                if (!formCollection.Files.IsNullOrEmpty() && formCollection.Files.Count > 0 
+                    && formCollection.ContainsKey("beneficiaryId") 
+                    && Guid.TryParse(formCollection["beneficiaryId"], out Guid beneficiaryId))
                 {
+                    
+                    DtoBeneficiaries ben = await BeneficiariesServices.GetById(beneficiaryId);
+                    if(ben == null)
+                    {
+                        response.CodigoRespuesta = HttpStatusCode.BadRequest.ToString();
+                        response.MensajeRespuesta = "Beneficiary to update not found";
+                        return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.BadRequest };
+                    }
+
                     var file = formCollection.Files[0];
                     var fContentDisp = file.ContentDisposition;
-                    if(fContentDisp != null 
+                    if (fContentDisp != null
                         && ContentDispositionHeaderValue.TryParse(fContentDisp, out var cdHeaderValue)
                         && cdHeaderValue != null
                         && !string.IsNullOrEmpty(cdHeaderValue.FileName))
                     {
-                        string fileName =  cdHeaderValue.FileName.Trim('"');
+                        string fileName = ben.Id + ".jpg";
                         var folderName = Path.Combine("Resources", "Images");
 
                         if (!Directory.Exists(folderName))
@@ -55,7 +71,10 @@ namespace SiecaAPI.Controllers
                             file.CopyTo(stream);
                         }
 
-                        response.Registros.Add(dbPath);
+                        string photoPath = $"{Request.Scheme}://{Request.Host.Value}/Resources/Images/{fileName}";
+                        await BeneficiariesServices.UploadPhotoAsync(ben.Id, photoPath);
+
+                        response.Registros.Add(photoPath);
                         return Ok(response);
                     }
                 }

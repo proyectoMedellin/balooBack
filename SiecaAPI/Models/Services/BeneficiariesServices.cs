@@ -71,11 +71,8 @@ namespace SiecaAPI.Models.Services
             return await UpdateBeneficiaryPhoto(beneficiaryId, photoData);
         }
 
-        private static async Task<DtoBeneficiaries> UpdateBeneficiaryPhoto(Guid beneficiaryId, string photoData)
+        private static async Task<DtoBeneficiaries> UpdateBeneficiaryPhoto(Guid beneficiaryId, string url)
         {
-            //cargo la foto
-            string url = "https://faros.hsjdbcn.org/sites/default/files/styles/ficha-contenido/public/nino-con-camiseta-azul.jpg?itok=7SZEIBtN";
-            //actualizo la url del beneficiario
             return await DaoBeneficiariesFactory.GetDaoBeneficiaries().UpdatePhotoUrl(beneficiaryId, url);
         } 
     }
