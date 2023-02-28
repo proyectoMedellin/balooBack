@@ -4,6 +4,7 @@ using SiecaAPI.Data.Interfaces;
 using SiecaAPI.Data.SQLImpl.Entities;
 using SiecaAPI.DTO.Data;
 using SiecaAPI.Errors;
+using SiecaAPI.Models;
 
 namespace SiecaAPI.Data.SQLImpl
 {
@@ -75,31 +76,40 @@ namespace SiecaAPI.Data.SQLImpl
 
         public async Task<bool> DeleteByIdAsync(Guid id)
         {
-
-                using SqlContext context = new SqlContext();
+            using SqlContext context = new SqlContext();
+            using var transaction = context.Database.BeginTransaction();
+            try
+            {
                 if (id != Guid.Empty)
                 {
-                    AccessUserEntity accessUser = await context.AccessUsers.FindAsync(id);
+                    AccessUserEntity? accessUser = await context.AccessUsers.FindAsync(id);
                     if (accessUser != null)
                     {
                         context.AccessUsersPassword.RemoveRange(context.AccessUsersPassword.Where(p => p.AccessUserId == accessUser.Id));
+                        await context.SaveChangesAsync();
                         context.AccessUserRoles.RemoveRange(context.AccessUserRoles.Where(ur => ur.AccessUserId == accessUser.Id));
+                        await context.SaveChangesAsync();
                         context.CampusByAccessUsers.RemoveRange(context.CampusByAccessUsers.Where(cu => cu.AccessUserId == accessUser.Id));
                         await context.SaveChangesAsync();
-                        context.AccessUsers.RemoveRange(context.AccessUsers.Where(au => au.Id == accessUser.Id));
+                        context.AccessUsers.Remove(accessUser);
                         await context.SaveChangesAsync();
+
+                        transaction.Commit();   
                         return true;
                     }
-                    else
-                    {
-                        return false;
-                    }
+
+                    return false;
                 }
                 else
                 {
                     return false;
                 }
-
+            }
+            catch
+            {
+                transaction.Rollback();
+                return false;
+            }
         }
 
         public async Task<bool> ExistUserByDocument(Guid id, string document)
