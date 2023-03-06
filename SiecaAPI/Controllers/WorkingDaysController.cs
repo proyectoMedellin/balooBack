@@ -14,7 +14,7 @@ namespace SiecaAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    //[Authorize]
+    [Authorize]
     public class WorkingDaysController : ControllerBase
     {
         private readonly ILogger<WorkingDaysController> _logger;

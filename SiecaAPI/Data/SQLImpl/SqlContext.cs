@@ -5,9 +5,9 @@ using SiecaAPI.Data.SQLImpl.Entities;
 
 namespace SiecaAPI.Data.SQLImpl
 {
-    public class SqlContext: DbContext
+    public class SqlContext : DbContext
     {
-        public SqlContext(){ }        
+        public SqlContext() { }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -19,7 +19,8 @@ namespace SiecaAPI.Data.SQLImpl
         public DbSet<OrganizationEntity> Organizations { get; set; }
         public DbSet<AccessUserEntity> AccessUsers { get; set; }
         public DbSet<AccessUserPasswordEntity> AccessUsersPassword { get; set; }
-        public DbSet<DocumentTypeEntity> DocumentTypes { get; set;}
+        public DbSet<BeneficiaryAnthropometricDataEntity> BeneficiaryAnthropometricData { get; set; }
+        public DbSet<DocumentTypeEntity> DocumentTypes { get; set; }
         public DbSet<RolEntity> Roles { get; set; }
         public DbSet<PermissionEntity> Permissions { get; set; }
         public DbSet<RolPermissionEntity> RolePermissions { get; set; }
@@ -28,14 +29,15 @@ namespace SiecaAPI.Data.SQLImpl
         public DbSet<TrainingCenterEntity> TrainingCenters { get; set; }
         public DbSet<CampusEntity> Campuses { get; set; }
         public DbSet<DevelopmentRoomEntity> DevelopmentRooms { get; set; }
-        public DbSet<DevelopmentRoomGroupByYearEntity> DevelopmentRoomGroupByYearEntities { get; set; }
-        public DbSet<DevelopmentRoomGroupAgentEntity> DevelopmentRoomGroupAgentEntities { get; set; }
+        public DbSet<DevelopmentRoomGroupByYearEntity> DevelopmentRoomGroupByYears { get; set; }
+        public DbSet<DevelopmentRoomGroupAgentEntity> DevelopmentRoomGroupAgents { get; set; }
         public DbSet<CountryEntity> Countries { get; set; }
-        public DbSet<DepartmentEntity> Departments { get; set; } 
+        public DbSet<DepartmentEntity> Departments { get; set; }
         public DbSet<CityEntity> Cities { get; set; }
         public DbSet<BeneficiariesParametersEntity> BeneficiariesParameters { get; set; }
         public DbSet<BeneficiariesEntity> Beneficiaries { get; set; }
         public DbSet<BeneficiariesFamilyEntity> BeneficiariesFamilies { get; set; }
+        public DbSet<BeneficiaryAnthropometricDataEntity> BeneficiaryAnthropometricRecords { get; set; }
         public DbSet<CampusByAccessUserEntity> CampusByAccessUsers { get; set; }
         public DbSet<DevelopmentRoomGroupBeneficiaryEntity> DevelopmentRoomGroupBeneficiaries { get; set; }
         public DbSet<WorkingDayOfWeekEntity> WorkingDaysOfWeek { get; set; }
@@ -54,6 +56,6 @@ namespace SiecaAPI.Data.SQLImpl
 
             modelBuilder.Entity<DevelopmentRoomGroupBeneficiaryEntity>()
                 .HasKey(drge => new { drge.DevelopmentRoomGroupByYearId, drge.BeneficiaryId });
-        }        
+        }
     }
 }

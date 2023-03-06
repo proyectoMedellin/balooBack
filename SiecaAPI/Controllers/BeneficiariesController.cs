@@ -1,22 +1,16 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using Microsoft.Extensions.Azure;
 using SiecaAPI.DTO;
 using SiecaAPI.DTO.Data;
 using SiecaAPI.DTO.Requests;
-using SiecaAPI.DTO.Response;
-using SiecaAPI.Models;
 using SiecaAPI.Models.Services;
-using System.Drawing.Printing;
 using System.Net;
 
 namespace SiecaAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
+    //[Authorize]
     public class BeneficiariesController : ControllerBase
     {
         private readonly ILogger<BeneficiariesController> _logger;
@@ -202,7 +196,7 @@ namespace SiecaAPI.Controllers
             try
             {
                 response.Registros = await BeneficiariesServices.GetAllAsync(year, TrainingCenterId, CampusId, 
-                    DevelopmentRoomId, documentNumber, name, fEnabled, page, pageSize);
+                    DevelopmentRoomId, null, documentNumber, name, null, fEnabled, page, pageSize);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -216,8 +210,12 @@ namespace SiecaAPI.Controllers
 
         [HttpGet("GetEnabledBeneficiaries")]
         public async Task<IActionResult> GetEnabledBeneficiaries(int? year, Guid? TrainingCenterId, Guid? CampusId,
-            Guid? DevelopmentRoomId, string? documentNumber, string? name, int? page, int? pageSize)
+            Guid? DevelopmentRoomId, Guid? documentType, string? documentNumber, string? name, string? group, 
+            int? page, int? pageSize)
         {
+
+            var uName = ControllerTools.GetRequestUserName(HttpContext);
+
             DtoRequestResult<DtoBeneficiaries> response = new()
             {
                 CodigoRespuesta = HttpStatusCode.OK.ToString()
@@ -226,7 +224,7 @@ namespace SiecaAPI.Controllers
             try
             {
                 response.Registros = await BeneficiariesServices.GetAllAsync(year, TrainingCenterId, CampusId,
-                    DevelopmentRoomId, documentNumber, name, true, page, pageSize);
+                    DevelopmentRoomId, documentType, documentNumber, name, group, true, page, pageSize);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -261,6 +259,35 @@ namespace SiecaAPI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError("BeneficiariesController: getById -> " + ex.Message);
+                response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
+                response.MensajeRespuesta = ex.Message;
+                return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
+            }
+        }
+
+        [HttpGet("GetAnthropometricDataById")]
+        public async Task<IActionResult> GetAnthropometricDataById(Guid id, DateTime from, DateTime to)
+        {
+            DtoRequestResult<DtoBeneficiariesAnthropometricRecord> response = new()
+            {
+                CodigoRespuesta = HttpStatusCode.OK.ToString()
+            };
+
+            try
+            {
+                if (id == Guid.Empty)
+                {
+                    response.CodigoRespuesta = HttpStatusCode.BadRequest.ToString();
+                    response.MensajeRespuesta = "Id not found";
+                    return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.BadRequest };
+                }
+
+                response.Registros = await BeneficiariesServices.GetAnthropometricDataFromBeneficiaryId(id,from,to);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("BeneficiariesController: GetAnthropometricDataFromBeneficiaryId -> " + ex.Message);
                 response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
                 response.MensajeRespuesta = ex.Message;
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };

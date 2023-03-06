@@ -119,5 +119,10 @@ namespace SiecaAPI.Models.Services
         {
             return await DaoDevelopmentRoomFactory.GetDaoDevelopment().GetBeneficiariesByRoom(developmentRoomGroupByYearId);
         }
+
+        public static async Task<DtoDevelopmentRoomGroupByYear> GetGroupsYearAssignmentById(Guid id)
+        {
+            return await DaoDevelopmentRoomFactory.GetDaoDevelopment().GetGroupsYearAssignmentById(id);
+        }
     }
 }

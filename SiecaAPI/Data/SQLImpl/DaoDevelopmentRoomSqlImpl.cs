@@ -4,6 +4,7 @@ using SiecaAPI.Data.SQLImpl.Entities;
 using SiecaAPI.DTO.Data;
 using SiecaAPI.Errors;
 using SiecaAPI.Models;
+using System.Drawing.Printing;
 
 namespace SiecaAPI.Data.SQLImpl
 {
@@ -239,7 +240,7 @@ namespace SiecaAPI.Data.SQLImpl
             {
                 int skipData = page.Value > 0 ? (page.Value - 1) * pageSize.Value : 0;
                 grpYears = await context
-                    .DevelopmentRoomGroupByYearEntities
+                    .DevelopmentRoomGroupByYears
                     .Where(gy =>
                         ((DevRoomId.HasValue && gy.DevelopmentRoomId.Equals(DevRoomId.Value)) || !DevRoomId.HasValue) &&
                         ((year.HasValue && gy.Year.Equals(year.Value)) || !year.HasValue))
@@ -251,7 +252,7 @@ namespace SiecaAPI.Data.SQLImpl
             else
             {
                 grpYears = await context
-                    .DevelopmentRoomGroupByYearEntities
+                    .DevelopmentRoomGroupByYears
                     .Where(gy =>
                         ((DevRoomId.HasValue && gy.DevelopmentRoomId.Equals(DevRoomId.Value)) || !DevRoomId.HasValue) &&
                         ((year.HasValue && gy.Year.Equals(year.Value)) || !year.HasValue))
@@ -291,7 +292,7 @@ namespace SiecaAPI.Data.SQLImpl
                 };
 
                 //DtoDevelopmentRoomGroupAgent
-                List<DevelopmentRoomGroupAgentEntity> agentsBase = await context.DevelopmentRoomGroupAgentEntities
+                List<DevelopmentRoomGroupAgentEntity> agentsBase = await context.DevelopmentRoomGroupAgents
                     .Where(drga => drga.DevelopmentRoomGroupByYearId.Equals(dg.Id))
                     .Include(drga => drga.AccessUser)
                     .ToListAsync();
@@ -326,7 +327,7 @@ namespace SiecaAPI.Data.SQLImpl
                 DevelopmentRoomEntity room = await context.DevelopmentRooms.Where(r => r.Id.Equals(DevRoomId)).FirstAsync();
 
                 List<DevelopmentRoomGroupByYearEntity> currentAssignmentList = await context
-                    .DevelopmentRoomGroupByYearEntities
+                    .DevelopmentRoomGroupByYears
                     .Where(dry => dry.DevelopmentRoomId.Equals(DevRoomId) && dry.Year.Equals(year))
                     .ToListAsync();
 
@@ -336,7 +337,7 @@ namespace SiecaAPI.Data.SQLImpl
                     assignment = currentAssignmentList.First();
                     //se elimnan todos los datos de asignación existentes
                     context.RemoveRange(
-                            await context.DevelopmentRoomGroupAgentEntities
+                            await context.DevelopmentRoomGroupAgents
                             .Where(drga => drga.DevelopmentRoomGroupByYearId.Equals(assignment.Id))
                             .ToListAsync()
                         );
@@ -371,7 +372,7 @@ namespace SiecaAPI.Data.SQLImpl
                         CreatedBy = createdBy,
                         CreatedOn = DateTime.UtcNow
                     };
-                    context.DevelopmentRoomGroupByYearEntities.Add(assignment);
+                    context.DevelopmentRoomGroupByYears.Add(assignment);
                     await context.SaveChangesAsync();
                 }
                 
@@ -386,7 +387,7 @@ namespace SiecaAPI.Data.SQLImpl
                         AccessUserId = agent,
                         AccessUser = user,
                     };
-                    await context.DevelopmentRoomGroupAgentEntities.AddAsync(newAgent);
+                    await context.DevelopmentRoomGroupAgents.AddAsync(newAgent);
                     await context.SaveChangesAsync();
                 }
 
@@ -407,7 +408,7 @@ namespace SiecaAPI.Data.SQLImpl
             try
             {
                 List<DevelopmentRoomGroupByYearEntity> currentAssignmentList = await context
-                    .DevelopmentRoomGroupByYearEntities
+                    .DevelopmentRoomGroupByYears
                     .Where(dry => dry.Id.Equals(groupAssignmetId))
                     .ToListAsync();
 
@@ -417,7 +418,7 @@ namespace SiecaAPI.Data.SQLImpl
                     //se elimnan todos los datos de asignación existentes
                     //primero los agentes
                     context.RemoveRange(
-                            await context.DevelopmentRoomGroupAgentEntities
+                            await context.DevelopmentRoomGroupAgents
                             .Where(drga => drga.DevelopmentRoomGroupByYearId.Equals(currentAssignment.Id))
                             .ToListAsync()
                         );
@@ -455,7 +456,7 @@ namespace SiecaAPI.Data.SQLImpl
             try
             {
                 DevelopmentRoomGroupByYearEntity currentAssignment = await context
-                    .DevelopmentRoomGroupByYearEntities
+                    .DevelopmentRoomGroupByYears
                     .Where(dry => dry.Id.Equals(developmentRoomGroupByYearId))
                     .FirstAsync();
 
@@ -544,6 +545,73 @@ namespace SiecaAPI.Data.SQLImpl
                 });
             }
 
+            return response;
+        }
+
+        public async Task<DtoDevelopmentRoomGroupByYear> GetGroupsYearAssignmentById(Guid id)
+        {
+            DtoDevelopmentRoomGroupByYear response = new();
+            using SqlContext context = new SqlContext();
+            List<DevelopmentRoomGroupByYearEntity> grpYears = await context
+                    .DevelopmentRoomGroupByYears
+                    .Where(gy => gy.Id.Equals(id))
+                    .Include(tc => tc.DevelopmentRoom)
+                    .ThenInclude(tc => tc.Organization)
+                    .ToListAsync();
+
+
+            foreach (DevelopmentRoomGroupByYearEntity dg in grpYears)
+            {
+                DevelopmentRoomEntity roomInfo = await context.DevelopmentRooms
+                    .Where(r => r.Id.Equals(dg.DevelopmentRoomId))
+                    .Include(r => r.Campus)
+                    .ThenInclude(r => r.TrainingCenter)
+                    .FirstAsync();
+
+                DtoDevelopmentRoomGroupByYear groupInfo = new()
+                {
+                    Id = dg.Id,
+                    OrganizationId = dg.OrganizationId,
+                    OrganizationName = dg.Organization.Name,
+                    TrainingCenterId = roomInfo.TrainingCenterId,
+                    TrainingCenterCode = roomInfo.TrainingCenter.Code,
+                    TrainingCenterName = roomInfo.TrainingCenter.Name,
+                    CampusId = roomInfo.CampusId,
+                    CampusCode = roomInfo.Campus.Code,
+                    CampusName = roomInfo.Campus.Name,
+                    DevelopmentRoomId = dg.DevelopmentRoomId,
+                    DevelopmentRoomCode = dg.DevelopmentRoom.Code,
+                    DevelopmentRoomName = dg.DevelopmentRoom.Name,
+                    Year = dg.Year,
+                    GroupCode = dg.GroupCode,
+                    GroupName = dg.GroupName,
+                    Enabled = dg.Enabled,
+                    Agents = new(),
+                    AgentsId = new()
+                };
+
+                //DtoDevelopmentRoomGroupAgent
+                List<DevelopmentRoomGroupAgentEntity> agentsBase = await context.DevelopmentRoomGroupAgents
+                    .Where(drga => drga.DevelopmentRoomGroupByYearId.Equals(dg.Id))
+                    .Include(drga => drga.AccessUser)
+                    .ToListAsync();
+                if (agentsBase != null && agentsBase.Count > 0)
+                {
+                    foreach (AccessUserEntity a in agentsBase.Select(a => a.AccessUser))
+                    {
+                        groupInfo.Agents.Add(
+                            a.FirstName
+                            + " "
+                            + a.OtherNames
+                            + " "
+                            + a.LastName
+                            + " "
+                            + a.OtherLastName);
+                        groupInfo.AgentsId.Add(a.Id);
+                    }
+                }
+                response = groupInfo;
+            }
             return response;
         }
     }

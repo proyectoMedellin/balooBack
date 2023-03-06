@@ -52,11 +52,11 @@ namespace SiecaAPI.Models.Services
         }
 
         public static async Task<List<DtoBeneficiaries>> GetAllAsync(int? year, Guid? TrainingCenterId, Guid? CampusId,
-            Guid? DevelopmentRoomId, string? documentNumber, string? name, bool? fEnabled,
-            int? page, int? pageSize)
+            Guid? DevelopmentRoomId, Guid? documentType, string? documentNumber, string? name, string? group,
+            bool? fEnabled, int? page, int? pageSize)
         {
             return await DaoBeneficiariesFactory.GetDaoBeneficiaries().GetAllAsync(year, TrainingCenterId, CampusId,
-            DevelopmentRoomId, documentNumber, name, fEnabled, page, pageSize);
+            DevelopmentRoomId, documentType, documentNumber, name, group, fEnabled, page, pageSize);
         }
 
         public static async Task<DtoBeneficiaries> UploadPhotoAsync(Guid beneficiaryId, string photoData)
@@ -74,6 +74,11 @@ namespace SiecaAPI.Models.Services
         private static async Task<DtoBeneficiaries> UpdateBeneficiaryPhoto(Guid beneficiaryId, string url)
         {
             return await DaoBeneficiariesFactory.GetDaoBeneficiaries().UpdatePhotoUrl(beneficiaryId, url);
-        } 
+        }
+
+        public static async Task<List<DtoBeneficiariesAnthropometricRecord>> GetAnthropometricDataFromBeneficiaryId(Guid beneficiaryId, DateTime from, DateTime to)
+        {
+            return await DaoBeneficiariesFactory.GetDaoBeneficiaries().GetAnthropometricDataFromBeneficiaryId(beneficiaryId, from, to);
+        }
     }
 }

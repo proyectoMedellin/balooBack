@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using SiecaAPI.Data.Interfaces;
 using SiecaAPI.Data.SQLImpl.Entities;
 using SiecaAPI.DTO.Data;
@@ -7,6 +8,7 @@ using SiecaAPI.Models;
 using System.Collections.Generic;
 using System.Data.Entity.Core.Common;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace SiecaAPI.Data.SQLImpl
 {
@@ -416,36 +418,67 @@ namespace SiecaAPI.Data.SQLImpl
             }
         }
 
-        public async Task<List<DtoBeneficiaries>> GetAllAsync(int? year, Guid? trainingCenterId, Guid? campusId, 
-            Guid? developmentRoomId, string? documentNumber, string? name, bool? fEnabled, 
-            int? page, int? pageSize)
+        public async Task<List<DtoBeneficiaries>> GetAllAsync(int? year, Guid? trainingCenterId,
+            Guid? campusId, Guid? developmentRoomId, Guid? documentType, string? documentNumber,
+            string? name, string? fGroup, bool? fEnabled, int? page, int? pageSize)
         {
             List<DtoBeneficiaries> response = new();
-            List<BeneficiariesEntity> baseRsp;
 
             using SqlContext context = new();
 
-            if (page.HasValue && pageSize.HasValue)
+            List<BeneficiariesEntity> baseRsp;
+
+            //verifico asignaciones de centro, sala, salon grupo
+            if (year.HasValue || trainingCenterId.HasValue || campusId.HasValue || developmentRoomId.HasValue
+                || !string.IsNullOrEmpty(fGroup))
             {
-                int skipData = page.Value > 0 ? (page.Value - 1) * pageSize.Value : 0;
-                baseRsp = await context.Beneficiaries.Where(b =>
-                        (string.IsNullOrEmpty(documentNumber) || b.DocumentNumber.Contains(documentNumber)) &&
-                        (string.IsNullOrEmpty(name) || (b.FirstName+b.OtherNames+b.LastName+b.OtherLastName).Contains(name)) &&
-                        ((!fEnabled.HasValue && b.Enabled) || (fEnabled.HasValue && b.Enabled == fEnabled))
-                    )
-                    .Include(b => b.DocumentType)
-                    .Skip(skipData).Take(pageSize.Value)
-                    .ToListAsync();
+                var drAssignmentQuery = from dry in context.DevelopmentRoomGroupByYears
+                                        join dr in context.DevelopmentRooms on dry.DevelopmentRoomId equals dr.Id
+                                        join drb in context.DevelopmentRoomGroupBeneficiaries on dry.Id equals drb.DevelopmentRoomGroupByYearId
+                                        join b in context.Beneficiaries on drb.BeneficiaryId equals b.Id
+                                        where
+                                        (!year.HasValue || (year.HasValue && dry.Year.Equals(year.Value))) &&
+                                        (!trainingCenterId.HasValue ||
+                                            (trainingCenterId.HasValue && dr.TrainingCenterId.Equals(trainingCenterId.Value))) &&
+                                        (!campusId.HasValue ||
+                                            (campusId.HasValue && dr.CampusId.Equals(campusId.Value))) &&
+                                        (!developmentRoomId.HasValue ||
+                                            (developmentRoomId.HasValue && dr.Id.Equals(developmentRoomId.Value))) &&
+                                        (string.IsNullOrEmpty(fGroup) || (dry.GroupCode + dry.GroupName).ToLower().Equals(fGroup.ToLower())) &&
+                                        ((!documentType.HasValue) ||
+                                            (documentType.HasValue && b.DocumentTypeId.Equals(documentType.Value))) &&
+                                        (string.IsNullOrEmpty(documentNumber) || b.DocumentNumber.Contains(documentNumber)) &&
+                                        (string.IsNullOrEmpty(name) ||
+                                            (b.FirstName + b.OtherNames + b.LastName + b.OtherLastName).ToLower().Contains(name.ToLower())) &&
+                                        ((!fEnabled.HasValue && b.Enabled) || (fEnabled.HasValue && b.Enabled == fEnabled))
+                                        select b;
+                if (page.HasValue && pageSize.HasValue)
+                {
+                    int skipData = page.Value > 0 ? (page.Value - 1) * pageSize.Value : 0;
+                    drAssignmentQuery.Skip(skipData).Take(pageSize.Value);
+                }
+                
+                baseRsp = await drAssignmentQuery.Include(b => b.DocumentType).ToListAsync();
             }
             else
             {
-                baseRsp = await context.Beneficiaries.Where(b =>
-                        (string.IsNullOrEmpty(documentNumber) || b.DocumentNumber.Contains(documentNumber)) &&
-                        (string.IsNullOrEmpty(name) || (b.FirstName + b.OtherNames + b.LastName + b.OtherLastName).Contains(name)) &&
-                        ((!fEnabled.HasValue && b.Enabled) || (fEnabled.HasValue && b.Enabled == fEnabled))
-                    )
-                    .Include(b => b.DocumentType)
-                    .ToListAsync();
+                //si no requeriere filtros por ubicación
+                var benQuery = from b in context.Beneficiaries
+                               where
+                                ((!documentType.HasValue) ||
+                                    (documentType.HasValue && b.DocumentTypeId.Equals(documentType.Value))) &&
+                                (string.IsNullOrEmpty(documentNumber) || b.DocumentNumber.Contains(documentNumber)) &&
+                                (string.IsNullOrEmpty(name) || 
+                                    (b.FirstName + b.OtherNames + b.LastName + b.OtherLastName).ToLower().Contains(name.ToLower())) &&
+                                ((!fEnabled.HasValue && b.Enabled) || (fEnabled.HasValue && b.Enabled == fEnabled))
+                               select b;
+
+                if (page.HasValue && pageSize.HasValue)
+                {
+                    int skipData = page.Value > 0 ? (page.Value - 1) * pageSize.Value : 0;
+                    benQuery.Skip(skipData).Take(pageSize.Value);
+                }
+                baseRsp = await benQuery.Include(b => b.DocumentType).ToListAsync();
             }
 
             if (baseRsp != null && baseRsp.Count > 0)
@@ -484,6 +517,49 @@ namespace SiecaAPI.Data.SQLImpl
             }
 
             return response;
+        }
+
+        public async Task<List<DtoBeneficiariesAnthropometricRecord>> GetAnthropometricDataFromBeneficiaryId(Guid id
+            , DateTime from, DateTime to)
+        {
+            using SqlContext context = new();
+            try
+            {
+                //el filtro de fecha no funciona bien
+                List<BeneficiaryAnthropometricDataEntity> benReq = await context.BeneficiaryAnthropometricRecords
+                    .Where(r => r.BeneficiaryId.Equals(id) && 
+                        r.CreatedOn >= from && r.CreatedOn <= to 
+                        )
+                    .Include(r => r.TrainingCenter)
+                    .ToListAsync();
+
+                List<DtoBeneficiariesAnthropometricRecord> response = new();
+                if (benReq.Count > 0)
+                {
+                    foreach (BeneficiaryAnthropometricDataEntity bar in benReq)
+                    {
+                        response.Add(new DtoBeneficiariesAnthropometricRecord() { 
+                            Id = bar.Id,
+                            BeneficiaryId = bar.BeneficiaryId,
+                            TrainingCenterId = bar.TrainingCenterId,
+                            TrainingCenterCode = bar.TrainingCenter.Code,
+                            TrainingCenterName = bar.TrainingCenter.Name,
+                            Weight = bar.Weight,
+                            Height = bar.Height,
+                            Bmi = bar.Bmi,
+                            Comment = bar.Comment ?? String.Empty,
+                            CreatedOn = bar.CreatedOn,
+                            ModifiedOn = bar.ModifiedOn
+                        });
+                    }
+                }
+
+                return response;
+            }
+            catch
+            {
+                throw new NoDataFoundException("the requested beneficiary dosen't have anthrometric data");
+            }
         }
     }
 }

@@ -9,7 +9,6 @@ namespace SiecaAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    //[Authorize]
     public class ChangePasswordController : ControllerBase
     {
         private readonly ILogger<UsersController> _logger;
