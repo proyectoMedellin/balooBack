@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
+using Quartz;
+using SiecaAPI;
 using SiecaAPI.Commons;
 using System.Text;
 
@@ -12,9 +14,25 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddQuartz(q =>
+{
+    q.UseMicrosoftDependencyInjectionJobFactory();
+    var jobKey = new JobKey("DemoJob");
+    q.AddJob<OneDriveServiceJob>(opts => opts.WithIdentity(jobKey));
+
+    q.AddTrigger(opts => opts
+        .ForJob(jobKey)
+        .WithIdentity("DemoJob-trigger")
+        .WithCronSchedule(builder.Configuration["ScheduleExpression"]));
+
+});
+
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+
 //authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options => {
+    .AddJwtBearer(options =>
+    {
         options.TokenValidationParameters = new Microsoft.IdentityModel
             .Tokens.TokenValidationParameters
         {
@@ -34,8 +52,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 //{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+app.UseSwagger();
+app.UseSwaggerUI();
 //}
 
 app.UseHttpsRedirection();
