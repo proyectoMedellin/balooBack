@@ -74,6 +74,11 @@ namespace SiecaAPI.Models.Services
         private static async Task<DtoBeneficiaries> UpdateBeneficiaryPhoto(Guid beneficiaryId, string url)
         {
             return await DaoBeneficiariesFactory.GetDaoBeneficiaries().UpdatePhotoUrl(beneficiaryId, url);
-        } 
+        }
+
+        public static async Task<List<DtoBeneficiariesAnthropometricRecord>> GetAnthropometricDataFromBeneficiaryId(Guid beneficiaryId)
+        {
+            return await DaoBeneficiariesFactory.GetDaoBeneficiaries().GetAnthropometricDataFromBeneficiaryId(beneficiaryId);
+        }
     }
 }

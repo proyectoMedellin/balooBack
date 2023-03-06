@@ -423,9 +423,10 @@ namespace SiecaAPI.Data.SQLImpl
             string? name, string? fGroup, bool? fEnabled, int? page, int? pageSize)
         {
             List<DtoBeneficiaries> response = new();
-            List<BeneficiariesEntity> baseRsp;
 
             using SqlContext context = new();
+
+            List<BeneficiariesEntity> baseRsp;
 
             //verifico asignaciones de centro, sala, salon grupo
             if (year.HasValue || trainingCenterId.HasValue || campusId.HasValue || developmentRoomId.HasValue
@@ -479,6 +480,7 @@ namespace SiecaAPI.Data.SQLImpl
                 }
                 baseRsp = await benQuery.Include(b => b.DocumentType).ToListAsync();
             }
+
             if (baseRsp != null && baseRsp.Count > 0)
             {
                 foreach (BeneficiariesEntity benReq in baseRsp)
@@ -515,6 +517,45 @@ namespace SiecaAPI.Data.SQLImpl
             }
 
             return response;
+        }
+
+        public async Task<List<DtoBeneficiariesAnthropometricRecord>> GetAnthropometricDataFromBeneficiaryId(Guid id)
+        {
+            using SqlContext context = new();
+            try
+            {
+                List<BeneficiaryAnthropometricRecord> benReq = await context.BeneficiaryAnthropometricRecords
+                    .Where(r => r.BeneficiaryId.Equals(id))
+                    .Include(r => r.TrainingCenter)
+                    .ToListAsync();
+
+                List<DtoBeneficiariesAnthropometricRecord> response = new();
+                if (benReq.Count > 0)
+                {
+                    foreach (BeneficiaryAnthropometricRecord bar in benReq)
+                    {
+                        response.Add(new DtoBeneficiariesAnthropometricRecord() { 
+                            Id = bar.Id,
+                            BeneficiaryId = bar.BeneficiaryId,
+                            TrainingCenterId = bar.TrainingCenterId,
+                            TrainingCenterCode = bar.TrainingCenter.Code,
+                            TrainingCenterName = bar.TrainingCenter.Name,
+                            Weight = bar.Weight,
+                            Height = bar.Height,
+                            Bmi = bar.Bmi,
+                            Comment = bar.Comment ?? String.Empty,
+                            CreatedOn = bar.CreatedOn,
+                            ModifiedOn = bar.ModifiedOn
+                        });
+                    }
+                }
+
+                return response;
+            }
+            catch
+            {
+                throw new NoDataFoundException("the requested beneficiary dosen't have anthrometric data");
+            }
         }
     }
 }

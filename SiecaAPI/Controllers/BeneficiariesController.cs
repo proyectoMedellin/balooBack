@@ -17,7 +17,7 @@ namespace SiecaAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
+    //[Authorize]
     public class BeneficiariesController : ControllerBase
     {
         private readonly ILogger<BeneficiariesController> _logger;
@@ -266,6 +266,35 @@ namespace SiecaAPI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError("BeneficiariesController: getById -> " + ex.Message);
+                response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
+                response.MensajeRespuesta = ex.Message;
+                return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
+            }
+        }
+
+        [HttpGet("GetAnthropometricDataById")]
+        public async Task<IActionResult> GetAnthropometricDataById(Guid id)
+        {
+            DtoRequestResult<DtoBeneficiariesAnthropometricRecord> response = new()
+            {
+                CodigoRespuesta = HttpStatusCode.OK.ToString()
+            };
+
+            try
+            {
+                if (id == Guid.Empty)
+                {
+                    response.CodigoRespuesta = HttpStatusCode.BadRequest.ToString();
+                    response.MensajeRespuesta = "Id not found";
+                    return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.BadRequest };
+                }
+
+                response.Registros = await BeneficiariesServices.GetAnthropometricDataFromBeneficiaryId(id);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("BeneficiariesController: GetAnthropometricDataFromBeneficiaryId -> " + ex.Message);
                 response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
                 response.MensajeRespuesta = ex.Message;
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
