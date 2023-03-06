@@ -16,6 +16,7 @@
         public Guid DocumentTypeId { get; set; }
         public string DocumentNo { get; set; }
         public Guid? TrainingCenterId { get; set; }
+        public bool GlobalUser { get; set; }
 
         public AccessUser(string userName, string email, string firstName, string lastName)
         {
@@ -24,7 +25,7 @@
             FirstName = firstName;
             LastName = lastName;
         }
-        public AccessUser(Guid id, Guid organizationId, string userName, string email, string firstName, string? otherNames, string lastName, string? otherLastName, Guid documentTypeId, string documentNo, Guid? trainingCenterId)
+        public AccessUser(Guid id, Guid organizationId, string userName, string email, string firstName, string? otherNames, string lastName, string? otherLastName, Guid documentTypeId, string documentNo, Guid? trainingCenterId, bool globalUser)
         {
             Id = id;
             OrganizationId = organizationId;
@@ -37,6 +38,7 @@
             DocumentTypeId = documentTypeId;
             DocumentNo = documentNo;
             TrainingCenterId = trainingCenterId;
+            GlobalUser = globalUser;
         }
     }
 }

@@ -66,6 +66,25 @@ namespace SiecaAPI.Data.SQLImpl
             throw new NotImplementedException();
         }
 
+        public async Task<bool> GetUserIsAdmin(string UserName)
+        {
+            bool response = false;
+            using SqlContext context = new SqlContext();
+            AccessUserEntity user = await context.AccessUsers
+                .Where(u => u.UserName == UserName).FirstAsync();
+
+            List<AccessUserRolEntity> userRoles = user != null && user.Id != Guid.Empty ?
+                    await context.AccessUserRoles.Where(aur => aur.AccessUserId == user.Id).ToListAsync() :
+                    await context.AccessUserRoles.Where(aur => aur.AccessUserExternalId == UserName).ToListAsync();
+            RolEntity rol = await context.Roles
+                .Where(r => r.Name == "SUPER_ADMINISTRADOR").FirstAsync();
+            foreach(AccessUserRolEntity userRol in userRoles)
+            {
+                if (userRol.RolId == rol.Id) response = true;
+            }
+            return response;
+        }
+
         public async Task<DtoRol> UpdateAsync(DtoRol rol)
         {
             using SqlContext context = new SqlContext();

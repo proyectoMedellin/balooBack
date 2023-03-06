@@ -83,5 +83,12 @@ namespace SiecaAPI.Services
             //}
             return rol;
         }
+        public static async Task<bool> GetUserIsAdmin(string userName)
+        {
+
+            bool isAdmin = await DaoRolFactory
+                .GetDaoRoles().GetUserIsAdmin(userName);
+            return isAdmin;
+        }
     }
 }

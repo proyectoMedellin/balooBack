@@ -20,8 +20,9 @@ namespace SiecaAPI.DTO.Data
         public Guid? TrainingCenterId   { get; set; }
         public List<Guid> CampusId { get; set; }
         public List<Guid> RolsId { get; set; }
+        public bool GlobalUser { get; set; }
         public DtoAccessUser(string userName, string email, string firstName, string? otherNames, string lastName, string? otherLastName,
-           bool requirePaswordChange, string createdBy, string? phone, Guid documentTypeId, string documentNo, Guid? trainingCenterId)
+           bool requirePaswordChange, string createdBy, string? phone, Guid documentTypeId, string documentNo, Guid? trainingCenterId, bool globalUser)
         {
             UserName = userName;
             Email = email;
@@ -35,9 +36,10 @@ namespace SiecaAPI.DTO.Data
             DocumentTypeId = documentTypeId;
             DocumentNo = documentNo;
             TrainingCenterId = trainingCenterId;
+            GlobalUser = globalUser;
         }
         public DtoAccessUser(Guid? id, string userName, string email, string firstName, string? otherNames, string lastName, string? otherLastName,
-           bool requirePaswordChange, string createdBy, string? phone, Guid documentTypeId, string documentNo, Guid? trainingCenterId)
+           bool requirePaswordChange, string createdBy, string? phone, Guid documentTypeId, string documentNo, Guid? trainingCenterId, bool globalUser)
         {
             Id = id;
             UserName = userName;
@@ -52,9 +54,10 @@ namespace SiecaAPI.DTO.Data
             DocumentTypeId = documentTypeId;
             DocumentNo = documentNo;
             TrainingCenterId = trainingCenterId;
+            GlobalUser = globalUser;
         }
         public DtoAccessUser( string userName, string email, string firstName, string? otherNames, string lastName, string? otherLastName,
-            bool requirePaswordChange, string createdBy, string? phone, Guid documentTypeId, string documentNo, Guid trainingCenterId, List<Guid> campusId, List<Guid> rolsId)
+            bool requirePaswordChange, string createdBy, string? phone, Guid documentTypeId, string documentNo, Guid? trainingCenterId, List<Guid>? campusId, List<Guid> rolsId, bool globalUser)
         {
             UserName = userName;
             Email = email;
@@ -70,9 +73,10 @@ namespace SiecaAPI.DTO.Data
             TrainingCenterId = trainingCenterId;
             CampusId = campusId;
             RolsId = rolsId;
+            GlobalUser = globalUser;
         }
         public DtoAccessUser(string userName, string email, string firstName, string? otherNames, string lastName, string? otherLastName,
-            bool requirePaswordChange, string? phone, Guid documentTypeId, string documentNo, Guid trainingCenterId, List<Guid> campusId, List<Guid> rolsId)
+            bool requirePaswordChange, string? phone, Guid documentTypeId, string documentNo, Guid? trainingCenterId, List<Guid>? campusId, List<Guid> rolsId, bool globalUser)
         {
             UserName = userName;
             Email = email;
@@ -87,9 +91,10 @@ namespace SiecaAPI.DTO.Data
             TrainingCenterId = trainingCenterId;
             CampusId = campusId;
             RolsId = rolsId;
+            GlobalUser = globalUser;
         }
         public DtoAccessUser(Guid? id, string userName, string email, string firstName, string? otherNames, string lastName, string? otherLastName,
-            bool requirePaswordChange, string createdBy, string? phone, Guid documentTypeId, string documentNo, Guid? trainingCenterId, List<Guid> campusId, List<Guid> rolsId)
+            bool requirePaswordChange, string createdBy, string? phone, Guid documentTypeId, string documentNo, Guid? trainingCenterId, List<Guid> campusId, List<Guid> rolsId, bool globalUser)
         {
             Id = id;
             UserName = userName;
@@ -106,6 +111,7 @@ namespace SiecaAPI.DTO.Data
             TrainingCenterId = trainingCenterId;
             CampusId = campusId;
             RolsId = rolsId;
+            GlobalUser = globalUser;
         }
     }
 }

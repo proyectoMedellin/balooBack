@@ -11,5 +11,6 @@ namespace SiecaAPI.Data.Interfaces
         public Task<List<DtoRol>> GetAllAsync();
         public Task<DtoRol> GetByNameAsync(string Name);
         public Task<DtoRol> GetByIdAsync(Guid id);
+        public Task<bool> GetUserIsAdmin(string UserName);
     }
 }

@@ -35,6 +35,11 @@ namespace SiecaAPI.Data.DataverseImpl
             throw new NotImplementedException();
         }
 
+        public Task<bool> GetUserIsAdmin(string UserName)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<DtoRol> UpdateAsync(DtoRol rol)
         {
             throw new NotImplementedException();

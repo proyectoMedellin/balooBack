@@ -22,13 +22,13 @@ namespace SiecaAPI.Data.SQLImpl
                 OrganizationEntity org = await context.Organizations
                     .Where(o => o.Id == user.OrganizationId).FirstAsync();
                 TrainingCenterEntity tra = await context.TrainingCenters
-                    .Where(t => t.Id == user.TrainingCenterId).FirstAsync();
+                    .Where(t => t.Id == user.TrainingCenterId).FirstOrDefaultAsync();
                 if (org != null)
                 {
                     AccessUserEntity accessUser = new(org, user.UserName, user.Email, 
                         user.FirstName, user.OtherNames, user.LastName, user.OtherLastName, 
                         user.RequirePaswordChange, true, user.CreatedBy, DateTime.Now, 
-                        null, null, user.Phone, user.DocumentTypeId, user.DocumentNo, tra);
+                        null, null, user.Phone, user.DocumentTypeId, user.DocumentNo, tra, user.GlobalUser);
 
                     await context.AccessUsers.AddAsync(accessUser);
      
@@ -176,7 +176,7 @@ namespace SiecaAPI.Data.SQLImpl
             {
                 dtoAccessUser.Add(new DtoAccessUser(user.UserName, user.Email, user.FirstName, user.OtherNames,
                     user.LastName,user.OtherLastName,user.RequirePaswordChange,
-                    user.CreatedBy,user.Phone,user.DocumentTypeId,user.DocumentNo, user.TrainingCenterId));
+                    user.CreatedBy,user.Phone,user.DocumentTypeId,user.DocumentNo, user.TrainingCenterId, user.GlobalUser));
             }
             return dtoAccessUser;
         }
@@ -202,7 +202,7 @@ namespace SiecaAPI.Data.SQLImpl
             {
                 dtoAccessUser.Add(new DtoAccessUser(user.Id, user.UserName, user.Email, user.FirstName, user.OtherNames,
                     user.LastName, user.OtherLastName, user.RequirePaswordChange,
-                    user.CreatedBy, user.Phone, user.DocumentTypeId, user.DocumentNo, user.TrainingCenterId));
+                    user.CreatedBy, user.Phone, user.DocumentTypeId, user.DocumentNo, user.TrainingCenterId, user.GlobalUser));
             }
             return dtoAccessUser;
         }
@@ -229,7 +229,7 @@ namespace SiecaAPI.Data.SQLImpl
             }
             return new DtoAccessUser(user.Id, user.UserName, user.Email, user.FirstName, user.OtherNames,
                 user.LastName, user.OtherLastName, user.RequirePaswordChange, user.CreatedBy,
-                user.Phone, user.DocumentTypeId, user.DocumentNo, user.TrainingCenterId, CampusId, RolsId);
+                user.Phone, user.DocumentTypeId, user.DocumentNo, user.TrainingCenterId, CampusId, RolsId, user.GlobalUser);
         }
 
         public async Task<List<DtoUserRol>> GetRolesByUser(string userName)
@@ -291,7 +291,7 @@ namespace SiecaAPI.Data.SQLImpl
                         accessUser.Phone = user.Phone;
                         accessUser.DocumentTypeId= user.DocumentTypeId;
                         accessUser.DocumentNo = user.DocumentNo;
-                        accessUser.TrainingCenterId = user.TrainingCenterId;
+                        if(user.TrainingCenterId != Guid.Empty ) accessUser.TrainingCenterId = user.TrainingCenterId;
                         context.Update(accessUser);
                         foreach (Guid rols in user.RolsId)
                         {

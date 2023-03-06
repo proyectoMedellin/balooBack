@@ -19,8 +19,10 @@ namespace SiecaAPI.DTO.Response
         public Guid? TrainingCenterId { get; set; }
         public List<Guid> CampusId { get; set; }
         public List<Guid> RolsId { get; set; }
+        public bool GlobalUser { get; set; }
 
-        public DtoAccessUserResp(Guid? id, Guid? organizationId, string userName, string email, string firstName, string? otherNames, string lastName, string? otherLastName,Guid documentTypeId, string documentNo, Guid? trainingCenterId)
+        public DtoAccessUserResp(Guid? id, Guid? organizationId, string userName, string email, string firstName, string? otherNames, string lastName, string?
+            otherLastName, Guid documentTypeId, string documentNo, Guid? trainingCenterId, bool globalUser)
         {
             Id = id;
             OrganizationId = organizationId;
@@ -33,9 +35,10 @@ namespace SiecaAPI.DTO.Response
             DocumentTypeId = documentTypeId;
             DocumentNo = documentNo;
             TrainingCenterId = trainingCenterId;
+            GlobalUser = globalUser;
         }
         public DtoAccessUserResp(Guid? id, Guid? organizationId, string userName, string email, string firstName, string? otherNames, string lastName, string? otherLastName, Guid documentTypeId, string documentNo, Guid? trainingCenterId,
-            List<Guid> campusId, List<Guid> rolsid, string phone)
+            List<Guid> campusId, List<Guid> rolsid, string phone, bool globalUser)
         {
             Id = id;
             OrganizationId = organizationId;
@@ -51,6 +54,7 @@ namespace SiecaAPI.DTO.Response
             CampusId = campusId;
             RolsId = rolsid;
             Phone = phone;
+            GlobalUser = globalUser;
         }
         public DtoAccessUserResp(Guid? organizationId, string userName, string email, string firstName, string? otherNames, string lastName, string? otherLastName, Guid documentTypeId, string documentNo)
         {

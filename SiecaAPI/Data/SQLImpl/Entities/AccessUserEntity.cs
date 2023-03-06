@@ -40,13 +40,13 @@ namespace SiecaAPI.Data.SQLImpl.Entities
         public Guid DocumentTypeId { get; set; }
         [Required]
         public string DocumentNo { get; set; }
-        [Required]
         [ForeignKey("TraininCenterId")]
         public Guid? TrainingCenterId  { get; set; }
         public virtual TrainingCenterEntity? TrainingCenter  { get; set; }
-        public AccessUserEntity (OrganizationEntity organization, string userName, string email, string firstName, string? otherNames, 
+        public bool GlobalUser { get; set; }
+        public AccessUserEntity(OrganizationEntity organization, string userName, string email, string firstName, string? otherNames,
             string lastName, string? otherLastName, bool requirePaswordChange, bool enabled, string createBy, DateTime createdOn,
-            string? modifiedBy, DateTime? modifiedOn, string? phone, Guid documentTypeId, string documentNo, TrainingCenterEntity? trainingCenter)
+            string? modifiedBy, DateTime? modifiedOn, string? phone, Guid documentTypeId, string documentNo, TrainingCenterEntity? trainingCenter, bool globalUser)
         {
             OrganizationId = organization.Id;
             Organization = organization;
@@ -64,12 +64,16 @@ namespace SiecaAPI.Data.SQLImpl.Entities
             if (!string.IsNullOrEmpty(modifiedBy))
             {
                 ModifiedBy = modifiedBy;
-                ModifiedOn = modifiedOn ?? DateTime.Now ;
+                ModifiedOn = modifiedOn ?? DateTime.Now;
             }
             DocumentTypeId = documentTypeId;
             DocumentNo = documentNo;
-            TrainingCenterId = trainingCenter.Id;
-            TrainingCenter = trainingCenter;
+            if (trainingCenter != null)
+            {
+                TrainingCenterId = trainingCenter.Id;
+                TrainingCenter = trainingCenter;
+            }
+            GlobalUser = globalUser;
         }
 
         public AccessUserEntity()

@@ -13,8 +13,9 @@
         public string? Phone { get; set; }
         public Guid? DocumentTypeId { get; set; }
         public string? DocumentNo { get; set; }
-        public Guid TrainingCenterId { get; set; }
-        public List<Guid> CampusId { get; set; }
+        public Guid? TrainingCenterId { get; set; } = Guid.Empty;
+        public List<Guid>? CampusId { get; set; } = new List<Guid>();
         public List<Guid> RolsId { get; set; }
+        public bool GlobalUser { get; set; }
     }
 }

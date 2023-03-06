@@ -135,7 +135,36 @@ namespace SiecaAPI.Controllers
             }
 
         }
+        [HttpGet("ExistUserByName")]
+        public async Task<IActionResult> IsAdmin(string userName)
+        {
+            DtoRequestResult<bool> response = new DtoRequestResult<bool>
+            {
+                CodigoRespuesta = HttpStatusCode.OK.ToString()
+            };
 
+            try
+            {
+                if (!string.IsNullOrEmpty(userName))
+                {
+                    bool exist = await RolServices.GetUserIsAdmin(userName);
+                    response.Registros.Add(exist);
+                }
+                else
+                {
+                    throw new MissingArgumentsException("el parametro userName no puede ser vacio");
+                }
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("RolController: IsAdmin -> " + ex.Message);
+                response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
+                response.MensajeRespuesta = ex.Message;
+                return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
+            }
+        }
 
     }
 }

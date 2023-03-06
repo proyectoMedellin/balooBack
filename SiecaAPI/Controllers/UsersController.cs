@@ -38,10 +38,10 @@ namespace SiecaAPI.Controllers
                 {
                     AccessUser user = await UsersServices.CreateAccessUserAsync(request.UserName, request.Email, request.FirstName, request.OtherNames,
                         request.LastName, request.OtherLastName, true, request.CreatedBy, request.Phone, request.DocumentTypeId.Value, request.DocumentNo, 
-                        request.TrainingCenterId, request.CampusId, request.RolsId);
+                        request.TrainingCenterId, request.CampusId, request.RolsId, request.GlobalUser);
                     response.Registros.Add(new DtoAccessUserResp(user.Id, user.OrganizationId, user.UserName,
                         user.Email, user.FirstName, user.OtherLastName,
-                        user.LastName, user.OtherLastName, user.DocumentTypeId, user.DocumentNo, user.TrainingCenterId));
+                        user.LastName, user.OtherLastName, user.DocumentTypeId, user.DocumentNo, user.TrainingCenterId, user.GlobalUser));
                 }
                 else
                 {
@@ -77,7 +77,7 @@ namespace SiecaAPI.Controllers
 
                     response.Registros.Add(new DtoAccessUserResp(user.Id.Value, user.OrganizationId, 
                         user.UserName, user.Email, user.FirstName, user.OtherNames, user.LastName,
-                        user.OtherLastName, user.DocumentTypeId, user.DocumentNo, user.TrainingCenterId, user.CampusId, user.RolsId, user.Phone));
+                        user.OtherLastName, user.DocumentTypeId, user.DocumentNo, user.TrainingCenterId, user.CampusId, user.RolsId, user.Phone, user.GlobalUser));
                 }
                 else
                 {
@@ -113,10 +113,10 @@ namespace SiecaAPI.Controllers
                     
                     bool userResponse = await UsersServices.UpdateAccessUserAsync(request.oldUserName,request.UserName, request.Email, request.FirstName, request.OtherNames,
                         request.LastName, request.OtherLastName, true, request.Phone, request.DocumentTypeId.Value, request.DocumentNo,
-                        request.TrainingCenterId, request.CampusId, request.RolsId);
+                        request.TrainingCenterId, request.CampusId, request.RolsId, request.GlobalUser);
                     response.Registros.Add(new DtoAccessUserResp(user.Id.Value, user.OrganizationId,
                         request.UserName, request.Email, request.FirstName, request.OtherNames,
-                        request.LastName, request.OtherLastName, request.DocumentTypeId.Value, request.DocumentNo, request.TrainingCenterId));
+                        request.LastName, request.OtherLastName, request.DocumentTypeId.Value, request.DocumentNo, request.TrainingCenterId, request.GlobalUser));
                 }
                 else
                 {
@@ -183,7 +183,7 @@ namespace SiecaAPI.Controllers
                 {
                     dtoAccessUserResp.Add(new DtoAccessUserResp(user.Id, user.OrganizationId,
                         user.UserName, user.Email, user.FirstName, user.OtherNames, user.LastName,
-                        user.OtherLastName, user.DocumentTypeId, user.DocumentNo,null));
+                        user.OtherLastName, user.DocumentTypeId, user.DocumentNo, null, user.GlobalUser));
                 }
                 response.Registros.Add(new List<DtoAccessUserResp>(dtoAccessUserResp));
                 return Ok(response);
