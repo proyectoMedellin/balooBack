@@ -14,7 +14,7 @@ namespace SiecaAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
+    //[Authorize]
     public class DevelopmentRoomController : ControllerBase
     {
         private readonly ILogger<DevelopmentRoomController> _logger;
@@ -379,6 +379,35 @@ namespace SiecaAPI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError("DevelopmentRoomController: DeleteGroupAssignment -> " + ex.Message);
+                response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
+                response.MensajeRespuesta = ex.Message;
+                return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
+            }
+        }
+
+        [HttpGet("GetGroupsYearAssignmentById")]
+        public async Task<IActionResult> GetGroupsYearAssignmentById(Guid id)
+        {
+            DtoRequestResult<DtoDevelopmentRoomGroupByYear> response = new()
+            {
+                CodigoRespuesta = HttpStatusCode.OK.ToString()
+            };
+
+            try
+            {
+                if (id == Guid.Empty)
+                {
+                    response.CodigoRespuesta = HttpStatusCode.BadRequest.ToString();
+                    response.MensajeRespuesta = "Id not found";
+                    return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.BadRequest };
+                }
+
+                response.Registros.Add(await DevelopmentRoomsServices.GetGroupsYearAssignmentById(id));
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("DevelopmentRoomController: GetGroupsYearAssignmentById -> " + ex.Message);
                 response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
                 response.MensajeRespuesta = ex.Message;
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };

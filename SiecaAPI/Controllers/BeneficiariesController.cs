@@ -1,17 +1,10 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using Microsoft.Extensions.Azure;
 using SiecaAPI.DTO;
 using SiecaAPI.DTO.Data;
 using SiecaAPI.DTO.Requests;
-using SiecaAPI.DTO.Response;
-using SiecaAPI.Models;
 using SiecaAPI.Models.Services;
-using System.Drawing.Printing;
 using System.Net;
-using System.Xml.Linq;
 
 namespace SiecaAPI.Controllers
 {
@@ -273,7 +266,7 @@ namespace SiecaAPI.Controllers
         }
 
         [HttpGet("GetAnthropometricDataById")]
-        public async Task<IActionResult> GetAnthropometricDataById(Guid id)
+        public async Task<IActionResult> GetAnthropometricDataById(Guid id, DateTime from, DateTime to)
         {
             DtoRequestResult<DtoBeneficiariesAnthropometricRecord> response = new()
             {
@@ -289,7 +282,7 @@ namespace SiecaAPI.Controllers
                     return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.BadRequest };
                 }
 
-                response.Registros = await BeneficiariesServices.GetAnthropometricDataFromBeneficiaryId(id);
+                response.Registros = await BeneficiariesServices.GetAnthropometricDataFromBeneficiaryId(id,from,to);
                 return Ok(response);
             }
             catch (Exception ex)

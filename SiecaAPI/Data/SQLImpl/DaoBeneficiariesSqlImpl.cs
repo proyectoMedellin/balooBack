@@ -519,20 +519,24 @@ namespace SiecaAPI.Data.SQLImpl
             return response;
         }
 
-        public async Task<List<DtoBeneficiariesAnthropometricRecord>> GetAnthropometricDataFromBeneficiaryId(Guid id)
+        public async Task<List<DtoBeneficiariesAnthropometricRecord>> GetAnthropometricDataFromBeneficiaryId(Guid id
+            , DateTime from, DateTime to)
         {
             using SqlContext context = new();
             try
             {
-                List<BeneficiaryAnthropometricRecord> benReq = await context.BeneficiaryAnthropometricRecords
-                    .Where(r => r.BeneficiaryId.Equals(id))
+                //el filtro de fecha no funciona bien
+                List<BeneficiaryAnthropometricDataEntity> benReq = await context.BeneficiaryAnthropometricRecords
+                    .Where(r => r.BeneficiaryId.Equals(id) && 
+                        r.CreatedOn >= from && r.CreatedOn <= to 
+                        )
                     .Include(r => r.TrainingCenter)
                     .ToListAsync();
 
                 List<DtoBeneficiariesAnthropometricRecord> response = new();
                 if (benReq.Count > 0)
                 {
-                    foreach (BeneficiaryAnthropometricRecord bar in benReq)
+                    foreach (BeneficiaryAnthropometricDataEntity bar in benReq)
                     {
                         response.Add(new DtoBeneficiariesAnthropometricRecord() { 
                             Id = bar.Id,

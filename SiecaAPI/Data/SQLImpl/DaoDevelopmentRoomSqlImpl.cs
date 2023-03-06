@@ -4,6 +4,7 @@ using SiecaAPI.Data.SQLImpl.Entities;
 using SiecaAPI.DTO.Data;
 using SiecaAPI.Errors;
 using SiecaAPI.Models;
+using System.Drawing.Printing;
 
 namespace SiecaAPI.Data.SQLImpl
 {
@@ -544,6 +545,73 @@ namespace SiecaAPI.Data.SQLImpl
                 });
             }
 
+            return response;
+        }
+
+        public async Task<DtoDevelopmentRoomGroupByYear> GetGroupsYearAssignmentById(Guid id)
+        {
+            DtoDevelopmentRoomGroupByYear response = new();
+            using SqlContext context = new SqlContext();
+            List<DevelopmentRoomGroupByYearEntity> grpYears = await context
+                    .DevelopmentRoomGroupByYears
+                    .Where(gy => gy.Id.Equals(id))
+                    .Include(tc => tc.DevelopmentRoom)
+                    .ThenInclude(tc => tc.Organization)
+                    .ToListAsync();
+
+
+            foreach (DevelopmentRoomGroupByYearEntity dg in grpYears)
+            {
+                DevelopmentRoomEntity roomInfo = await context.DevelopmentRooms
+                    .Where(r => r.Id.Equals(dg.DevelopmentRoomId))
+                    .Include(r => r.Campus)
+                    .ThenInclude(r => r.TrainingCenter)
+                    .FirstAsync();
+
+                DtoDevelopmentRoomGroupByYear groupInfo = new()
+                {
+                    Id = dg.Id,
+                    OrganizationId = dg.OrganizationId,
+                    OrganizationName = dg.Organization.Name,
+                    TrainingCenterId = roomInfo.TrainingCenterId,
+                    TrainingCenterCode = roomInfo.TrainingCenter.Code,
+                    TrainingCenterName = roomInfo.TrainingCenter.Name,
+                    CampusId = roomInfo.CampusId,
+                    CampusCode = roomInfo.Campus.Code,
+                    CampusName = roomInfo.Campus.Name,
+                    DevelopmentRoomId = dg.DevelopmentRoomId,
+                    DevelopmentRoomCode = dg.DevelopmentRoom.Code,
+                    DevelopmentRoomName = dg.DevelopmentRoom.Name,
+                    Year = dg.Year,
+                    GroupCode = dg.GroupCode,
+                    GroupName = dg.GroupName,
+                    Enabled = dg.Enabled,
+                    Agents = new(),
+                    AgentsId = new()
+                };
+
+                //DtoDevelopmentRoomGroupAgent
+                List<DevelopmentRoomGroupAgentEntity> agentsBase = await context.DevelopmentRoomGroupAgents
+                    .Where(drga => drga.DevelopmentRoomGroupByYearId.Equals(dg.Id))
+                    .Include(drga => drga.AccessUser)
+                    .ToListAsync();
+                if (agentsBase != null && agentsBase.Count > 0)
+                {
+                    foreach (AccessUserEntity a in agentsBase.Select(a => a.AccessUser))
+                    {
+                        groupInfo.Agents.Add(
+                            a.FirstName
+                            + " "
+                            + a.OtherNames
+                            + " "
+                            + a.LastName
+                            + " "
+                            + a.OtherLastName);
+                        groupInfo.AgentsId.Add(a.Id);
+                    }
+                }
+                response = groupInfo;
+            }
             return response;
         }
     }

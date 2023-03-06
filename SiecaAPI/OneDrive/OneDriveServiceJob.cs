@@ -12,7 +12,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
-namespace SiecaAPI;
+namespace SiecaAPI.OneDrive;
 
 public class OneDriveServiceJob : IJob
 {
@@ -66,7 +66,7 @@ public class OneDriveServiceJob : IJob
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Failed due to -> "  + ex.ToString());
+            Console.WriteLine("Failed due to -> " + ex.ToString());
         }
     }
 

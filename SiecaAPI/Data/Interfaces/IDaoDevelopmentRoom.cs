@@ -12,6 +12,7 @@ namespace SiecaAPI.Data.Interfaces
         public Task<List<DtoDevelopmentRoom>> GetActiveByCampusAsync(Guid campusId);
         public Task<DtoDevelopmentRoom> GetByIdAsync(Guid id);
         public Task<List<DtoDevelopmentRoomGroupByYear>> GetAllGroupsByYear(Guid? DevRoomId, int? year, int? page, int? pageSize);
+        public Task<DtoDevelopmentRoomGroupByYear> GetGroupsYearAssignmentById(Guid id);
         public Task<bool> AssignAgentsByYear(Guid OrganizationId, Guid DevRoomId, int year, string groupCode,
             string groupName, List<Guid> agentsIds, string createdBy);
         public Task<bool> AssignBeneficiariesByYear(Guid organizationId, Guid trainingCenterId, Guid campusId,
