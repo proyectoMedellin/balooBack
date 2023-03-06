@@ -28,8 +28,8 @@ namespace SiecaAPI.Data.SQLImpl
         public DbSet<TrainingCenterEntity> TrainingCenters { get; set; }
         public DbSet<CampusEntity> Campuses { get; set; }
         public DbSet<DevelopmentRoomEntity> DevelopmentRooms { get; set; }
-        public DbSet<DevelopmentRoomGroupByYearEntity> DevelopmentRoomGroupByYearEntities { get; set; }
-        public DbSet<DevelopmentRoomGroupAgentEntity> DevelopmentRoomGroupAgentEntities { get; set; }
+        public DbSet<DevelopmentRoomGroupByYearEntity> DevelopmentRoomGroupByYears { get; set; }
+        public DbSet<DevelopmentRoomGroupAgentEntity> DevelopmentRoomGroupAgents { get; set; }
         public DbSet<CountryEntity> Countries { get; set; }
         public DbSet<DepartmentEntity> Departments { get; set; } 
         public DbSet<CityEntity> Cities { get; set; }

@@ -11,6 +11,7 @@ using SiecaAPI.Models;
 using SiecaAPI.Models.Services;
 using System.Drawing.Printing;
 using System.Net;
+using System.Xml.Linq;
 
 namespace SiecaAPI.Controllers
 {
@@ -202,7 +203,7 @@ namespace SiecaAPI.Controllers
             try
             {
                 response.Registros = await BeneficiariesServices.GetAllAsync(year, TrainingCenterId, CampusId, 
-                    DevelopmentRoomId, documentNumber, name, fEnabled, page, pageSize);
+                    DevelopmentRoomId, null, documentNumber, name, null, fEnabled, page, pageSize);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -216,8 +217,12 @@ namespace SiecaAPI.Controllers
 
         [HttpGet("GetEnabledBeneficiaries")]
         public async Task<IActionResult> GetEnabledBeneficiaries(int? year, Guid? TrainingCenterId, Guid? CampusId,
-            Guid? DevelopmentRoomId, string? documentNumber, string? name, int? page, int? pageSize)
+            Guid? DevelopmentRoomId, Guid? documentType, string? documentNumber, string? name, string? group, 
+            int? page, int? pageSize)
         {
+
+            var uName = ControllerTools.GetRequestUserName(HttpContext);
+
             DtoRequestResult<DtoBeneficiaries> response = new()
             {
                 CodigoRespuesta = HttpStatusCode.OK.ToString()
@@ -226,7 +231,7 @@ namespace SiecaAPI.Controllers
             try
             {
                 response.Registros = await BeneficiariesServices.GetAllAsync(year, TrainingCenterId, CampusId,
-                    DevelopmentRoomId, documentNumber, name, true, page, pageSize);
+                    DevelopmentRoomId, documentType, documentNumber, name, group, true, page, pageSize);
                 return Ok(response);
             }
             catch (Exception ex)

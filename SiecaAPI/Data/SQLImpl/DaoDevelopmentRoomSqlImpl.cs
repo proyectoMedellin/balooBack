@@ -239,7 +239,7 @@ namespace SiecaAPI.Data.SQLImpl
             {
                 int skipData = page.Value > 0 ? (page.Value - 1) * pageSize.Value : 0;
                 grpYears = await context
-                    .DevelopmentRoomGroupByYearEntities
+                    .DevelopmentRoomGroupByYears
                     .Where(gy =>
                         ((DevRoomId.HasValue && gy.DevelopmentRoomId.Equals(DevRoomId.Value)) || !DevRoomId.HasValue) &&
                         ((year.HasValue && gy.Year.Equals(year.Value)) || !year.HasValue))
@@ -251,7 +251,7 @@ namespace SiecaAPI.Data.SQLImpl
             else
             {
                 grpYears = await context
-                    .DevelopmentRoomGroupByYearEntities
+                    .DevelopmentRoomGroupByYears
                     .Where(gy =>
                         ((DevRoomId.HasValue && gy.DevelopmentRoomId.Equals(DevRoomId.Value)) || !DevRoomId.HasValue) &&
                         ((year.HasValue && gy.Year.Equals(year.Value)) || !year.HasValue))
@@ -291,7 +291,7 @@ namespace SiecaAPI.Data.SQLImpl
                 };
 
                 //DtoDevelopmentRoomGroupAgent
-                List<DevelopmentRoomGroupAgentEntity> agentsBase = await context.DevelopmentRoomGroupAgentEntities
+                List<DevelopmentRoomGroupAgentEntity> agentsBase = await context.DevelopmentRoomGroupAgents
                     .Where(drga => drga.DevelopmentRoomGroupByYearId.Equals(dg.Id))
                     .Include(drga => drga.AccessUser)
                     .ToListAsync();
@@ -326,7 +326,7 @@ namespace SiecaAPI.Data.SQLImpl
                 DevelopmentRoomEntity room = await context.DevelopmentRooms.Where(r => r.Id.Equals(DevRoomId)).FirstAsync();
 
                 List<DevelopmentRoomGroupByYearEntity> currentAssignmentList = await context
-                    .DevelopmentRoomGroupByYearEntities
+                    .DevelopmentRoomGroupByYears
                     .Where(dry => dry.DevelopmentRoomId.Equals(DevRoomId) && dry.Year.Equals(year))
                     .ToListAsync();
 
@@ -336,7 +336,7 @@ namespace SiecaAPI.Data.SQLImpl
                     assignment = currentAssignmentList.First();
                     //se elimnan todos los datos de asignación existentes
                     context.RemoveRange(
-                            await context.DevelopmentRoomGroupAgentEntities
+                            await context.DevelopmentRoomGroupAgents
                             .Where(drga => drga.DevelopmentRoomGroupByYearId.Equals(assignment.Id))
                             .ToListAsync()
                         );
@@ -371,7 +371,7 @@ namespace SiecaAPI.Data.SQLImpl
                         CreatedBy = createdBy,
                         CreatedOn = DateTime.UtcNow
                     };
-                    context.DevelopmentRoomGroupByYearEntities.Add(assignment);
+                    context.DevelopmentRoomGroupByYears.Add(assignment);
                     await context.SaveChangesAsync();
                 }
                 
@@ -386,7 +386,7 @@ namespace SiecaAPI.Data.SQLImpl
                         AccessUserId = agent,
                         AccessUser = user,
                     };
-                    await context.DevelopmentRoomGroupAgentEntities.AddAsync(newAgent);
+                    await context.DevelopmentRoomGroupAgents.AddAsync(newAgent);
                     await context.SaveChangesAsync();
                 }
 
@@ -407,7 +407,7 @@ namespace SiecaAPI.Data.SQLImpl
             try
             {
                 List<DevelopmentRoomGroupByYearEntity> currentAssignmentList = await context
-                    .DevelopmentRoomGroupByYearEntities
+                    .DevelopmentRoomGroupByYears
                     .Where(dry => dry.Id.Equals(groupAssignmetId))
                     .ToListAsync();
 
@@ -417,7 +417,7 @@ namespace SiecaAPI.Data.SQLImpl
                     //se elimnan todos los datos de asignación existentes
                     //primero los agentes
                     context.RemoveRange(
-                            await context.DevelopmentRoomGroupAgentEntities
+                            await context.DevelopmentRoomGroupAgents
                             .Where(drga => drga.DevelopmentRoomGroupByYearId.Equals(currentAssignment.Id))
                             .ToListAsync()
                         );
@@ -455,7 +455,7 @@ namespace SiecaAPI.Data.SQLImpl
             try
             {
                 DevelopmentRoomGroupByYearEntity currentAssignment = await context
-                    .DevelopmentRoomGroupByYearEntities
+                    .DevelopmentRoomGroupByYears
                     .Where(dry => dry.Id.Equals(developmentRoomGroupByYearId))
                     .FirstAsync();
 

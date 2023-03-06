@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Azure;
@@ -9,6 +10,7 @@ using SiecaAPI.DTO.Response;
 using SiecaAPI.Models.Services;
 using System.Drawing.Printing;
 using System.Net;
+using System.Security.Claims;
 
 namespace SiecaAPI.Controllers
 {
@@ -167,6 +169,8 @@ namespace SiecaAPI.Controllers
         public async Task<IActionResult> ViewGrid(int page, int pageSize, string? fCode,
             string? fName, bool? fEnabled)
         {
+            var uName = ControllerTools.GetRequestUserName(HttpContext);
+
             DtoRequestResult<DtoTrainingCenterViewGridResp> response = new DtoRequestResult<DtoTrainingCenterViewGridResp>
             {
                 CodigoRespuesta = HttpStatusCode.OK.ToString()
