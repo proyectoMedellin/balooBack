@@ -135,7 +135,7 @@ namespace SiecaAPI.Controllers
             }
 
         }
-        [HttpGet("ExistUserByName")]
+        [HttpGet("IsUserAdmin")]
         public async Task<IActionResult> IsAdmin(string userName)
         {
             DtoRequestResult<bool> response = new DtoRequestResult<bool>
