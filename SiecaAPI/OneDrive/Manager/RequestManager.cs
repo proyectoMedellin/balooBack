@@ -16,10 +16,7 @@ internal class RequestManager
 
     private async Task<HttpClient> GetAuthenticatedClientAsync(CancellationToken token)
     {
-        var client = new HttpClient
-        {
-            //BaseAddress = new Uri("https://graph.microsoft.com/v1.0/me/drive/root")
-        };
+        var client = new HttpClient();
 
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await new TokenManager(configuration)
             .GetTokenAsync(token));
