@@ -2,12 +2,16 @@
 {
     public class DtoDevRoomGroupBeneficiariesCreateReq
     {
-        public Guid OrganizationId { set; get; }
-        public Guid TrainingCenterId { set; get; }
-        public Guid CampusId { set; get; }
-        public Guid DevelopmentRoomId { set; get; }
         public Guid DevelopmentRoomGroupByYearId { get; set; }
-        public List<Guid> BeneficiariesIds { get; set; } = new();
-        public string assignamentUser { get; set; } = string.Empty;
+        public string AssignamentUser { get; set; } = string.Empty;
+        public List<DtoBeneficiaryToAssign> Beneficiaries { get; set; } = new();
+    }
+
+    public class DtoBeneficiaryToAssign
+    {
+        public Guid Id { get; set; } = Guid.Empty;
+        public string DocumentType { get; set; } = string.Empty;
+        public string DocumentNumber { get; set; } = string.Empty;
+        public string Names { get; set; } = string.Empty;
     }
 }

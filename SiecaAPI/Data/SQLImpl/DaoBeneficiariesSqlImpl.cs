@@ -446,7 +446,7 @@ namespace SiecaAPI.Data.SQLImpl
                                             (campusId.HasValue && dr.CampusId.Equals(campusId.Value))) &&
                                         (!developmentRoomId.HasValue ||
                                             (developmentRoomId.HasValue && dr.Id.Equals(developmentRoomId.Value))) &&
-                                        (string.IsNullOrEmpty(fGroup) || (dry.GroupCode + dry.GroupName).ToLower().Equals(fGroup.ToLower())) &&
+                                        (string.IsNullOrEmpty(fGroup) || (dry.GroupCode + dry.GroupName).ToLower().Contains(fGroup.ToLower())) &&
                                         ((!documentType.HasValue) ||
                                             (documentType.HasValue && b.DocumentTypeId.Equals(documentType.Value))) &&
                                         (string.IsNullOrEmpty(documentNumber) || b.DocumentNumber.Contains(documentNumber)) &&

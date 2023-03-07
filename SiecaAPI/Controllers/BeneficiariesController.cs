@@ -209,6 +209,7 @@ namespace SiecaAPI.Controllers
         }
 
         [HttpGet("GetEnabledBeneficiaries")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetEnabledBeneficiaries(int? year, Guid? TrainingCenterId, Guid? CampusId,
             Guid? DevelopmentRoomId, Guid? documentType, string? documentNumber, string? name, string? group, 
             int? page, int? pageSize)

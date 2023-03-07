@@ -14,7 +14,7 @@ namespace SiecaAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    //[Authorize]
+    [Authorize]
     public class DevelopmentRoomController : ControllerBase
     {
         private readonly ILogger<DevelopmentRoomController> _logger;
@@ -326,9 +326,8 @@ namespace SiecaAPI.Controllers
 
             try
             {
-                response.Registros.Add(await DevelopmentRoomsServices.AssignBeneficiariesByYear(assignment.OrganizationId,
-                    assignment.TrainingCenterId, assignment.CampusId, assignment.DevelopmentRoomId, assignment.DevelopmentRoomGroupByYearId,
-                    assignment.BeneficiariesIds, assignment.assignamentUser));
+                response.Registros.Add(await DevelopmentRoomsServices.AssignBeneficiariesByYear(assignment.DevelopmentRoomGroupByYearId,
+                    assignment.Beneficiaries, assignment.AssignamentUser));
                 return Ok(response);
             }
             catch (Exception ex)

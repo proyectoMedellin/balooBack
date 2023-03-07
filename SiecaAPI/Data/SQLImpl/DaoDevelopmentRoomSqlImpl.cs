@@ -498,7 +498,7 @@ namespace SiecaAPI.Data.SQLImpl
                 transaction.Commit();
                 return true;
             }
-            catch
+            catch(Exception e)
             {
                 transaction.Rollback();
                 return false;
@@ -511,6 +511,7 @@ namespace SiecaAPI.Data.SQLImpl
             List<DevelopmentRoomGroupBeneficiaryEntity> assignments = await context.DevelopmentRoomGroupBeneficiaries
                 .Where(b => b.DevelopmentRoomGroupByYearId.Equals(developmentRoomGroupByYearId))
                 .Include(b => b.Beneficiary)
+                .ThenInclude(b => b.DocumentType)
                 .ToListAsync();
 
             List<DtoBeneficiaries> response = new();
@@ -521,6 +522,7 @@ namespace SiecaAPI.Data.SQLImpl
                     Id = benReq.Id,
                     OrganizationId = benReq.OrganizationId,
                     DocumentTypeId = benReq.DocumentTypeId,
+                    DocumentTypeName = benReq.DocumentType.Name,
                     DocumentNumber = benReq.DocumentNumber,
                     FirstName = benReq.FirstName,
                     OtherNames = benReq.OtherNames,

@@ -1,5 +1,6 @@
 ﻿using SiecaAPI.Data.Factory;
 using SiecaAPI.DTO.Data;
+using SiecaAPI.DTO.Requests;
 using SiecaAPI.Errors;
 using SiecaAPI.Services;
 using System;
@@ -108,11 +109,21 @@ namespace SiecaAPI.Models.Services
             return await DaoDevelopmentRoomFactory.GetDaoDevelopment().DeleteGroupAssignment(groupAssignmentId);
         }
 
-        public static async Task<bool> AssignBeneficiariesByYear(Guid organizationId, Guid trainingCenterId, Guid campusId,
-            Guid developmentRoomId, Guid developmentRoomGroupByYearId, List<Guid> beneficiariesList, string assignmentUser)
+        public static async Task<bool> AssignBeneficiariesByYear(Guid developmentRoomGroupByYearId, 
+            List<DtoBeneficiaryToAssign> beneficiariesList, string assignmentUser)
         {
-            return await DaoDevelopmentRoomFactory.GetDaoDevelopment().AssignBeneficiariesByYear(organizationId, trainingCenterId, campusId,
-                developmentRoomId, developmentRoomGroupByYearId, beneficiariesList, assignmentUser);
+            DtoDevelopmentRoomGroupByYear roomInfo = await DaoDevelopmentRoomFactory.GetDaoDevelopment()
+                .GetGroupsYearAssignmentById(developmentRoomGroupByYearId);
+            
+            List<Guid> beneficiariesIds = new();
+            foreach(DtoBeneficiaryToAssign ben in beneficiariesList)
+            {
+                beneficiariesIds.Add(ben.Id);
+            }
+
+            return await DaoDevelopmentRoomFactory.GetDaoDevelopment().AssignBeneficiariesByYear(roomInfo.OrganizationId,
+                roomInfo.TrainingCenterId, roomInfo.CampusId, roomInfo.DevelopmentRoomId, 
+                developmentRoomGroupByYearId, beneficiariesIds, assignmentUser);
         }
 
         public static async Task<List<DtoBeneficiaries>> GetBeneficiariesByRoom(Guid developmentRoomGroupByYearId)
