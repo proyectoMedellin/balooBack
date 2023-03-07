@@ -38,6 +38,7 @@ namespace SiecaAPI.Data.SQLImpl
         public DbSet<BeneficiariesEntity> Beneficiaries { get; set; }
         public DbSet<BeneficiariesFamilyEntity> BeneficiariesFamilies { get; set; }
         public DbSet<BeneficiaryAnthropometricDataEntity> BeneficiaryAnthropometricRecords { get; set; }
+        public DbSet<BeneficiariesEmotionsRecordEntity> BeneficiariesEmotionsRecords { get; set; }
         public DbSet<CampusByAccessUserEntity> CampusByAccessUsers { get; set; }
         public DbSet<DevelopmentRoomGroupBeneficiaryEntity> DevelopmentRoomGroupBeneficiaries { get; set; }
         public DbSet<WorkingDayOfWeekEntity> WorkingDaysOfWeek { get; set; }

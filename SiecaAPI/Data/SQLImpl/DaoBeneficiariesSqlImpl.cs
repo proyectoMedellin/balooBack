@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Graph.Applications.Item.CreatedOnBehalfOf;
 using Microsoft.IdentityModel.Tokens;
+using SiecaAPI.Commons;
 using SiecaAPI.Data.Interfaces;
 using SiecaAPI.Data.SQLImpl.Entities;
 using SiecaAPI.DTO.Data;
@@ -528,9 +530,9 @@ namespace SiecaAPI.Data.SQLImpl
                 //el filtro de fecha no funciona bien
                 List<BeneficiaryAnthropometricDataEntity> benReq = await context.BeneficiaryAnthropometricRecords
                     .Where(r => r.BeneficiaryId.Equals(id) && 
-                        r.CreatedOn >= from && r.CreatedOn <= to 
-                        )
+                        r.CreatedOn >= from && r.CreatedOn <= to)
                     .Include(r => r.TrainingCenter)
+                    .OrderByDescending(r => r.CreatedOn)
                     .ToListAsync();
 
                 List<DtoBeneficiariesAnthropometricRecord> response = new();
@@ -559,6 +561,52 @@ namespace SiecaAPI.Data.SQLImpl
             catch
             {
                 throw new NoDataFoundException("the requested beneficiary dosen't have anthrometric data");
+            }
+        }   
+
+        public async Task<List<DtoBeneficiariesEmotionsRecord>> GetEmotionsDataById(Guid id, DateTime from, DateTime to)
+        {
+            using SqlContext context = new();
+            try
+            {
+                List<DateTime> days = new();
+                DateTime cDate = from;
+                while (cDate <= to)
+                {
+                    days.Add(cDate);
+                    cDate = cDate.AddDays(1);
+                }
+
+                List<BeneficiariesEmotionsRecordEntity> benReq = await context.BeneficiariesEmotionsRecords
+                    .Where(r => r.BeneficiaryId.Equals(id) && r.CreatedOn >= from && r.CreatedOn <= to)
+                    .Include(r => r.Beneficiary)
+                    .Include(r => r.DevelopmentRoom)
+                    .ToListAsync();
+
+
+                List<DtoBeneficiariesEmotionsRecord> response = new();
+                foreach (DateTime d in days)
+                {
+                    DtoBeneficiariesEmotionsRecord dayEmotion = new();
+                    dayEmotion.CreatedOn = d;
+                    foreach (BeneficiariesEmotionsRecordEntity bar in benReq.Where(r => r.CreatedOn.Equals(d)))
+                    {
+                        dayEmotion.Id = bar.Id;
+                        dayEmotion.BeneficiaryId = bar.BeneficiaryId;
+                        dayEmotion.DevelopmentRoomId = bar.DevelopmentRoomId;
+                        dayEmotion.IntegrationId = bar.IntegrationId;
+                        dayEmotion.EmotionId = bar.EmotionId;
+                        dayEmotion.EmotionName = PrConstants.GetEmotionName(bar.EmotionId);
+                        dayEmotion.CreatedOn = bar.CreatedOn;
+                        response.Add(dayEmotion);
+                    }
+                    if(dayEmotion.Id.Equals(Guid.Empty)) response.Add(dayEmotion);
+                }
+                return response;
+            }
+            catch
+            {
+                throw new NoDataFoundException("the requested beneficiary dosen't have emotions data");
             }
         }
     }

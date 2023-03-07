@@ -25,5 +25,38 @@
         public const int USERLOGINDATEPOS = 2;
         public const string USERDATASEPARATOR = "||";
         public const int USERLOGINMAXVERIFICATIONTIME = 10000;
+
+        //emociones
+        public const int EMOTION_NOT_FOUND = -1;
+        public const int EMOTION_SMILE = 0;
+        public const int EMOTION_ANGRY = 1;
+        public const int EMOTION_SAD = 2;
+        public const int EMOTION_DISGUSTED = 3;
+        public const int EMOTION_SCARED = 4;
+        public const int EMOTION_SURPRISED = 5;
+        public const int EMOTION_NORMAL = 6;
+        public const int EMOTION_LAUGH = 7;
+        public const int EMOTION_HAPPY = 8;
+        public const int EMOTION_CONFUSED = 9;
+        public const int EMOTION_SCREAM = 10;
+
+        public static string GetEmotionName(int emotionId) {
+            string response = emotionId switch
+            {
+                EMOTION_SMILE => "Sonriente",
+                EMOTION_ANGRY => "Disgustado",
+                EMOTION_SAD => "Triste",
+                EMOTION_DISGUSTED => "Disgustado",
+                EMOTION_SCARED => "Asustado",
+                EMOTION_SURPRISED => "Sorprendido",
+                EMOTION_NORMAL => "Normal",
+                EMOTION_LAUGH => "Sonriente",
+                EMOTION_HAPPY => "Feliz",
+                EMOTION_CONFUSED => "Confundido",
+                EMOTION_SCREAM => "Gritando",
+                _ => "NO_IDENTIFICADO",
+            };
+            return response;
+        }
     }
 }

@@ -15,5 +15,6 @@ namespace SiecaAPI.Data.Interfaces
         public Task<List<DtoBeneficiariesParameters>> GetBeneficiaryParameterInfoByType(string type);
         public Task<bool> DeleteAsync(Guid id);
         public Task<List<DtoBeneficiariesAnthropometricRecord>> GetAnthropometricDataFromBeneficiaryId(Guid id, DateTime from, DateTime to);
+        public Task<List<DtoBeneficiariesEmotionsRecord>> GetEmotionsDataById(Guid id, DateTime from, DateTime to);
     }
 }

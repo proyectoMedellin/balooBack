@@ -10,7 +10,7 @@ namespace SiecaAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    //[Authorize]
+    [Authorize]
     public class BeneficiariesController : ControllerBase
     {
         private readonly ILogger<BeneficiariesController> _logger;
@@ -288,6 +288,35 @@ namespace SiecaAPI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError("BeneficiariesController: GetAnthropometricDataFromBeneficiaryId -> " + ex.Message);
+                response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
+                response.MensajeRespuesta = ex.Message;
+                return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
+            }
+        }
+
+        [HttpGet("GetEmotionsDataById")]
+        public async Task<IActionResult> GetEmotionsDataById(Guid id, DateTime from, DateTime to)
+        {
+            DtoRequestResult<DtoBeneficiariesEmotionsRecord> response = new()
+            {
+                CodigoRespuesta = HttpStatusCode.OK.ToString()
+            };
+
+            try
+            {
+                if (id == Guid.Empty)
+                {
+                    response.CodigoRespuesta = HttpStatusCode.BadRequest.ToString();
+                    response.MensajeRespuesta = "Id not found";
+                    return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.BadRequest };
+                }
+
+                response.Registros = await BeneficiariesServices.GetEmotionsDataById(id, from, to);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("BeneficiariesController: GetEmotionsDataById -> " + ex.Message);
                 response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
                 response.MensajeRespuesta = ex.Message;
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
