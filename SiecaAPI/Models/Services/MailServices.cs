@@ -16,6 +16,7 @@ namespace SiecaAPI.Services
             mail.From = new MailAddress(AppParamsTools.GetEnvironmentVariable("Email:MailAddress"));
             mail.To.Add(receptor);
             mail.Subject = subject;
+            mail.IsBodyHtml = true;
             mail.Body = body;
 
             SmtpServer.Port = Int32.Parse(AppParamsTools.GetEnvironmentVariable("Email:Port"));
