@@ -27,9 +27,9 @@ namespace SiecaAPI.Data.SQLImpl.Entities
         public DateTime? ModifiedOn { get; set; }
 
         [ForeignKey(nameof(BeneficiaryId))]
-        public BeneficiariesEntity Beneficiaries { get; set; }
+        public virtual BeneficiariesEntity Beneficiaries { get; set; } = new();
 
         [ForeignKey(nameof(TrainingCenterId))]
-        public TrainingCenterEntity TrainingCenter { get; set; }
+        public virtual TrainingCenterEntity TrainingCenter { get; set; } = new();
     }
 }
