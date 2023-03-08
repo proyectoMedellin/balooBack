@@ -11,8 +11,14 @@ namespace SiecaAPI.Data.SQLImpl
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            string conn = AppParamsTools.GetEnvironmentVariable("ConnectionStrings:sqlDB");
+            //version sql server
+            /*string conn = AppParamsTools.GetEnvironmentVariable("ConnectionStrings:sqlDB");
             optionsBuilder.UseSqlServer(conn);
+            base.OnConfiguring(optionsBuilder);*/
+
+            //version postgres
+            string conn = AppParamsTools.GetEnvironmentVariable("ConnectionStrings:PgSqlDB");
+            optionsBuilder.UseNpgsql(conn);
             base.OnConfiguring(optionsBuilder);
         }
 

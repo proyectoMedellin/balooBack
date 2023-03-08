@@ -77,7 +77,7 @@ namespace SiecaAPI.Data.SQLImpl
                     await context.AccessUserRoles.Where(aur => aur.AccessUserId == user.Id).ToListAsync() :
                     await context.AccessUserRoles.Where(aur => aur.AccessUserExternalId == UserName).ToListAsync();
             RolEntity rol = await context.Roles
-                .Where(r => r.Name == "SUPER_ADMINISTRADOR").FirstAsync();
+                .Where(r => r.Name == PrConstants.ROL_NAME).FirstAsync();
             foreach(AccessUserRolEntity userRol in userRoles)
             {
                 if (userRol.RolId == rol.Id) response = true;

@@ -10,6 +10,7 @@
 
 
         //permisos
+        public const string ROL_NAME = "SUPER_ADMINISTRADOR";
         public const string PERMISSION_TYPE_MENU = "Menu";
         public const string PERMISSION_TYPE_BUTTON = "Button";
         public const string PERMISSION_TYPE_FIELD = "Field";
