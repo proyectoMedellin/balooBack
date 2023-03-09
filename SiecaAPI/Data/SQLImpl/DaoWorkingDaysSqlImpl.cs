@@ -46,7 +46,7 @@ namespace SiecaAPI.Data.SQLImpl
                     hToCreate.Add(new HolidayEntity()
                     {
                         Year = newWdw.Year,
-                        Day = h.Day,
+                        Day = h.Day.ToUniversalTime(),
                         CreatedBy = wd.ConfUser,
                         CreatedOn = DateTime.UtcNow
                     });

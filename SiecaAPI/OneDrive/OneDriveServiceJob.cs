@@ -98,6 +98,7 @@ public class OneDriveServiceJob : IJob
 
                     if (benList.Count > 0 && tcList.Count > 0)
                     {
+                        DateTime CreatedOn = DateTime.ParseExact(csv.GetField("created")!.Replace(" p. m.", "").Replace(" a. m.", ""), "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
                         models.Add(new BeneficiaryAnthropometricDataEntity
                         {
                             Id = Guid.NewGuid(),
@@ -109,7 +110,7 @@ public class OneDriveServiceJob : IJob
                             Weight = Convert.ToDecimal(csv.GetField("Weight value") == "-" ? null : csv.GetField("Weight value")),
                             Height = Convert.ToDecimal(csv.GetField("Height value") == "-" ? null : csv.GetField("Height value")),
                             Bmi = Convert.ToDecimal(csv.GetField("BMI value") == "-" ? null : csv.GetField("BMI value")),
-                            CreatedOn = DateTime.ParseExact(csv.GetField("created")!.Replace(" p. m.", "").Replace(" a. m.", ""), "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+                            CreatedOn = CreatedOn.ToUniversalTime(),
                             ModifiedOn = csv.GetField("last modified") != "-" ? DateTime.ParseExact(csv.GetField("last modified")!.Replace(" p. m.", "").Replace(" a. m.", ""), "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture) : null
                         });
                     }

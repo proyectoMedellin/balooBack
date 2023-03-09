@@ -72,7 +72,7 @@ namespace SiecaAPI.Data.SQLImpl
                 c.IntegrationCode = campus.IntegrationCode;
                 c.Enabled = campus.Enabled;
                 c.ModifiedBy = campus.ModifiedBy;
-                c.ModifiedOn = DateTime.Now;
+                c.ModifiedOn = DateTime.UtcNow;
                 await context.SaveChangesAsync();
 
                 campus.OrganizationId = c.OrganizationId;

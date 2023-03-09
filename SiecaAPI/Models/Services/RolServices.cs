@@ -54,7 +54,7 @@ namespace SiecaAPI.Services
             rol.NewAccessUserDefaultRol = newAccessUserDefaultRol;
             rol.Enabled = enabled;
             rol.ModifiedBy = modifiedBy;
-            rol.ModifiedOn = DateTime.Now;
+            rol.ModifiedOn = DateTime.UtcNow;
             
             rol = await DaoRolFactory.GetDaoRoles().UpdateAsync(rol);
             

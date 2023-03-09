@@ -29,7 +29,7 @@ namespace SiecaAPI.Data.SQLImpl.Entities
         public string CreatedBy { get; set; } = string.Empty;
 
         [Required]
-        public DateTime CreatedOn { get; set; } = DateTime.Now;
+        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
 
         public string? ModifiedBy { get; set; }
         public DateTime? ModifiedOn { get; set; }
@@ -47,7 +47,7 @@ namespace SiecaAPI.Data.SQLImpl.Entities
             if (!string.IsNullOrEmpty(modifiedBy))
             {
                 ModifiedBy = modifiedBy;
-                ModifiedOn = !modifiedOn.HasValue ? DateTime.Now : modifiedOn.Value;
+                ModifiedOn = !modifiedOn.HasValue ? DateTime.UtcNow : modifiedOn.Value;
             }
         }
         public PermissionEntity()

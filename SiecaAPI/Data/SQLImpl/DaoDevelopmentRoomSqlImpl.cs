@@ -81,7 +81,7 @@ namespace SiecaAPI.Data.SQLImpl
                 oldRoom.DahuaChannelCode = devRoom.DahuaChannelCode;
                 oldRoom.Enabled = devRoom.Enabled;
                 oldRoom.ModifiedBy = devRoom.ModifiedBy;
-                oldRoom.ModifiedOn = DateTime.Now;
+                oldRoom.ModifiedOn = DateTime.UtcNow;
                 await context.SaveChangesAsync();
 
                 devRoom.OrganizationId = oldRoom.OrganizationId;

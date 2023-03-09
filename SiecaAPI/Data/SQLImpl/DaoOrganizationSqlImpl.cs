@@ -11,7 +11,7 @@ namespace SiecaAPI.Data.SQLImpl
         {                     
 
             OrganizationEntity newOrg = new OrganizationEntity(org.Name,
-                true, org.CreatedBy, DateTime.Now, null, null);
+                true, org.CreatedBy, DateTime.UtcNow, null, null);
 
             using SqlContext context = new SqlContext();
             await context.Organizations.AddAsync(newOrg);

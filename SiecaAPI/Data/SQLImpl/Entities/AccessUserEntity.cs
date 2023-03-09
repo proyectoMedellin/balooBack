@@ -64,7 +64,7 @@ namespace SiecaAPI.Data.SQLImpl.Entities
             if (!string.IsNullOrEmpty(modifiedBy))
             {
                 ModifiedBy = modifiedBy;
-                ModifiedOn = modifiedOn ?? DateTime.Now;
+                ModifiedOn = modifiedOn ?? DateTime.UtcNow;
             }
             DocumentTypeId = documentTypeId;
             DocumentNo = documentNo;

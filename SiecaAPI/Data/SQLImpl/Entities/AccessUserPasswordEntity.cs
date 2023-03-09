@@ -25,7 +25,7 @@ namespace SiecaAPI.Data.SQLImpl.Entities
             if (!string.IsNullOrEmpty(modifiedBy))
             {
                 ModifiedBy = modifiedBy;
-                ModifiedOn = !modifiedOn.HasValue ? DateTime.Now : modifiedOn.Value;
+                ModifiedOn = !modifiedOn.HasValue ? DateTime.UtcNow : modifiedOn.Value;
             }
         }
 

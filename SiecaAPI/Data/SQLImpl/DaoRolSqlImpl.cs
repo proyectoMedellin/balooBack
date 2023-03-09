@@ -20,7 +20,7 @@ namespace SiecaAPI.Data.SQLImpl
             if (org != null)
             {
                 RolEntity newRol = new(org, rol.Name,rol.Description,rol.NewAccessUserDefaultRol,
-                    rol.Enabled, rol.CreatedBy, DateTime.Now, null, null);
+                    rol.Enabled, rol.CreatedBy, DateTime.UtcNow, null, null);
                 await context.Roles.AddAsync(newRol);
                 await context.SaveChangesAsync();
                 rol.Id = newRol.Id;
@@ -104,7 +104,7 @@ namespace SiecaAPI.Data.SQLImpl
                 updateRol.NewAccessUserDefaultRol = rol.NewAccessUserDefaultRol;
                 updateRol.Enabled = rol.Enabled;
                 updateRol.ModifiedBy = rol.ModifiedBy;
-                updateRol.ModifiedOn = DateTime.Now;
+                updateRol.ModifiedOn = DateTime.UtcNow;
 
                 context.Update(updateRol);
                 await context.SaveChangesAsync();

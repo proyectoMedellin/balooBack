@@ -27,7 +27,7 @@ namespace SiecaAPI.Data.SQLImpl
                 {
                     AccessUserEntity accessUser = new(org, user.UserName, user.Email, 
                         user.FirstName, user.OtherNames, user.LastName, user.OtherLastName, 
-                        user.RequirePaswordChange, true, user.CreatedBy, DateTime.Now, 
+                        user.RequirePaswordChange, true, user.CreatedBy, DateTime.UtcNow, 
                         null, null, user.Phone, user.DocumentTypeId, user.DocumentNo, tra, user.GlobalUser);
 
                     await context.AccessUsers.AddAsync(accessUser);
@@ -38,7 +38,7 @@ namespace SiecaAPI.Data.SQLImpl
                     string tmpPassword = SecurityTools.GeneratePassword();
 
                     AccessUserPasswordEntity password = new(accessUser.Id, tmpPassword, accessUser.CreatedBy, 
-                        DateTime.Now, null, null);
+                        DateTime.UtcNow, null, null);
 
                     await context.AccessUsersPassword.AddAsync(password);
                     await context.SaveChangesAsync();
@@ -287,7 +287,7 @@ namespace SiecaAPI.Data.SQLImpl
                         accessUser.OtherNames = user.OtherNames;
                         accessUser.LastName = user.LastName;
                         accessUser.OtherLastName = user.OtherLastName;
-                        accessUser.ModifiedOn = DateTime.Now;
+                        accessUser.ModifiedOn = DateTime.UtcNow;
                         accessUser.Phone = user.Phone;
                         accessUser.DocumentTypeId= user.DocumentTypeId;
                         accessUser.DocumentNo = user.DocumentNo;

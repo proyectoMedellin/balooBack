@@ -22,7 +22,7 @@ namespace SiecaAPI.Models.Services
                 string pass = userDataArray[PrConstants.USERPASSPOS];
                 DateTime reqGeneratedTime = DateTime.Parse(userDataArray[PrConstants.USERLOGINDATEPOS]);
 
-                if ((DateTime.Now - reqGeneratedTime).TotalSeconds > PrConstants.USERLOGINMAXVERIFICATIONTIME) 
+                if ((DateTime.UtcNow - reqGeneratedTime).TotalSeconds > PrConstants.USERLOGINMAXVERIFICATIONTIME) 
                     throw new InvalidLoginException("Datos de acceso no validos");
 
                 bool existUser = await DaoAccessUserFactory.GetDaoAccessUsers()

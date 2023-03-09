@@ -50,7 +50,7 @@ namespace SiecaAPI.Data.SQLImpl
                 tc.IntegrationCode = tcenter.IntegrationCode;
                 tc.Enabled = tcenter.Enabled;
                 tc.ModifiedBy = tcenter.ModifiedBy;
-                tc.ModifiedOn = DateTime.Now;
+                tc.ModifiedOn = DateTime.UtcNow;
                 await context.SaveChangesAsync();
 
                 tcenter.OrganizationId = tc.OrganizationId;
