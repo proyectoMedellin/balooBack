@@ -529,7 +529,7 @@ namespace SiecaAPI.Data.SQLImpl
                     LastName = benReq.LastName,
                     OtherLastName = benReq.OtherLastName,
                     GenderId = benReq.GenderId,
-                    BirthDate = benReq.BirthDate,
+                    BirthDate = benReq.BirthDate.ToUniversalTime(),
                     BirthCountryId = benReq.BirthCountryId,
                     BirthDepartmentId = benReq.BirthDepartmentId,
                     BirthCityId = benReq.BirthCityId,

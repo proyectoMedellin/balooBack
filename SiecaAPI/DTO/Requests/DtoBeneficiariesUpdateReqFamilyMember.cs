@@ -2,7 +2,7 @@
 {
     public class DtoBeneficiariesUpdateReqFamilyMember
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
         public Guid OrganizationId { get; set; }
         public Guid BeneficiaryId { get; set; }
         public Guid DocumentTypeId { get; set; } = Guid.Empty;

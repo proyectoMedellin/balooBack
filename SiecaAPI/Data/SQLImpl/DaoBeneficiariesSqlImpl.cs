@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Graph.Applications.Item.CreatedOnBehalfOf;
+using Microsoft.Graph.Models;
 using Microsoft.IdentityModel.Tokens;
 using SiecaAPI.Commons;
 using SiecaAPI.Data.Interfaces;
@@ -55,7 +56,7 @@ namespace SiecaAPI.Data.SQLImpl
                     OtherLastName = beneficiary.OtherLastName,
                     GenderId = gender.Id,
                     Gender = gender,
-                    BirthDate = beneficiary.BirthDate,
+                    BirthDate = beneficiary.BirthDate.ToUniversalTime(),
                     BirthCountryId = birthContry.Id,
                     BirthCountry = birthContry,
                     BirthDepartmentId = birthDepartment.Id,
@@ -124,7 +125,7 @@ namespace SiecaAPI.Data.SQLImpl
                 transaction.Commit();
                 return beneficiary;
             }
-            catch
+            catch(Exception e)
             {
                 transaction.Rollback();
                 throw;
@@ -171,7 +172,7 @@ namespace SiecaAPI.Data.SQLImpl
                 updBen.OtherLastName = beneficiary.OtherLastName;
                 updBen.GenderId = gender.Id;
                 updBen.Gender = gender;
-                updBen.BirthDate = beneficiary.BirthDate;
+                updBen.BirthDate = beneficiary.BirthDate.ToUniversalTime();
                 updBen.BirthCountryId = birthContry.Id;
                 updBen.BirthCountry = birthContry;
                 updBen.BirthDepartmentId = birthDepartment.Id;
@@ -234,9 +235,9 @@ namespace SiecaAPI.Data.SQLImpl
                         ModifiedBy = updBen.ModifiedBy,
                         ModifiedOn = DateTime.UtcNow
                     };
-
                     await context.BeneficiariesFamilies.AddAsync(newFmember);
                     await context.SaveChangesAsync();
+
                     beneficiary.FamilyMembers[fcount].Id = newFmember.Id;
                     beneficiary.FamilyMembers[fcount].BeneficiaryId = newFmember.BeneficiaryId;
                     beneficiary.FamilyMembers[fcount].OrganizationId = newFmember.OrganizationId;
@@ -245,7 +246,7 @@ namespace SiecaAPI.Data.SQLImpl
                 transaction.Commit();
                 return beneficiary;
             }
-            catch
+            catch(Exception e)
             {
                 transaction.Rollback();
                 throw;
@@ -272,7 +273,7 @@ namespace SiecaAPI.Data.SQLImpl
                 LastName = benReq.LastName,
                 OtherLastName = benReq.OtherLastName,
                 GenderId = benReq.GenderId,
-                BirthDate = benReq.BirthDate,
+                BirthDate = benReq.BirthDate.ToUniversalTime(),
                 BirthCountryId = benReq.BirthCountryId,
                 BirthDepartmentId = benReq.BirthDepartmentId,
                 BirthCityId = benReq.BirthCityId,
@@ -372,7 +373,7 @@ namespace SiecaAPI.Data.SQLImpl
                     LastName = benReq.LastName,
                     OtherLastName = benReq.OtherLastName,
                     GenderId = benReq.GenderId,
-                    BirthDate = benReq.BirthDate,
+                    BirthDate = benReq.BirthDate.ToUniversalTime(),
                     BirthCountryId = benReq.BirthCountryId,
                     BirthDepartmentId = benReq.BirthDepartmentId,
                     BirthCityId = benReq.BirthCityId,
@@ -499,7 +500,7 @@ namespace SiecaAPI.Data.SQLImpl
                         LastName = benReq.LastName,
                         OtherLastName = benReq.OtherLastName,
                         GenderId = benReq.GenderId,
-                        BirthDate = benReq.BirthDate,
+                        BirthDate = benReq.BirthDate.ToUniversalTime(),
                         BirthCountryId = benReq.BirthCountryId,
                         BirthDepartmentId = benReq.BirthDepartmentId,
                         BirthCityId = benReq.BirthCityId,

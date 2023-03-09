@@ -39,7 +39,7 @@ namespace SiecaAPI.Controllers
                     LastName = request.LastName,
                     OtherLastName = request.OtherLastName ?? string.Empty,
                     GenderId = request.GenderId,
-                    BirthDate = request.BirthDate,
+                    BirthDate = request.BirthDate.ToUniversalTime(),
                     BirthCountryId = request.BirthCountryId,
                     BirthDepartmentId = request.BirthDepartmentId,
                     BirthCityId = request.BirthCityId,
@@ -85,6 +85,7 @@ namespace SiecaAPI.Controllers
         }
 
         [HttpPost("Update")]
+        [AllowAnonymous]
         public async Task<IActionResult> Update(DtoBeneficiariesUpdateReq request)
         {
             DtoRequestResult<DtoBeneficiaries> response = new()
@@ -105,7 +106,7 @@ namespace SiecaAPI.Controllers
                     LastName = request.LastName,
                     OtherLastName = request.OtherLastName ?? string.Empty,
                     GenderId = request.GenderId,
-                    BirthDate = request.BirthDate,
+                    BirthDate = request.BirthDate.ToUniversalTime(),
                     BirthCountryId = request.BirthCountryId,
                     BirthDepartmentId = request.BirthDepartmentId,
                     BirthCityId = request.BirthCityId,
@@ -126,7 +127,7 @@ namespace SiecaAPI.Controllers
                 {
                     beneficiary.FamilyMembers.Add(new DtoBeneficiariesFamily()
                     {
-                        Id = dcfm.Id,
+                        Id = dcfm.Id ?? Guid.Empty,
                         OrganizationId = dcfm.OrganizationId,
                         BeneficiaryId = dcfm.BeneficiaryId,
                         DocumentTypeId = dcfm.DocumentTypeId,
@@ -147,7 +148,7 @@ namespace SiecaAPI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError("BeneficiariesController: Create -> " + ex.Message);
+                _logger.LogError("BeneficiariesController: Update -> " + ex.Message);
                 response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
                 response.MensajeRespuesta = ex.Message;
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };

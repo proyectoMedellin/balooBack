@@ -26,13 +26,6 @@ namespace SiecaAPI.Models.Services
 
         public static async Task<DtoBeneficiaries> UpdateAsync(DtoBeneficiaries beneficiary)
         {
-
-            if (!await DaoBeneficiariesFactory.GetDaoBeneficiaries()
-                .ExistAsync(beneficiary.DocumentTypeId, beneficiary.DocumentNumber))
-            {
-                throw new NoDataFoundException("The beneficiary to update dosen't exists");
-            }
-
             return await DaoBeneficiariesFactory.GetDaoBeneficiaries().UpdateAsync(beneficiary);
         }
 
