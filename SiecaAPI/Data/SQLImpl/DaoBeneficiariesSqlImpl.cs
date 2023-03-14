@@ -10,6 +10,7 @@ using SiecaAPI.Errors;
 using SiecaAPI.Models;
 using System.Collections.Generic;
 using System.Data.Entity.Core.Common;
+using System.Data.SqlClient;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -565,7 +566,7 @@ namespace SiecaAPI.Data.SQLImpl
             }
         }   
 
-        public async Task<List<DtoBeneficiariesEmotionsRecord>> GetEmotionsDataById(Guid id, DateTime from, DateTime to)
+        public async Task<List<DtoBeneficiariesEmotionsRecord>> GetEmotionsDataById(Guid beneficiaryId, DateTime from, DateTime to)
         {
             using SqlContext context = new();
             try
@@ -578,34 +579,98 @@ namespace SiecaAPI.Data.SQLImpl
                     cDate = cDate.AddDays(1);
                 }
 
-                List<BeneficiariesEmotionsRecordEntity> benReq = await context.BeneficiariesEmotionsRecords
-                    .Where(r => r.BeneficiaryId.Equals(id) && r.CreatedOn >= from && r.CreatedOn <= to)
-                    .Include(r => r.Beneficiary)
-                    .Include(r => r.DevelopmentRoom)
-                    .ToListAsync();
+                string queryString = "SELECT (md5(((random())::text || (clock_timestamp())::text)))::uuId as \"Id\", " +
+                    "b.\"Id\" as \"BeneficiaryId\", dr.\"Id\" as \"DevelopmentRoomId\", " +
+                    "bred.\"Id\" as \"IntegrationId\", bred.\"EmotionId\", bred.\"CreatedOn\" " +
+                    "FROM \"DevelopmentRoom\" dr " +
+                    "JOIN \"BeneficiaryRawEmotionsData\" bred ON dr.\"DahuaChannelCode\" = bred.\"DahuaChannelName\" " +
+                    "JOIN \"Beneficiaries\" b ON bred.\"PersonId\" = b.\"DocumentNumber\" " +
+                    $"WHERE b.\"Id\" = '{beneficiaryId}' and bred.\"CreatedOn\" between '{from.ToString("yyyy-MM-dd")}' and '{to.AddDays(1).ToString("yyyy-MM-dd")}' " +
+                    "ORDER BY b.\"Id\", dr.\"Id\", bred.\"CreatedOn\" ";
 
+                List<BeneficiariesEmotionsRecordEntity> benReq = await context
+                    .BeneficiariesEmotionsRecords.FromSqlRaw(queryString).ToListAsync();
 
-                List<DtoBeneficiariesEmotionsRecord> response = new();
+                List <DtoBeneficiariesEmotionsRecord> response = new();
                 foreach (DateTime d in days)
                 {
                     DtoBeneficiariesEmotionsRecord dayEmotion = new();
                     dayEmotion.CreatedOn = d;
-                    foreach (BeneficiariesEmotionsRecordEntity bar in benReq.Where(r => r.CreatedOn.Equals(d)))
+                    List<BeneficiariesEmotionsRecordEntity> reqs = benReq
+                        .Where(r => r.CreatedOn.ToString("yyyy-MM-dd").Equals(d.ToString("yyyy-MM-dd"))).ToList();
+
+                    foreach (BeneficiariesEmotionsRecordEntity bar in reqs)
                     {
+                        dayEmotion = new();
+                        dayEmotion.CreatedOn = bar.CreatedOn;
                         dayEmotion.Id = bar.Id;
                         dayEmotion.BeneficiaryId = bar.BeneficiaryId;
                         dayEmotion.DevelopmentRoomId = bar.DevelopmentRoomId;
                         dayEmotion.IntegrationId = bar.IntegrationId;
                         dayEmotion.EmotionId = bar.EmotionId;
                         dayEmotion.EmotionName = PrConstants.GetEmotionName(bar.EmotionId);
-                        dayEmotion.CreatedOn = bar.CreatedOn;
                         response.Add(dayEmotion);
                     }
                     if(dayEmotion.Id.Equals(Guid.Empty)) response.Add(dayEmotion);
                 }
                 return response;
             }
-            catch
+            catch(Exception ex)
+            {
+                throw new NoDataFoundException("the requested beneficiary dosen't have emotions data");
+            }
+        }
+
+        public async Task<List<DtoBeneficiariesEmotionsRecord>> GetAssistenceDataById(Guid beneficiaryId, DateTime from, DateTime to)
+        {
+            using SqlContext context = new();
+            try
+            {
+                List<DateTime> days = new();
+                DateTime cDate = from;
+                while (cDate <= to)
+                {
+                    days.Add(cDate);
+                    cDate = cDate.AddDays(1);
+                }
+
+                string queryString = "SELECT (md5(((random())::text || (clock_timestamp())::text)))::uuId as \"Id\", " +
+                    "b.\"Id\" as \"BeneficiaryId\", dr.\"Id\" as \"DevelopmentRoomId\", " +
+                    "bred.\"Id\" as \"IntegrationId\", bred.\"EmotionId\", bred.\"CreatedOn\" " +
+                    "FROM \"DevelopmentRoom\" dr " +
+                    "JOIN \"BeneficiaryRawEmotionsData\" bred ON dr.\"DahuaChannelCode\" = bred.\"DahuaChannelName\" " +
+                    "JOIN \"Beneficiaries\" b ON bred.\"PersonId\" = b.\"DocumentNumber\" " +
+                    $"WHERE b.\"Id\" = '{beneficiaryId}' and bred.\"CreatedOn\" between '{from.ToString("yyyy-MM-dd")}' and '{to.AddDays(1).ToString("yyyy-MM-dd")}' " +
+                    "ORDER BY b.\"Id\", dr.\"Id\", bred.\"CreatedOn\" ";
+
+                List<BeneficiariesEmotionsRecordEntity> benReq = await context
+                    .BeneficiariesEmotionsRecords.FromSqlRaw(queryString).ToListAsync();
+
+                List<DtoBeneficiariesEmotionsRecord> response = new();
+                foreach (DateTime d in days)
+                {
+                    DtoBeneficiariesEmotionsRecord dayEmotion = new();
+                    dayEmotion.CreatedOn = d;
+
+                    List<BeneficiariesEmotionsRecordEntity> reqs = benReq
+                        .Where(r => r.CreatedOn.ToString("yyyy-MM-dd").Equals(d.ToString("yyyy-MM-dd"))).ToList();
+
+                    if (reqs.Count > 0)
+                    {
+                        BeneficiariesEmotionsRecordEntity bar = reqs.First();
+                        dayEmotion.CreatedOn = d;
+                        dayEmotion.Id = bar.Id;
+                        dayEmotion.BeneficiaryId = bar.BeneficiaryId;
+                        dayEmotion.DevelopmentRoomId = bar.DevelopmentRoomId;
+                        dayEmotion.IntegrationId = bar.IntegrationId;
+                        dayEmotion.EmotionId = bar.EmotionId;
+                        dayEmotion.EmotionName = PrConstants.GetEmotionName(bar.EmotionId);
+                    }
+                    response.Add(dayEmotion);
+                }
+                return response;
+            }
+            catch (Exception ex)
             {
                 throw new NoDataFoundException("the requested beneficiary dosen't have emotions data");
             }

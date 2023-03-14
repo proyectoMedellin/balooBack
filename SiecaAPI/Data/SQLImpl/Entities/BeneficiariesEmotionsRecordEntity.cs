@@ -8,7 +8,7 @@ namespace SiecaAPI.Data.SQLImpl.Entities
     public class BeneficiariesEmotionsRecordEntity
     {
         [Key]
-        public Guid Id { get; set; } = Guid.Empty;
+        public Guid Id { get; set; } = Guid.NewGuid();
         [ForeignKey(nameof(BeneficiaryId))]
         public Guid BeneficiaryId { get; set; } = Guid.Empty;
         public virtual BeneficiariesEntity Beneficiary { get; set; } = new();

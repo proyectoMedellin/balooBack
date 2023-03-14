@@ -25,9 +25,11 @@
         public const int USERPASSPOS = 1;
         public const int USERLOGINDATEPOS = 2;
         public const string USERDATASEPARATOR = "||";
-        public const int USERLOGINMAXVERIFICATIONTIME = 10000;
+        public const int USERLOGINMAXVERIFICATIONTIME = 30000;
 
-        //emociones
+        //DSSPRO - emociones
+        public const string REQUEST_TYPE_POST = "POST";
+        public const string REQUEST_TYPE_PUT = "PUT";
         public const int EMOTION_NOT_FOUND = -1;
         public const int EMOTION_SMILE = 0;
         public const int EMOTION_ANGRY = 1;

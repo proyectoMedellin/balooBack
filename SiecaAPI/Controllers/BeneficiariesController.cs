@@ -85,7 +85,6 @@ namespace SiecaAPI.Controllers
         }
 
         [HttpPost("Update")]
-        [AllowAnonymous]
         public async Task<IActionResult> Update(DtoBeneficiariesUpdateReq request)
         {
             DtoRequestResult<DtoBeneficiaries> response = new()
@@ -210,7 +209,6 @@ namespace SiecaAPI.Controllers
         }
 
         [HttpGet("GetEnabledBeneficiaries")]
-        [AllowAnonymous]
         public async Task<IActionResult> GetEnabledBeneficiaries(int? year, Guid? TrainingCenterId, Guid? CampusId,
             Guid? DevelopmentRoomId, Guid? documentType, string? documentNumber, string? name, string? group, 
             int? page, int? pageSize)
@@ -297,6 +295,7 @@ namespace SiecaAPI.Controllers
         }
 
         [HttpGet("GetEmotionsDataById")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetEmotionsDataById(Guid id, DateTime from, DateTime to)
         {
             DtoRequestResult<DtoBeneficiariesEmotionsRecord> response = new()
@@ -319,6 +318,36 @@ namespace SiecaAPI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError("BeneficiariesController: GetEmotionsDataById -> " + ex.Message);
+                response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
+                response.MensajeRespuesta = ex.Message;
+                return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
+            }
+        }
+
+        [HttpGet("GetAssistenceDataById")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAssistenceDataById(Guid id, DateTime from, DateTime to)
+        {
+            DtoRequestResult<DtoBeneficiariesEmotionsRecord> response = new()
+            {
+                CodigoRespuesta = HttpStatusCode.OK.ToString()
+            };
+
+            try
+            {
+                if (id == Guid.Empty)
+                {
+                    response.CodigoRespuesta = HttpStatusCode.BadRequest.ToString();
+                    response.MensajeRespuesta = "Id not found";
+                    return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.BadRequest };
+                }
+
+                response.Registros = await BeneficiariesServices.GetAssistenceDataById(id, from, to);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("BeneficiariesController: GetAssistenceDataById -> " + ex.Message);
                 response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
                 response.MensajeRespuesta = ex.Message;
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };

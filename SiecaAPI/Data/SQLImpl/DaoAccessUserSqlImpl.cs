@@ -264,6 +264,7 @@ namespace SiecaAPI.Data.SQLImpl
         public async Task<bool> UpdateAsync(DtoAccessUser user, string oldUserName)
         {
             using SqlContext context = new SqlContext();
+            using var transaction = context.Database.BeginTransaction();
             try
             {
                 if (user.OrganizationId == Guid.Empty)
@@ -279,7 +280,11 @@ namespace SiecaAPI.Data.SQLImpl
                     if (accessUser != null)
                     {
                         context.AccessUserRoles.RemoveRange(context.AccessUserRoles.Where(ur => ur.AccessUserId == accessUser.Id));
+                        await context.SaveChangesAsync();
+
                         context.CampusByAccessUsers.RemoveRange(context.CampusByAccessUsers.Where(cu => cu.AccessUserId == accessUser.Id));
+                        await context.SaveChangesAsync();
+
                         accessUser.OrganizationId = user.OrganizationId;
                         accessUser.UserName = user.UserName;
                         accessUser.Email = user.Email;
@@ -292,25 +297,29 @@ namespace SiecaAPI.Data.SQLImpl
                         accessUser.DocumentTypeId= user.DocumentTypeId;
                         accessUser.DocumentNo = user.DocumentNo;
                         if(user.TrainingCenterId != Guid.Empty ) accessUser.TrainingCenterId = user.TrainingCenterId;
-                        context.Update(accessUser);
+                        await context.SaveChangesAsync();
+
                         foreach (Guid rols in user.RolsId)
                         {
                             AccessUserRolEntity rolUser = new(accessUser.OrganizationId, null, accessUser.Id, rols);
                             await context.AccessUserRoles.AddAsync(rolUser);
+                            await context.SaveChangesAsync();
                         }
                         foreach (Guid Campus in user.CampusId)
                         {
                             CampusByAccessUserEntity CampusUser = new(accessUser.OrganizationId, accessUser.TrainingCenterId, Campus, accessUser.Id);
                             await context.CampusByAccessUsers.AddAsync(CampusUser);
+                            await context.SaveChangesAsync();
                         }
-                        await context.SaveChangesAsync();
                     }
+                    transaction.Commit();
                     return true;
                 }
                 throw new NoDataFoundException("No organization found");
             }
             catch
             {
+                transaction.Rollback();
                 return false;
                 throw;
             }
@@ -324,7 +333,6 @@ namespace SiecaAPI.Data.SQLImpl
             using SqlContext context = new SqlContext();
             AccessUserPasswordEntity accessUser = await context.AccessUsersPassword.Where(u => u.AccessUserId == id).FirstAsync();
             accessUser.Password = password;
-            context.Update(accessUser);
             await context.SaveChangesAsync();
             return true;
         }

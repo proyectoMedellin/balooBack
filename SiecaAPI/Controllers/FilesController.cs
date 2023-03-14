@@ -64,10 +64,13 @@ namespace SiecaAPI.Controllers
                         if (!Directory.Exists(folderName))
                             Directory.CreateDirectory(folderName);
 
-                        var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
-                        var fullPath = Path.Combine(pathToSave, fileName);
-                        var dbPath = Path.Combine(folderName, fileName);
-                        using (var stream = new FileStream(fullPath, FileMode.Create))
+
+                        var networkPath = @"\\192.168.2.3\images";
+                        /*var pathToSave = Path.Combine(networkPath, folderName);
+                        var fullPath = Path.Combine(pathToSave, fileName);*/
+
+                        var dbPath = Path.Combine(networkPath, fileName);
+                        using (var stream = new FileStream(dbPath, FileMode.Create))
                         {
                             file.CopyTo(stream);
                         }

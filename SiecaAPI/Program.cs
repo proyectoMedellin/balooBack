@@ -3,6 +3,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Quartz;
 using SiecaAPI.Commons;
+using SiecaAPI.DssPro;
 using SiecaAPI.OneDrive;
 using System.Text;
 
@@ -19,11 +20,17 @@ builder.Services.AddQuartz(q =>
     q.UseMicrosoftDependencyInjectionJobFactory();
     var jobKey = new JobKey("DemoJob");
     q.AddJob<OneDriveServiceJob>(opts => opts.WithIdentity(jobKey));
-
     q.AddTrigger(opts => opts
         .ForJob(jobKey)
         .WithIdentity("DemoJob-trigger")
-        .WithCronSchedule(builder.Configuration["ScheduleExpression"]));
+        .WithCronSchedule(builder.Configuration["JobsSchedule:OneDriveScheduleExp"]));
+    
+    var jobKeyDssProp = new JobKey("DssProJob");
+    q.AddJob<DssProServiceJob>(opts => opts.WithIdentity(jobKeyDssProp));
+    q.AddTrigger(opts => opts
+        .ForJob(jobKeyDssProp)
+        .WithIdentity("DssProJob-trigger")
+        .WithCronSchedule(builder.Configuration["JobsSchedule:DssProScheduleExp"]));
 
 });
 

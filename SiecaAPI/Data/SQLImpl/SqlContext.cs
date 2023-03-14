@@ -2,6 +2,7 @@
 using Microsoft.Identity.Client;
 using SiecaAPI.Commons;
 using SiecaAPI.Data.SQLImpl.Entities;
+using SiecaAPI.DssPro.DTO;
 
 namespace SiecaAPI.Data.SQLImpl
 {
@@ -49,6 +50,7 @@ namespace SiecaAPI.Data.SQLImpl
         public DbSet<DevelopmentRoomGroupBeneficiaryEntity> DevelopmentRoomGroupBeneficiaries { get; set; }
         public DbSet<WorkingDayOfWeekEntity> WorkingDaysOfWeek { get; set; }
         public DbSet<HolidayEntity> Holidays { get; set; }
+        public DbSet<EmotionRawDataEntity> EmotionRawDataEntities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

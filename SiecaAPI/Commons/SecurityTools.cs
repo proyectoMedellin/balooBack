@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace SiecaAPI.Commons
 {
@@ -36,6 +37,16 @@ namespace SiecaAPI.Commons
                 hash.Append(bytes[i].ToString("x2"));
             }
             string hashString = hash.ToString();
+
+            return hashString;
+        }
+
+        public static string ConvertToMD5(string inputString)
+        {
+            using var md5 = MD5.Create();
+            byte[] inputBytes = Encoding.UTF8.GetBytes(inputString);
+            byte[] hashBytes = md5.ComputeHash(inputBytes);
+            string hashString = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
 
             return hashString;
         }

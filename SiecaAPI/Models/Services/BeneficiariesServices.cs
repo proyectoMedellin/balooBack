@@ -78,5 +78,10 @@ namespace SiecaAPI.Models.Services
         {
             return await DaoBeneficiariesFactory.GetDaoBeneficiaries().GetEmotionsDataById(beneficiaryId, from, to);
         }
+
+        public static async Task<List<DtoBeneficiariesEmotionsRecord>> GetAssistenceDataById(Guid beneficiaryId, DateTime from, DateTime to)
+        {
+            return await DaoBeneficiariesFactory.GetDaoBeneficiaries().GetAssistenceDataById(beneficiaryId, from, to);
+        }
     }
 }
