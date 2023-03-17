@@ -20,6 +20,11 @@ namespace SiecaAPI.Data.DataverseImpl
             throw new NotImplementedException();
         }
 
+        public Task<bool> ExistsUserEmailAsync(string email)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<bool> ExistUserByDocument(Guid id, string document)
         {
             throw new NotImplementedException();
@@ -45,7 +50,7 @@ namespace SiecaAPI.Data.DataverseImpl
             throw new NotImplementedException();
         }
 
-        public Task<List<DtoAccessUser>> GetByTrainingCenterIdCapusIdAsync(Guid trainingCenterId, Guid campusId, string? roleName)
+        public Task<List<DtoAccessUser>> GetByTrainingCenterIdCampusIdAsync(Guid trainingCenterId, Guid campusId, string? roleName)
         {
             throw new NotImplementedException();
         }
@@ -62,6 +67,11 @@ namespace SiecaAPI.Data.DataverseImpl
         }
 
         public async Task<bool> UpdateAsync(DtoAccessUser user, string oldUserName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> UpdateAsync(DtoAccessUser user)
         {
             throw new NotImplementedException();
         }

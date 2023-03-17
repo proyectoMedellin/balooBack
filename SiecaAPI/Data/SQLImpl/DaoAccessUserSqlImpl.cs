@@ -20,26 +20,32 @@ namespace SiecaAPI.Data.SQLImpl
                     throw new MissingArgumentsException("Empty organization ID");
 
                 OrganizationEntity org = await context.Organizations
-                    .Where(o => o.Id == user.OrganizationId).FirstAsync();
-                TrainingCenterEntity tra = await context.TrainingCenters
-                    .Where(t => t.Id == user.TrainingCenterId).FirstOrDefaultAsync();
+                    .Where(o => o.Id == user.OrganizationId).FirstAsync();                
+
                 if (org != null)
                 {
+                    TrainingCenterEntity tra = new();
+                    if (user.TrainingCenterId.HasValue && !user.TrainingCenterId.Equals(Guid.Empty))
+                    {
+                        Guid tId = user.TrainingCenterId.Value;
+                        var tCenters = await context.TrainingCenters.Where(t => t.Id == tId).ToListAsync();
+                        if (tCenters.Count > 0) tra = tCenters.First();
+                    }
+
                     AccessUserEntity accessUser = new(org, user.UserName, user.Email, 
                         user.FirstName, user.OtherNames, user.LastName, user.OtherLastName, 
-                        user.RequirePaswordChange, true, user.CreatedBy, DateTime.UtcNow, 
-                        null, null, user.Phone, user.DocumentTypeId, user.DocumentNo, tra, user.GlobalUser);
+                        user.RequirePasswordChange, true, user.CreatedBy, DateTime.UtcNow, 
+                        null, null, user.Phone, user.DocumentTypeId, user.DocumentNo, 
+                        tra.Id.Equals(Guid.Empty) ? null : tra, user.GlobalUser);
 
                     await context.AccessUsers.AddAsync(accessUser);
-     
-
+                    await context.SaveChangesAsync();
+    
                     user.Id = accessUser.Id;
-
                     string tmpPassword = SecurityTools.GeneratePassword();
 
                     AccessUserPasswordEntity password = new(accessUser.Id, tmpPassword, accessUser.CreatedBy, 
                         DateTime.UtcNow, null, null);
-
                     await context.AccessUsersPassword.AddAsync(password);
                     await context.SaveChangesAsync();
 
@@ -47,13 +53,14 @@ namespace SiecaAPI.Data.SQLImpl
                     {
                         AccessUserRolEntity rolUser = new(accessUser.OrganizationId, null, accessUser.Id, rols);
                         await context.AccessUserRoles.AddAsync(rolUser);
+                        await context.SaveChangesAsync();
                     }
                     foreach (Guid Campus in user.CampusId)
                     {
                         CampusByAccessUserEntity CampusUser = new(accessUser.OrganizationId, accessUser.TrainingCenterId, Campus, accessUser.Id);
                         await context.CampusByAccessUsers.AddAsync(CampusUser);
+                        await context.SaveChangesAsync();
                     }
-                    await context.SaveChangesAsync();
                     transaction.Commit();
 
                     return user;
@@ -123,7 +130,7 @@ namespace SiecaAPI.Data.SQLImpl
                 .Where(u => u.DocumentTypeId == id)
                 .Where(u => u.DocumentNo == document)
                 .ToListAsync();
-            if (user != null & user.Count > 0) result = true;
+            if (user != null && user.Count > 0) result = true;
 
             return result;
         }
@@ -138,7 +145,22 @@ namespace SiecaAPI.Data.SQLImpl
             List<AccessUserEntity> user = await context.AccessUsers
                 .Where(u => u.UserName == userName)
                 .ToListAsync();
-            if (user != null & user.Count > 0) result = true;
+            if (user != null && user.Count > 0) result = true;
+
+            return result;
+        }
+
+        public async Task<bool> ExistsUserEmailAsync(string email)
+        {
+            bool result = false;
+
+            if (string.IsNullOrEmpty(email)) throw new MissingArgumentsException("Empty email");
+            using SqlContext context = new SqlContext();
+
+            List<AccessUserEntity> user = await context.AccessUsers
+                .Where(u => u.Email.Equals(email))
+                .ToListAsync();
+            if (user != null && user.Count > 0) result = true;
 
             return result;
         }
@@ -174,19 +196,69 @@ namespace SiecaAPI.Data.SQLImpl
             List<DtoAccessUser> dtoAccessUser = new();
             foreach (AccessUserEntity user in users)
             {
-                dtoAccessUser.Add(new DtoAccessUser(user.UserName, user.Email, user.FirstName, user.OtherNames,
-                    user.LastName,user.OtherLastName,user.RequirePaswordChange,
-                    user.CreatedBy,user.Phone,user.DocumentTypeId,user.DocumentNo, user.TrainingCenterId, user.GlobalUser));
+                dtoAccessUser.Add(new DtoAccessUser()
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    FirstName = user.FirstName,
+                    OtherNames = user.OtherNames,
+                    LastName = user.LastName,
+                    OtherLastName = user.OtherLastName,
+                    RequirePasswordChange = user.RequirePaswordChange,
+                    CreatedBy = user.CreatedBy,
+                    Phone = user.Phone,
+                    DocumentTypeId = user.DocumentTypeId,
+                    DocumentNo = user.DocumentNo,
+                    TrainingCenterId = user.TrainingCenterId,
+                    GlobalUser = user.GlobalUser
+                });
             }
             return dtoAccessUser;
         }
 
         public async Task<DtoAccessUser> GetByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            if (id.Equals(Guid.Empty))
+                throw new MissingArgumentsException("Empty user id");
+
+            using SqlContext context = new SqlContext();
+            AccessUserEntity user = await context.AccessUsers
+                .Where(u => u.Id.Equals(id)).FirstAsync();
+            List<CampusByAccessUserEntity> campus = await context.CampusByAccessUsers.Where(camp => camp.AccessUserId == user.Id).ToListAsync();
+            List<Guid> CampusId = new();
+            foreach (var camp in campus)
+            {
+                CampusId.Add(camp.CampusId);
+            }
+            List<AccessUserRolEntity> rols = await context.AccessUserRoles.Where(rol => rol.AccessUserId == user.Id).ToListAsync();
+            List<Guid> RolsId = new();
+            foreach (var rol in rols)
+            {
+                RolsId.Add(rol.RolId);
+            }
+            return new DtoAccessUser()
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                OtherNames = user.OtherNames,
+                LastName = user.LastName,
+                OtherLastName = user.OtherLastName,
+                RequirePasswordChange = user.RequirePaswordChange,
+                CreatedBy = user.CreatedBy,
+                Phone = user.Phone,
+                DocumentTypeId = user.DocumentTypeId,
+                DocumentNo = user.DocumentNo,
+                TrainingCenterId = user.TrainingCenterId,
+                CampusId = CampusId,
+                RolsId = RolsId,
+                GlobalUser = user.GlobalUser
+            };
         }
 
-        public async Task<List<DtoAccessUser>> GetByTrainingCenterIdCapusIdAsync(Guid trainingCenterId, Guid campusId, string? roleName)
+        public async Task<List<DtoAccessUser>> GetByTrainingCenterIdCampusIdAsync(Guid trainingCenterId, Guid campusId, string? roleName)
         {
             using SqlContext context = new SqlContext();
             List<AccessUserEntity> users = await context.CampusByAccessUsers
@@ -200,21 +272,35 @@ namespace SiecaAPI.Data.SQLImpl
             List<DtoAccessUser> dtoAccessUser = new();
             foreach (AccessUserEntity user in users)
             {
-                dtoAccessUser.Add(new DtoAccessUser(user.Id, user.UserName, user.Email, user.FirstName, user.OtherNames,
-                    user.LastName, user.OtherLastName, user.RequirePaswordChange,
-                    user.CreatedBy, user.Phone, user.DocumentTypeId, user.DocumentNo, user.TrainingCenterId, user.GlobalUser));
+                dtoAccessUser.Add(new DtoAccessUser()
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    FirstName = user.FirstName,
+                    OtherNames = user.OtherNames,
+                    LastName = user.LastName,
+                    OtherLastName = user.OtherLastName,
+                    RequirePasswordChange = user.RequirePaswordChange,
+                    CreatedBy = user.CreatedBy,
+                    Phone = user.Phone,
+                    DocumentTypeId = user.DocumentTypeId,
+                    DocumentNo = user.DocumentNo,
+                    TrainingCenterId = user.TrainingCenterId,
+                    GlobalUser = user.GlobalUser
+                });
             }
             return dtoAccessUser;
         }
 
-        public async Task<DtoAccessUser> GetByUserNameAsync(string name)
+        public async Task<DtoAccessUser> GetByUserNameAsync(string userName)
         {
-            if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(userName))
                 throw new MissingArgumentsException("Empty user name");
             
             using SqlContext context = new SqlContext();
             AccessUserEntity user = await context.AccessUsers
-                .Where(u => u.UserName == name).FirstAsync();
+                .Where(u => u.UserName == userName).FirstAsync();
             List<CampusByAccessUserEntity> campus = await context.CampusByAccessUsers.Where(camp => camp.AccessUserId == user.Id).ToListAsync();
             List<Guid> CampusId = new();
             foreach(var camp in campus)
@@ -227,9 +313,24 @@ namespace SiecaAPI.Data.SQLImpl
             {
                 RolsId.Add(rol.RolId);
             }
-            return new DtoAccessUser(user.Id, user.UserName, user.Email, user.FirstName, user.OtherNames,
-                user.LastName, user.OtherLastName, user.RequirePaswordChange, user.CreatedBy,
-                user.Phone, user.DocumentTypeId, user.DocumentNo, user.TrainingCenterId, CampusId, RolsId, user.GlobalUser);
+            return new DtoAccessUser() {
+                Id = user.Id, 
+                UserName = user.UserName, 
+                Email = user.Email, 
+                FirstName = user.FirstName, 
+                OtherNames = user.OtherNames,
+                LastName = user.LastName, 
+                OtherLastName = user.OtherLastName, 
+                RequirePasswordChange = user.RequirePaswordChange, 
+                CreatedBy = user.CreatedBy,
+                Phone = user.Phone, 
+                DocumentTypeId = user.DocumentTypeId, 
+                DocumentNo = user.DocumentNo, 
+                TrainingCenterId = user.TrainingCenterId, 
+                CampusId = CampusId, 
+                RolsId = RolsId, 
+                GlobalUser = user.GlobalUser
+            };
         }
 
         public async Task<List<DtoUserRol>> GetRolesByUser(string userName)
@@ -261,61 +362,81 @@ namespace SiecaAPI.Data.SQLImpl
             return roles;
         }
 
-        public async Task<bool> UpdateAsync(DtoAccessUser user, string oldUserName)
+        public async Task<bool> UpdateAsync(DtoAccessUser user)
         {
             using SqlContext context = new SqlContext();
             using var transaction = context.Database.BeginTransaction();
             try
             {
-                if (user.OrganizationId == Guid.Empty)
-                    throw new MissingArgumentsException("Empty organization ID");
+                List<AccessUserEntity> accessUserList = await context.AccessUsers
+                    .Where(au => au.Id.Equals(user.Id))
+                    .Include(au => au.Organization)
+                    .Include(au => au.TrainingCenter)
+                    .ToListAsync();
 
-                OrganizationEntity org = await context.Organizations
-                    .Where(o => o.Id == user.OrganizationId).FirstAsync();
-                if (org != null)
+                if (accessUserList != null && accessUserList.Count > 0)
                 {
-                    DtoAccessUser UserOld = await GetByUserNameAsync(oldUserName);
-                    AccessUserEntity accessUser = await context.AccessUsers.FindAsync(UserOld.Id);
+                    AccessUserEntity accessUser = accessUserList[0];
 
-                    if (accessUser != null)
+                    List<CampusByAccessUserEntity> existingCampuses = await context.CampusByAccessUsers
+                        .Where(cu => cu.AccessUserId == accessUser.Id).ToListAsync();
+                    if (existingCampuses.Count > 0)
                     {
-                        context.AccessUserRoles.RemoveRange(context.AccessUserRoles.Where(ur => ur.AccessUserId == accessUser.Id));
+                        context.CampusByAccessUsers
+                            .FromSqlRaw(@"DELETE FROM \""CampusByAccessUser\"" WHERE \""AccessUserId\"" = '{accessUser.Id}'");
                         await context.SaveChangesAsync();
-
-                        context.CampusByAccessUsers.RemoveRange(context.CampusByAccessUsers.Where(cu => cu.AccessUserId == accessUser.Id));
-                        await context.SaveChangesAsync();
-
-                        accessUser.OrganizationId = user.OrganizationId;
-                        accessUser.UserName = user.UserName;
-                        accessUser.Email = user.Email;
-                        accessUser.FirstName = user.FirstName;
-                        accessUser.OtherNames = user.OtherNames;
-                        accessUser.LastName = user.LastName;
-                        accessUser.OtherLastName = user.OtherLastName;
-                        accessUser.ModifiedOn = DateTime.UtcNow;
-                        accessUser.Phone = user.Phone;
-                        accessUser.DocumentTypeId= user.DocumentTypeId;
-                        accessUser.DocumentNo = user.DocumentNo;
-                        if(user.TrainingCenterId != Guid.Empty ) accessUser.TrainingCenterId = user.TrainingCenterId;
-                        await context.SaveChangesAsync();
-
-                        foreach (Guid rols in user.RolsId)
-                        {
-                            AccessUserRolEntity rolUser = new(accessUser.OrganizationId, null, accessUser.Id, rols);
-                            await context.AccessUserRoles.AddAsync(rolUser);
-                            await context.SaveChangesAsync();
-                        }
-                        foreach (Guid Campus in user.CampusId)
-                        {
-                            CampusByAccessUserEntity CampusUser = new(accessUser.OrganizationId, accessUser.TrainingCenterId, Campus, accessUser.Id);
-                            await context.CampusByAccessUsers.AddAsync(CampusUser);
-                            await context.SaveChangesAsync();
-                        }
                     }
+
+                    List<AccessUserRolEntity> existingRoles = await context.AccessUserRoles
+                        .Where(ur => ur.AccessUserId == accessUser.Id).ToListAsync();
+                    if (existingRoles.Count > 0)
+                    {
+                        context.AccessUserRoles.RemoveRange(existingRoles);
+                        await context.SaveChangesAsync();
+                    }
+
+                    accessUser.UserName = user.UserName;
+                    accessUser.Email = user.Email;
+                    accessUser.FirstName = user.FirstName;
+                    accessUser.OtherNames = user.OtherNames;
+                    accessUser.LastName = user.LastName;
+                    accessUser.OtherLastName = user.OtherLastName;
+                    accessUser.ModifiedOn = DateTime.UtcNow;
+                    accessUser.Phone = user.Phone;
+                    accessUser.DocumentTypeId = user.DocumentTypeId;
+                    accessUser.DocumentNo = user.DocumentNo;
+                    if (user.TrainingCenterId != Guid.Empty)
+                    {
+                        TrainingCenterEntity tc = await context.TrainingCenters
+                            .Where(tc => tc.Id.Equals(user.TrainingCenterId)).FirstOrDefaultAsync();
+                        if(tc != null && !tc.Id.Equals(Guid.Empty))
+                        {
+                            accessUser.TrainingCenterId = user.TrainingCenterId;
+                            accessUser.TrainingCenter = tc;
+                        }
+                        
+                    }
+                    await context.SaveChangesAsync();
+
+                    foreach (Guid rols in user.RolsId)
+                    {
+                        AccessUserRolEntity rolUser = new(accessUser.OrganizationId, null, accessUser.Id, rols);
+                        await context.AccessUserRoles.AddAsync(rolUser);
+                        await context.SaveChangesAsync();
+                    }
+                    foreach (Guid Campus in user.CampusId)
+                    {
+                        string insertQuery = "INSERT INTO \"CampusByAccessUser\"(\"OrganizationId\",\"TrainingCenterId\",\"CampusId\",\"AccessUserId\") " +
+                            "VALUES " +
+                            @"('{accessUser.OrganizationId}','{accessUser.TrainingCenterId}','{campus}','{accessUser.Id}')";
+                        context.CampusByAccessUsers.FromSqlRaw(insertQuery);
+                        await context.SaveChangesAsync();
+                    }
+
                     transaction.Commit();
                     return true;
                 }
-                throw new NoDataFoundException("No organization found");
+                throw new NoDataFoundException("No user found");
             }
             catch
             {

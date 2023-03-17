@@ -36,12 +36,26 @@ namespace SiecaAPI.Controllers
                 if (!string.IsNullOrEmpty(request.UserName) && !string.IsNullOrEmpty(request.Email) && !string.IsNullOrEmpty(request.CreatedBy)
                     && !string.IsNullOrEmpty(request.FirstName) && !string.IsNullOrEmpty(request.LastName))
                 {
-                    AccessUser user = await UsersServices.CreateAccessUserAsync(request.UserName, request.Email, request.FirstName, request.OtherNames,
-                        request.LastName, request.OtherLastName, true, request.CreatedBy, request.Phone, request.DocumentTypeId.Value, request.DocumentNo, 
+                    AccessUser user = await UsersServices.CreateAccessUserAsync(request.UserName, request.Email, 
+                        request.FirstName, request.OtherNames,
+                        request.LastName, request.OtherLastName, true, request.CreatedBy, request.Phone, 
+                        request.DocumentTypeId, request.DocumentNo, 
                         request.TrainingCenterId, request.CampusId, request.RolsId, request.GlobalUser);
-                    response.Registros.Add(new DtoAccessUserResp(user.Id, user.OrganizationId, user.UserName,
-                        user.Email, user.FirstName, user.OtherLastName,
-                        user.LastName, user.OtherLastName, user.DocumentTypeId, user.DocumentNo, user.TrainingCenterId, user.GlobalUser));
+                    response.Registros.Add(
+                        new DtoAccessUserResp()
+                        {
+                            Id = user.Id,
+                            UserName = user.UserName,
+                            Email = user.Email,
+                            FirstName = user.FirstName,
+                            OtherNames = user.OtherNames,
+                            LastName = user.LastName,
+                            OtherLastName = user.OtherLastName,
+                            DocumentTypeId = user.DocumentTypeId,
+                            DocumentNo = user.DocumentNo,
+                            TrainingCenterId = user.TrainingCenterId,
+                            GlobalUser = user.GlobalUser
+                        });
                 }
                 else
                 {
@@ -75,9 +89,25 @@ namespace SiecaAPI.Controllers
                     var user = await UsersServices.GetUserInfo(userName);
                     if (user.Id == Guid.Empty) throw new NoDataFoundException("No exite el usuario");
 
-                    response.Registros.Add(new DtoAccessUserResp(user.Id.Value, user.OrganizationId, 
-                        user.UserName, user.Email, user.FirstName, user.OtherNames, user.LastName,
-                        user.OtherLastName, user.DocumentTypeId, user.DocumentNo, user.TrainingCenterId, user.CampusId, user.RolsId, user.Phone, user.GlobalUser));
+                    response.Registros.Add(
+                        new DtoAccessUserResp()
+                        {
+                            Id = user.Id.Value,
+                            OrganizationId = user.OrganizationId,
+                            UserName = user.UserName,
+                            Email = user.Email,
+                            FirstName = user.FirstName,
+                            OtherNames = user.OtherNames,
+                            LastName = user.LastName,
+                            OtherLastName = user.OtherLastName,
+                            DocumentTypeId = user.DocumentTypeId,
+                            DocumentNo = user.DocumentNo,
+                            TrainingCenterId = user.TrainingCenterId,
+                            CampusId = user.CampusId,
+                            RolsId = user.RolsId,
+                            Phone = user.Phone,
+                            GlobalUser = user.GlobalUser
+                        });
                 }
                 else
                 {
@@ -94,9 +124,9 @@ namespace SiecaAPI.Controllers
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
             }
         }
+
         [HttpPost("UpdateAccessUser")]
-        public async Task<IActionResult> UpdateAccessUser(DtoAccessUserReq request)
-        
+        public async Task<IActionResult> UpdateAccessUser(DtoAccessUserReq request)  
         {
             DtoRequestResult<DtoAccessUserResp> response = new DtoRequestResult<DtoAccessUserResp>
             {
@@ -105,18 +135,32 @@ namespace SiecaAPI.Controllers
 
             try
             {
-                if (!string.IsNullOrEmpty(request.UserName) && !string.IsNullOrEmpty(request.Email) 
+                if (!request.Id.Equals(Guid.Empty) && !string.IsNullOrEmpty(request.UserName) && !string.IsNullOrEmpty(request.Email) 
                     && !string.IsNullOrEmpty(request.FirstName) && !string.IsNullOrEmpty(request.LastName))
                 {
-                    var user = await UsersServices.GetUserInfo(request.oldUserName);
+                    var user = await UsersServices.GetById(request.Id);
                     if (user.Id == Guid.Empty) throw new NoDataFoundException("No exite el usuario");
                     
-                    bool userResponse = await UsersServices.UpdateAccessUserAsync(request.oldUserName,request.UserName, request.Email, request.FirstName, request.OtherNames,
-                        request.LastName, request.OtherLastName, true, request.Phone, request.DocumentTypeId.Value, request.DocumentNo,
+                    await UsersServices.UpdateAccessUserAsync(request.Id,request.UserName, request.Email, request.FirstName, request.OtherNames,
+                        request.LastName, request.OtherLastName, true, request.Phone, request.DocumentTypeId, request.DocumentNo,
                         request.TrainingCenterId, request.CampusId, request.RolsId, request.GlobalUser);
-                    response.Registros.Add(new DtoAccessUserResp(user.Id.Value, user.OrganizationId,
-                        request.UserName, request.Email, request.FirstName, request.OtherNames,
-                        request.LastName, request.OtherLastName, request.DocumentTypeId.Value, request.DocumentNo, request.TrainingCenterId, request.GlobalUser));
+
+                    response.Registros.Add(
+                        new DtoAccessUserResp()
+                        {
+                            Id = user.Id.Value,
+                            OrganizationId = user.OrganizationId,
+                            UserName = user.UserName,
+                            Email = user.Email,
+                            FirstName = user.FirstName,
+                            OtherNames = user.OtherNames,
+                            LastName = user.LastName,
+                            OtherLastName = user.OtherLastName,
+                            DocumentTypeId = user.DocumentTypeId,
+                            DocumentNo = user.DocumentNo,
+                            TrainingCenterId = user.TrainingCenterId,
+                            GlobalUser = user.GlobalUser
+                        });
                 }
                 else
                 {
@@ -150,9 +194,22 @@ namespace SiecaAPI.Controllers
                 if(accessUsers.Count == 0) throw new NoDataFoundException("No exiten registros");
                 foreach (DtoAccessUser user in accessUsers)
                 {
-                    dtoAccessUserResp.Add(new DtoAccessUserResp(user.OrganizationId,
-                        user.UserName, user.Email, user.FirstName, user.OtherNames, user.LastName,
-                        user.OtherLastName, user.DocumentTypeId, user.DocumentNo));
+                    dtoAccessUserResp.Add(
+                        new DtoAccessUserResp()
+                        {
+                            Id = user.Id.Value,
+                            OrganizationId = user.OrganizationId,
+                            UserName = user.UserName,
+                            Email = user.Email,
+                            FirstName = user.FirstName,
+                            OtherNames = user.OtherNames,
+                            LastName = user.LastName,
+                            OtherLastName = user.OtherLastName,
+                            DocumentTypeId = user.DocumentTypeId,
+                            DocumentNo = user.DocumentNo,
+                            TrainingCenterId = user.TrainingCenterId,
+                            GlobalUser = user.GlobalUser
+                        });
                 }
                 response.Registros.Add(new List<DtoAccessUserResp>(dtoAccessUserResp));
                 return Ok(response);
@@ -181,9 +238,22 @@ namespace SiecaAPI.Controllers
                 //if (accessUsers.Count == 0) throw new NoDataFoundException("No exiten registros");
                 foreach (DtoAccessUser user in accessUsers)
                 {
-                    dtoAccessUserResp.Add(new DtoAccessUserResp(user.Id, user.OrganizationId,
-                        user.UserName, user.Email, user.FirstName, user.OtherNames, user.LastName,
-                        user.OtherLastName, user.DocumentTypeId, user.DocumentNo, null, user.GlobalUser));
+                    dtoAccessUserResp.Add(
+                        new DtoAccessUserResp()
+                        {
+                            Id = user.Id.Value,
+                            OrganizationId = user.OrganizationId,
+                            UserName = user.UserName,
+                            Email = user.Email,
+                            FirstName = user.FirstName,
+                            OtherNames = user.OtherNames,
+                            LastName = user.LastName,
+                            OtherLastName = user.OtherLastName,
+                            DocumentTypeId = user.DocumentTypeId,
+                            DocumentNo = user.DocumentNo,
+                            TrainingCenterId = user.TrainingCenterId,
+                            GlobalUser = user.GlobalUser
+                        });
                 }
                 response.Registros.Add(new List<DtoAccessUserResp>(dtoAccessUserResp));
                 return Ok(response);
@@ -273,6 +343,37 @@ namespace SiecaAPI.Controllers
                 if (!string.IsNullOrEmpty(userName))
                 {
                     bool exist = await UsersServices.ExistUserByName(userName);
+                    response.Registros.Add(exist);
+                }
+                else
+                {
+                    throw new MissingArgumentsException("el parametro userName no puede ser vacio");
+                }
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("UserController: ExistUserByDocument -> " + ex.Message);
+                response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
+                response.MensajeRespuesta = ex.Message;
+                return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
+            }
+        }
+
+        [HttpGet("ExistUserByEmail")]
+        public async Task<IActionResult> ExistUserByEmail(string email)
+        {
+            DtoRequestResult<bool> response = new DtoRequestResult<bool>
+            {
+                CodigoRespuesta = HttpStatusCode.OK.ToString()
+            };
+
+            try
+            {
+                if (!string.IsNullOrEmpty(email))
+                {
+                    bool exist = await UsersServices.ExistUserByEmail(email);
                     response.Registros.Add(exist);
                 }
                 else

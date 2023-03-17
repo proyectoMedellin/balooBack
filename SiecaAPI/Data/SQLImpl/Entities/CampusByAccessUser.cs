@@ -10,14 +10,17 @@ namespace SiecaAPI.Data.SQLImpl.Entities
         [Required]
         [ForeignKey("OrganizationId")]
         public Guid OrganizationId { get; set; }
+
         [Key, Column(Order = 1)]
         [Required]
         [ForeignKey("TrainingCenterId")]
         public Guid? TrainingCenterId { get; set; }
+
         [Key, Column(Order = 2)]
         [Required]
         [ForeignKey("CampusId")]
         public Guid CampusId { get; set; }
+
         [Key, Column(Order = 3)]
         [Required]
         [ForeignKey("AccessUserId")]

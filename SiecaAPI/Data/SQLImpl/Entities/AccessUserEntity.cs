@@ -46,7 +46,8 @@ namespace SiecaAPI.Data.SQLImpl.Entities
         public bool GlobalUser { get; set; }
         public AccessUserEntity(OrganizationEntity organization, string userName, string email, string firstName, string? otherNames,
             string lastName, string? otherLastName, bool requirePaswordChange, bool enabled, string createBy, DateTime createdOn,
-            string? modifiedBy, DateTime? modifiedOn, string? phone, Guid documentTypeId, string documentNo, TrainingCenterEntity? trainingCenter, bool globalUser)
+            string? modifiedBy, DateTime? modifiedOn, string? phone, Guid documentTypeId, string documentNo, 
+            TrainingCenterEntity? trainingCenter, bool globalUser)
         {
             OrganizationId = organization.Id;
             Organization = organization;

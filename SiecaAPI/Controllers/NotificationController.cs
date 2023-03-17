@@ -39,10 +39,22 @@ namespace SiecaAPI.Controllers
                     var user = await UsersServices.GetUserInfo(request.UserName);
                     if (user.Id == Guid.Empty) throw new NoDataFoundException("No exite el usuario");
                     MailServices.SendEmail(request.Body, request.Subject, user.Email);
-                    response.Registros.Add(new DtoAccessUserResp(user.Id.Value, user.OrganizationId,
-                        user.UserName, user.Email, user.FirstName, user.OtherNames, user.LastName,
-                        user.OtherLastName, user.DocumentTypeId, user.DocumentNo, user.TrainingCenterId, user.GlobalUser));
-
+                    response.Registros.Add(
+                        new DtoAccessUserResp()
+                        {
+                            Id = user.Id.Value,
+                            OrganizationId = user.OrganizationId,
+                            UserName = user.UserName,
+                            Email = user.Email,
+                            FirstName = user.FirstName,
+                            OtherNames = user.OtherNames,
+                            LastName = user.LastName,
+                            OtherLastName = user.OtherLastName,
+                            DocumentTypeId = user.DocumentTypeId,
+                            DocumentNo = user.DocumentNo,
+                            TrainingCenterId = user.TrainingCenterId,
+                            GlobalUser = user.GlobalUser
+                        });
                 }
                 else
                 {
