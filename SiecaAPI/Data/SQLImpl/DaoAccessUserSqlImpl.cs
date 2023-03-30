@@ -92,13 +92,31 @@ namespace SiecaAPI.Data.SQLImpl
                     AccessUserEntity? accessUser = await context.AccessUsers.FindAsync(id);
                     if (accessUser != null)
                     {
-                        context.AccessUsersPassword.RemoveRange(context.AccessUsersPassword.Where(p => p.AccessUserId == accessUser.Id));
-                        await context.SaveChangesAsync();
-                        context.AccessUserRoles.RemoveRange(context.AccessUserRoles.Where(ur => ur.AccessUserId == accessUser.Id));
-                        await context.SaveChangesAsync();
-                        context.CampusByAccessUsers.RemoveRange(context.CampusByAccessUsers.Where(cu => cu.AccessUserId == accessUser.Id));
-                        await context.SaveChangesAsync();
-                        context.AccessUsers.Remove(accessUser);
+                        List<CampusByAccessUserEntity> existingCampuses = await context.CampusByAccessUsers
+                        .Where(cu => cu.AccessUserId == accessUser.Id).ToListAsync();
+                        if (existingCampuses.Count > 0)
+                        {
+                            context.CampusByAccessUsers
+                                .FromSqlRaw(@"DELETE FROM \""CampusByAccessUser\"" WHERE \""AccessUserId\"" = '{accessUser.Id}'");
+                            await context.SaveChangesAsync();
+                        }
+
+                        List<AccessUserRolEntity> existingRoles = await context.AccessUserRoles
+                            .Where(ur => ur.AccessUserId == accessUser.Id).ToListAsync();
+                        if (existingRoles.Count > 0)
+                        {
+                            context.AccessUserRoles.RemoveRange(existingRoles);
+                            await context.SaveChangesAsync();
+                        }
+
+                        List<AccessUserPasswordEntity> passwords = await context.AccessUsersPassword
+                            .Where(p => p.AccessUserId == accessUser.Id).ToListAsync();
+                        if (passwords.Count > 0)
+                        {
+                            context.AccessUsersPassword.RemoveRange(passwords);
+                            await context.SaveChangesAsync();
+                        }
+                        context.AccessUsers.FromSqlRaw(@"DELETE FROM \""AccessUsers\"" WHERE \""Id\"" = '{accessUser.Id}'");
                         await context.SaveChangesAsync();
 
                         transaction.Commit();   

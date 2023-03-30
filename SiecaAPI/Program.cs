@@ -18,19 +18,19 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddQuartz(q =>
 {
     q.UseMicrosoftDependencyInjectionJobFactory();
-    var jobKey = new JobKey("DemoJob");
+    var jobKey = new JobKey("OneDriveJob");
     q.AddJob<OneDriveServiceJob>(opts => opts.WithIdentity(jobKey));
     q.AddTrigger(opts => opts
         .ForJob(jobKey)
-        .WithIdentity("DemoJob-trigger")
+        .WithIdentity("OneDriveJob-trigger")
         .WithCronSchedule(builder.Configuration["JobsSchedule:OneDriveScheduleExp"]));
     
-    var jobKeyDssProp = new JobKey("DssProJob");
+    /*var jobKeyDssProp = new JobKey("DssProJob");
     q.AddJob<DssProServiceJob>(opts => opts.WithIdentity(jobKeyDssProp));
     q.AddTrigger(opts => opts
         .ForJob(jobKeyDssProp)
         .WithIdentity("DssProJob-trigger")
-        .WithCronSchedule(builder.Configuration["JobsSchedule:DssProScheduleExp"]));
+        .WithCronSchedule(builder.Configuration["JobsSchedule:DssProScheduleExp"]));*/
 
 });
 

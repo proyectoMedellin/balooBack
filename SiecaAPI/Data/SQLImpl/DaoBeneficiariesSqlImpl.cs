@@ -532,7 +532,7 @@ namespace SiecaAPI.Data.SQLImpl
                 //el filtro de fecha no funciona bien
                 List<BeneficiaryAnthropometricDataEntity> benReq = await context.BeneficiaryAnthropometricRecords
                     .Where(r => r.BeneficiaryId.Equals(id) && 
-                        r.CreatedOn >= from && r.CreatedOn <= to)
+                        r.CreatedOn >= from.ToUniversalTime() && r.CreatedOn <= to.ToUniversalTime())
                     .Include(r => r.TrainingCenter)
                     .OrderByDescending(r => r.CreatedOn)
                     .ToListAsync();

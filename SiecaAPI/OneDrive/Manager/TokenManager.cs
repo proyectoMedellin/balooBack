@@ -37,7 +37,8 @@ internal class TokenManager
             return Task.FromResult(0);
         };
 
-        var deviceCodeCredential = new UsernamePasswordCredential(configuration["Secret:UserName"], configuration["Secret:Password"], configuration["Secret:TenantId"], configuration["Secret:ClientId"], options); ;
+        var deviceCodeCredential = new UsernamePasswordCredential(configuration["Secret:UserName"], 
+            configuration["Secret:Password"], configuration["Secret:TenantId"], configuration["Secret:ClientId"], options); 
 
         var tokenRequestContext = new TokenRequestContext(new[] { "https://graph.microsoft.com/.default" });
 

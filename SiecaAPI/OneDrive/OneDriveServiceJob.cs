@@ -94,25 +94,41 @@ public class OneDriveServiceJob : IJob
                 if (!string.IsNullOrEmpty(docNumber) && !string.IsNullOrEmpty(tcCode))
                 {
                     List<BeneficiariesEntity> benList = await context.Beneficiaries.Where(x => x.DocumentNumber == docNumber).ToListAsync();
-                    List<TrainingCenterEntity> tcList = await context.TrainingCenters.Where(x => x.Code == tcCode).ToListAsync();
+                    List<TrainingCenterEntity> tcList = await context.TrainingCenters.Where(x => x.Code.ToLower() == tcCode.ToLower()).ToListAsync();
 
                     if (benList.Count > 0 && tcList.Count > 0)
                     {
-                        DateTime CreatedOn = DateTime.ParseExact(csv.GetField("created")!.Replace(" p. m.", "").Replace(" a. m.", ""), "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
-                        models.Add(new BeneficiaryAnthropometricDataEntity
+                        csv.TryGetField("created", out string? createdOnStr);
+                        csv.TryGetField("Weight value", out string? weightStr);
+                        csv.TryGetField("Height value", out string? heightStr);
+                        csv.TryGetField("BMI value", out string? bmiStr);
+                        if (!string.IsNullOrEmpty(createdOnStr) && 
+                            !string.IsNullOrEmpty(weightStr) && 
+                            Decimal.TryParse(weightStr, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal weightValue) &&
+                            !string.IsNullOrEmpty(heightStr) && 
+                            Decimal.TryParse(heightStr, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal heightValue) &&
+                            !string.IsNullOrEmpty(bmiStr) && 
+                            Decimal.TryParse(bmiStr, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal bmiValue)) 
                         {
-                            Id = Guid.NewGuid(),
-                            BeneficiaryId = benList[0].Id,
-                            Beneficiaries = benList[0],
-                            TrainingCenterId = tcList[0].Id,
-                            TrainingCenter = tcList[0],
-                            Comment = csv.GetField("comment"),
-                            Weight = Convert.ToDecimal(csv.GetField("Weight value") == "-" ? null : csv.GetField("Weight value")),
-                            Height = Convert.ToDecimal(csv.GetField("Height value") == "-" ? null : csv.GetField("Height value")),
-                            Bmi = Convert.ToDecimal(csv.GetField("BMI value") == "-" ? null : csv.GetField("BMI value")),
-                            CreatedOn = CreatedOn.ToUniversalTime(),
-                            ModifiedOn = csv.GetField("last modified") != "-" ? DateTime.ParseExact(csv.GetField("last modified")!.Replace(" p. m.", "").Replace(" a. m.", ""), "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture) : null
-                        });
+                            createdOnStr = createdOnStr.Replace("p. m.", "PM").Replace("a. m.", "AM");
+                            DateTime.TryParseExact(createdOnStr, "dd/MM/yyyy h:mm:ss tt",
+                                CultureInfo.InvariantCulture,
+                                DateTimeStyles.None, out DateTime CreatedOn);
+
+                            models.Add(new BeneficiaryAnthropometricDataEntity
+                            {
+                                Id = Guid.NewGuid(),
+                                BeneficiaryId = benList[0].Id,
+                                Beneficiaries = benList[0],
+                                TrainingCenterId = tcList[0].Id,
+                                TrainingCenter = tcList[0],
+                                Comment = csv.GetField("comment"),
+                                Weight = weightValue,
+                                Height = heightValue,
+                                Bmi = bmiValue,
+                                CreatedOn = CreatedOn.ToUniversalTime()
+                            });
+                        }
                     }
                 }
             }
