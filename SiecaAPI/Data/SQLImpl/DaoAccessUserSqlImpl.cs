@@ -402,8 +402,7 @@ namespace SiecaAPI.Data.SQLImpl
                         .Where(cu => cu.AccessUserId == accessUser.Id).ToListAsync();
                     if (existingCampuses.Count > 0)
                     {
-                        context.CampusByAccessUsers
-                            .FromSqlRaw(@"DELETE FROM \""CampusByAccessUser\"" WHERE \""AccessUserId\"" = '{accessUser.Id}'");
+                        context.Database.ExecuteSqlRaw($"DELETE FROM \"CampusByAccessUser\" WHERE \"AccessUserId\" = '{accessUser.Id}'");
                         await context.SaveChangesAsync();
                     }
 
@@ -449,7 +448,7 @@ namespace SiecaAPI.Data.SQLImpl
                         string insertQuery = "INSERT INTO \"CampusByAccessUser\"(\"OrganizationId\",\"TrainingCenterId\",\"CampusId\",\"AccessUserId\") " +
                             "VALUES " +
                             @"('{accessUser.OrganizationId}','{accessUser.TrainingCenterId}','{campus}','{accessUser.Id}')";
-                        context.CampusByAccessUsers.FromSqlRaw(insertQuery);
+                        context.Database.ExecuteSqlRaw(insertQuery);
                         await context.SaveChangesAsync();
                     }
 
