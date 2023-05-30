@@ -447,7 +447,7 @@ namespace SiecaAPI.Data.SQLImpl
                     {
                         string insertQuery = "INSERT INTO \"CampusByAccessUser\"(\"OrganizationId\",\"TrainingCenterId\",\"CampusId\",\"AccessUserId\") " +
                             "VALUES " +
-                            @"('{accessUser.OrganizationId}','{accessUser.TrainingCenterId}','{campus}','{accessUser.Id}')";
+                            $"('{accessUser.OrganizationId}','{accessUser.TrainingCenterId}','{Campus}','{accessUser.Id}')";
                         context.Database.ExecuteSqlRaw(insertQuery);
                         await context.SaveChangesAsync();
                     }
