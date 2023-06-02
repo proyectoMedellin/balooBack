@@ -13,6 +13,20 @@
         public Guid PermissionId { get; set; }
         public string CreatedBy { get; set; }
 
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+                return false;
+
+            DtoMenu other = (DtoMenu)obj;
+            return MenuLabel == other.MenuLabel;
+        }
+
+        public override int GetHashCode()
+        {
+            return MenuLabel.GetHashCode();
+        }
+
         public DtoMenu(Guid organizationId, string menuLabel, string? description, Guid? parentMenuId, int Position, string? externalUrl,
              string? route, Guid permissionId, string createdBy)
         {
