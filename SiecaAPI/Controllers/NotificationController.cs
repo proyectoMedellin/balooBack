@@ -69,8 +69,9 @@ namespace SiecaAPI.Controllers
             {
                 _logger.LogError("AuthenticationController: Login -> " + ex.Message);
                 response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
-                response.MensajeRespuesta = ex.Message;
+                response.MensajeRespuesta = ex.ToString();
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
+                
             }
         }
     }

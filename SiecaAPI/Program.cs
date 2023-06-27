@@ -25,12 +25,12 @@ builder.Services.AddQuartz(q =>
         .WithIdentity("OneDriveJob-trigger")
         .WithCronSchedule(builder.Configuration["JobsSchedule:OneDriveScheduleExp"]));
     
-    /*var jobKeyDssProp = new JobKey("DssProJob");
+    var jobKeyDssProp = new JobKey("DssProJob");
     q.AddJob<DssProServiceJob>(opts => opts.WithIdentity(jobKeyDssProp));
     q.AddTrigger(opts => opts
         .ForJob(jobKeyDssProp)
         .WithIdentity("DssProJob-trigger")
-        .WithCronSchedule(builder.Configuration["JobsSchedule:DssProScheduleExp"]));*/
+        .WithCronSchedule(builder.Configuration["JobsSchedule:DssProScheduleExp"]));
 
 });
 

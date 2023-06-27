@@ -20,6 +20,8 @@ namespace SiecaAPI.Services
             mail.Body = body;
 
             SmtpServer.Port = Int32.Parse(AppParamsTools.GetEnvironmentVariable("Email:Port"));
+            SmtpServer.DeliveryMethod = SmtpDeliveryMethod.Network;
+            SmtpServer.UseDefaultCredentials = false;
             SmtpServer.Credentials = new System.Net.NetworkCredential(AppParamsTools.GetEnvironmentVariable("Email:User"), AppParamsTools.GetEnvironmentVariable("Email:Password"));
             SmtpServer.EnableSsl = Convert.ToBoolean(AppParamsTools.GetEnvironmentVariable("Email:EnabledSsl"));
 
