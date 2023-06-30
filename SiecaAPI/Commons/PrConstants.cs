@@ -46,17 +46,17 @@
         public static string GetEmotionName(int emotionId) {
             string response = emotionId switch
             {
-                EMOTION_SMILE => "Sonriente",
-                EMOTION_ANGRY => "Disgustado",
-                EMOTION_SAD => "Triste",
-                EMOTION_DISGUSTED => "Disgustado",
-                EMOTION_SCARED => "Asustado",
-                EMOTION_SURPRISED => "Sorprendido",
-                EMOTION_NORMAL => "Normal",
-                EMOTION_LAUGH => "Sonriente",
-                EMOTION_HAPPY => "Feliz",
-                EMOTION_CONFUSED => "Confundido",
-                EMOTION_SCREAM => "Gritando",
+                EMOTION_SMILE => "Alegría",
+                EMOTION_ANGRY => "Enfado",
+                EMOTION_SAD => "Tristeza",
+                EMOTION_DISGUSTED => "Enfado",
+                EMOTION_SCARED => "Miedo",
+                EMOTION_SURPRISED => "Sorpresa",
+                EMOTION_NORMAL => "Calma y control",
+                EMOTION_LAUGH => "Alegría",
+                EMOTION_HAPPY => "Alegría",
+                EMOTION_CONFUSED => "Anticipación",
+                EMOTION_SCREAM => "Miedo",
                 _ => "NO_IDENTIFICADO",
             };
             return response;
