@@ -102,13 +102,36 @@ public class OneDriveServiceJob : IJob
                         csv.TryGetField("Weight value", out string? weightStr);
                         csv.TryGetField("Height value", out string? heightStr);
                         csv.TryGetField("BMI value", out string? bmiStr);
+                        csv.TryGetField("SpO2 value", out string? spO2Str);
+                        csv.TryGetField("Temperature value", out string? temperatureStr);
+                        csv.TryGetField("PulseRatio value", out string? pulseStr);
+
+                        if (string.IsNullOrEmpty(temperatureStr) || temperatureStr == "-")
+                        {
+                            temperatureStr = "0";
+                        }
+                        if (string.IsNullOrEmpty(spO2Str) || spO2Str == "-")
+                        {
+                            spO2Str = "0";
+                        }
+                        if (string.IsNullOrEmpty(pulseStr) || pulseStr == "-")
+                        {
+                            pulseStr = "0";
+                        }
+
                         if (!string.IsNullOrEmpty(createdOnStr) && 
                             !string.IsNullOrEmpty(weightStr) && 
                             Decimal.TryParse(weightStr, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal weightValue) &&
                             !string.IsNullOrEmpty(heightStr) && 
                             Decimal.TryParse(heightStr, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal heightValue) &&
                             !string.IsNullOrEmpty(bmiStr) && 
-                            Decimal.TryParse(bmiStr, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal bmiValue)) 
+                            Decimal.TryParse(bmiStr, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal bmiValue) && 
+                            !string.IsNullOrEmpty(spO2Str) &&
+                            Decimal.TryParse(spO2Str, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal spO2Value) &&
+                            !string.IsNullOrEmpty(temperatureStr) &&
+                            Decimal.TryParse(temperatureStr, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal temperatureValue) &&
+                            !string.IsNullOrEmpty(pulseStr) &&
+                            Decimal.TryParse(pulseStr, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal pulseValue)) 
                         {
                             createdOnStr = createdOnStr.Replace("p. m.", "PM").Replace("a. m.", "AM");
                             DateTime.TryParseExact(createdOnStr, "dd/MM/yyyy h:mm:ss tt",
@@ -126,6 +149,9 @@ public class OneDriveServiceJob : IJob
                                 Weight = weightValue,
                                 Height = heightValue,
                                 Bmi = bmiValue,
+                                Pulse = pulseValue,
+                                Temperature = temperatureValue,
+                                Spo2 = spO2Value,
                                 CreatedOn = CreatedOn.ToUniversalTime()
                             });
                         }

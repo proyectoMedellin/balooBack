@@ -551,6 +551,9 @@ namespace SiecaAPI.Data.SQLImpl
                             Weight = bar.Weight,
                             Height = bar.Height,
                             Bmi = bar.Bmi,
+                            Pulse = bar.Pulse,
+                            Spo2 = bar.Spo2,
+                            Temperature = bar.Temperature,
                             Comment = bar.Comment ?? String.Empty,
                             CreatedOn = bar.CreatedOn,
                             ModifiedOn = bar.ModifiedOn

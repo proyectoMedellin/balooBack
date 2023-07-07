@@ -14,6 +14,9 @@ namespace SiecaAPI.DTO.Data
         public decimal Weight { get; set; }
         public decimal Height { get; set; }
         public decimal Bmi { get; set; }
+        public decimal Pulse { get; set; }
+        public decimal Spo2 { get; set; }
+        public decimal Temperature { get; set; }
         public DateTime CreatedOn { get; set; }
         public DateTime? ModifiedOn { get; set; }
     }
