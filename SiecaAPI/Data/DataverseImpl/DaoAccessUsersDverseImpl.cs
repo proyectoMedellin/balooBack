@@ -45,6 +45,11 @@ namespace SiecaAPI.Data.DataverseImpl
             throw new NotImplementedException();
         }
 
+        public Task<List<DtoAccessUser>> GetAllTeachersAsync()
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<DtoAccessUser> GetByIdAsync(Guid id)
         {
             throw new NotImplementedException();

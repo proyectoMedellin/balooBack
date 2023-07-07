@@ -391,5 +391,50 @@ namespace SiecaAPI.Controllers
                 return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
             }
         }
+        [HttpGet("GetAllTeachers")]
+        public async Task<IActionResult> GetAllTeachers()
+        {
+            DtoRequestResult<List<DtoAccessUserResp>> response = new DtoRequestResult<List<DtoAccessUserResp>>
+            {
+                CodigoRespuesta = HttpStatusCode.OK.ToString()
+            };
+
+            try
+            {
+                List<DtoAccessUser> accessUsers = await UsersServices.GetAllUsersTeacher();
+                List<DtoAccessUserResp> dtoAccessUserResp = new();
+                if (accessUsers.Count == 0) throw new NoDataFoundException("No exiten registros");
+                foreach (DtoAccessUser user in accessUsers)
+                {
+                    dtoAccessUserResp.Add(
+                        new DtoAccessUserResp()
+                        {
+                            Id = user.Id.Value,
+                            OrganizationId = user.OrganizationId,
+                            UserName = user.UserName,
+                            Email = user.Email,
+                            FirstName = user.FirstName,
+                            OtherNames = user.OtherNames,
+                            LastName = user.LastName,
+                            OtherLastName = user.OtherLastName,
+                            DocumentTypeId = user.DocumentTypeId,
+                            DocumentNo = user.DocumentNo,
+                            TrainingCenterId = user.TrainingCenterId,
+                            GlobalUser = user.GlobalUser
+                        });
+                }
+                response.Registros.Add(new List<DtoAccessUserResp>(dtoAccessUserResp));
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("AuthenticationController: Login -> " + ex.Message);
+                response.CodigoRespuesta = HttpStatusCode.InternalServerError.ToString();
+                response.MensajeRespuesta = ex.Message;
+                return new ObjectResult(response) { StatusCode = (int?)HttpStatusCode.InternalServerError };
+            }
+
+        }
     }
+
 }
