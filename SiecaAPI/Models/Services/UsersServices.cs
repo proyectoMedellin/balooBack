@@ -125,5 +125,11 @@ namespace SiecaAPI.Services
                 GetDaoAccessUsers().ExistsUserEmailAsync(email);
             return exist;
         }
+        public static async Task<List<DtoAccessUser>> GetAllUsersTeacher()
+        {
+            List<DtoAccessUser> users = await DaoAccessUserFactory.
+                GetDaoAccessUsers().GetAllTeachersAsync();
+            return users;
+        }
     }
 }

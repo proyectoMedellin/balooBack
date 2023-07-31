@@ -20,6 +20,7 @@ using System;
 using SiecaAPI.DssPro.DTO;
 using SiecaAPI.DssPro.Models;
 using SiecaAPI.Data.SQLImpl;
+using SiecaAPI.Services;
 
 namespace SiecaAPI.DssPro
 {
@@ -215,18 +216,25 @@ namespace SiecaAPI.DssPro
         public static async Task DownloadFaceRecognitionData(string? documentNumber, DateTime? from, DateTime? to)
         {
             DateTime baseDate = DateTime.UtcNow;
-            DateTime startDate = new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, 0, 0, 0);
+            DateTime startDate = new DateTime(baseDate.Year, baseDate.Month, baseDate.Day - 1, 0, 0, 0);
             DateTime endDate = new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, 23, 59, 59);
             if (from.HasValue && to.HasValue)
             {
                 startDate = new DateTime(from.Value.Year, from.Value.Month, from.Value.Day, 0, 0, 0);
                 endDate = new DateTime(to.Value.Year, to.Value.Month, to.Value.Day, 23, 59, 59);
             }
-
+            
             List<DtoBeneficiaries> beneficiaries;
+            List<DtoAccessUser> teachers;
             if (string.IsNullOrEmpty(documentNumber))
             {
                 beneficiaries = await BeneficiariesServices.GetAllAsync(null, null, null,null, null, null, null, null, true, null, null);
+                teachers = await UsersServices.GetAllUsersTeacher();
+                foreach (DtoAccessUser teacher in teachers)
+                {
+                    List<RawEmotionRecordDto> emRawData = await GetFaceRecognitionData(teacher.DocumentNo, startDate, endDate);
+                    await SaveRawEmotionData(emRawData);
+                }
             }
             else
             {
@@ -239,6 +247,7 @@ namespace SiecaAPI.DssPro
                 List<RawEmotionRecordDto> emRawData = await GetFaceRecognitionData(ben.DocumentNumber, startDate, endDate);
                 await SaveRawEmotionData(emRawData);
             }
+           
         }
 
         private static async Task<bool> SaveRawEmotionData(List<RawEmotionRecordDto> emRawData)

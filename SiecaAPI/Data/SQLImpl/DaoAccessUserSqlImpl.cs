@@ -476,5 +476,91 @@ namespace SiecaAPI.Data.SQLImpl
             await context.SaveChangesAsync();
             return true;
         }
+        public async Task<List<DtoAccessUser>> GetAllTeachersAsync()
+        {
+            using SqlContext context = new SqlContext();
+            OrganizationEntity org = await context.Organizations.FirstAsync();
+
+            RolEntity  rol= await context.Roles.Where(r => r.Name == "Agente educativo docente").FirstAsync();
+            List<AccessUserRolEntity> accessUsers = await context.AccessUserRoles.Where(uR => uR.RolId == rol.Id).ToListAsync();
+            List<DtoAccessUser> dtoAccessUser = new();
+            foreach (AccessUserRolEntity teacher in accessUsers)
+            {
+                AccessUserEntity user = await context.AccessUsers.Where(u => u.Id == teacher.AccessUserId).FirstAsync();
+
+                dtoAccessUser.Add(new DtoAccessUser()
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    FirstName = user.FirstName,
+                    OtherNames = user.OtherNames,
+                    LastName = user.LastName,
+                    OtherLastName = user.OtherLastName,
+                    RequirePasswordChange = user.RequirePaswordChange,
+                    CreatedBy = user.CreatedBy,
+                    Phone = user.Phone,
+                    DocumentTypeId = user.DocumentTypeId,
+                    DocumentNo = user.DocumentNo,
+                    TrainingCenterId = user.TrainingCenterId,
+                    GlobalUser = user.GlobalUser
+                });
+            }
+            return dtoAccessUser;
+        }
+        public async Task<List<DtoBeneficiariesEmotionsRecord>> GetEmotionsDataById(Guid beneficiaryId, DateTime from, DateTime to)
+        {
+            using SqlContext context = new();
+            try
+            {
+                List<DateTime> days = new();
+                DateTime cDate = from;
+                while (cDate <= to)
+                {
+                    days.Add(cDate);
+                    cDate = cDate.AddDays(1);
+                }
+
+                string queryString = "SELECT (md5(((random())::text || (clock_timestamp())::text)))::uuId as \"Id\", " +
+                    "b.\"Id\" as \"BeneficiaryId\", dr.\"Id\" as \"DevelopmentRoomId\", " +
+                    "bred.\"Id\" as \"IntegrationId\", bred.\"EmotionId\", bred.\"CreatedOn\" " +
+                    "FROM \"DevelopmentRoom\" dr " +
+                    "JOIN \"BeneficiaryRawEmotionsData\" bred ON dr.\"DahuaChannelCode\" = bred.\"DahuaChannelName\" " +
+                    "JOIN \"AccessUser\" b ON bred.\"PersonId\" = b.\"DocumentNo\" " +
+                    $"WHERE b.\"Id\" = '{beneficiaryId}' and bred.\"CreatedOn\" between '{from.ToString("yyyy-MM-dd")}' and '{to.AddDays(1).ToString("yyyy-MM-dd")}' " +
+                    "ORDER BY b.\"Id\", dr.\"Id\", bred.\"CreatedOn\" ";
+
+                List<BeneficiariesEmotionsRecordEntity> benReq = await context
+                    .BeneficiariesEmotionsRecords.FromSqlRaw(queryString).ToListAsync();
+
+                List<DtoBeneficiariesEmotionsRecord> response = new();
+                foreach (DateTime d in days)
+                {
+                    DtoBeneficiariesEmotionsRecord dayEmotion = new();
+                    dayEmotion.CreatedOn = d;
+                    List<BeneficiariesEmotionsRecordEntity> reqs = benReq
+                        .Where(r => r.CreatedOn.ToString("yyyy-MM-dd").Equals(d.ToString("yyyy-MM-dd"))).ToList();
+
+                    foreach (BeneficiariesEmotionsRecordEntity bar in reqs)
+                    {
+                        dayEmotion = new();
+                        dayEmotion.CreatedOn = bar.CreatedOn;
+                        dayEmotion.Id = bar.Id;
+                        dayEmotion.BeneficiaryId = bar.BeneficiaryId;
+                        dayEmotion.DevelopmentRoomId = bar.DevelopmentRoomId;
+                        dayEmotion.IntegrationId = bar.IntegrationId;
+                        dayEmotion.EmotionId = bar.EmotionId;
+                        dayEmotion.EmotionName = PrConstants.GetEmotionName(bar.EmotionId);
+                        response.Add(dayEmotion);
+                    }
+                    if (dayEmotion.Id.Equals(Guid.Empty)) response.Add(dayEmotion);
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new NoDataFoundException("the requested beneficiary dosen't have emotions data");
+            }
+        }
     }
 }

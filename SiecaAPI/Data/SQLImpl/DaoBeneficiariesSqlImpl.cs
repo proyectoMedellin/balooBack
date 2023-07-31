@@ -589,7 +589,14 @@ namespace SiecaAPI.Data.SQLImpl
                     "JOIN \"BeneficiaryRawEmotionsData\" bred ON dr.\"DahuaChannelCode\" = bred.\"DahuaChannelName\" " +
                     "JOIN \"Beneficiaries\" b ON bred.\"PersonId\" = b.\"DocumentNumber\" " +
                     $"WHERE b.\"Id\" = '{beneficiaryId}' and bred.\"CreatedOn\" between '{from.ToString("yyyy-MM-dd")}' and '{to.AddDays(1).ToString("yyyy-MM-dd")}' " +
-                    "ORDER BY b.\"Id\", dr.\"Id\", bred.\"CreatedOn\" ";
+                    "UNION SELECT (md5(((random())::text || (clock_timestamp())::text)))::uuId as \"Id\", " +
+                    "b.\"Id\" as \"BeneficiaryId\", dr.\"Id\" as \"DevelopmentRoomId\", " +
+                    "bred.\"Id\" as \"IntegrationId\", bred.\"EmotionId\", bred.\"CreatedOn\" " +
+                    "FROM \"DevelopmentRoom\" dr " +
+                    "JOIN \"BeneficiaryRawEmotionsData\" bred ON dr.\"DahuaChannelCode\" = bred.\"DahuaChannelName\" " +
+                    "JOIN \"AccessUser\" b ON bred.\"PersonId\" = b.\"DocumentNo\" " +
+                    $"WHERE b.\"Id\" = '{beneficiaryId}' and bred.\"CreatedOn\" between '{from.ToString("yyyy-MM-dd")}' and '{to.AddDays(1).ToString("yyyy-MM-dd")}' " +
+                    "ORDER BY \"BeneficiaryId\", \"DevelopmentRoomId\", \"CreatedOn\" ";
 
                 List<BeneficiariesEmotionsRecordEntity> benReq = await context
                     .BeneficiariesEmotionsRecords.FromSqlRaw(queryString).ToListAsync();
@@ -644,7 +651,14 @@ namespace SiecaAPI.Data.SQLImpl
                     "JOIN \"BeneficiaryRawEmotionsData\" bred ON dr.\"DahuaChannelCode\" = bred.\"DahuaChannelName\" " +
                     "JOIN \"Beneficiaries\" b ON bred.\"PersonId\" = b.\"DocumentNumber\" " +
                     $"WHERE b.\"Id\" = '{beneficiaryId}' and bred.\"CreatedOn\" between '{from.ToString("yyyy-MM-dd")}' and '{to.AddDays(1).ToString("yyyy-MM-dd")}' " +
-                    "ORDER BY b.\"Id\", dr.\"Id\", bred.\"CreatedOn\" ";
+                    "UNION SELECT (md5(((random())::text || (clock_timestamp())::text)))::uuId as \"Id\", " +
+                    "b.\"Id\" as \"BeneficiaryId\", dr.\"Id\" as \"DevelopmentRoomId\", " +
+                    "bred.\"Id\" as \"IntegrationId\", bred.\"EmotionId\", bred.\"CreatedOn\" " +
+                    "FROM \"DevelopmentRoom\" dr " +
+                    "JOIN \"BeneficiaryRawEmotionsData\" bred ON dr.\"DahuaChannelCode\" = bred.\"DahuaChannelName\" " +
+                    "JOIN \"Beneficiaries\" b ON bred.\"PersonId\" = b.\"DocumentNumber\" " +
+                    $"WHERE b.\"Id\" = '{beneficiaryId}' and bred.\"CreatedOn\" between '{from.ToString("yyyy-MM-dd")}' and '{to.AddDays(1).ToString("yyyy-MM-dd")}' " +
+                    "ORDER BY \"BeneficiaryId\", \"DevelopmentRoomId\", \"CreatedOn\" ";
 
                 List<BeneficiariesEmotionsRecordEntity> benReq = await context
                     .BeneficiariesEmotionsRecords.FromSqlRaw(queryString).ToListAsync();
