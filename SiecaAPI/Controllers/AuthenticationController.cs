@@ -43,6 +43,10 @@ namespace SiecaAPI.Controllers
                 string userName = await AuthenticationServices.IsValidLogin(request.UserData);
                 if (!string.IsNullOrEmpty(userName)) {
                     string token = await AuthenticationServices.CreateUserToken(userName);
+                    if (string.IsNullOrEmpty(token))
+                    {
+                        throw new NoDataFoundException("No se generó token");
+                    }
                     DtoLoginResp tResp = new(token);
                     response.Registros.Add(tResp);
                 }
