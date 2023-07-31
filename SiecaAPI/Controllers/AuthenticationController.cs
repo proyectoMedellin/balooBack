@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SiecaAPI.DTO;
 using SiecaAPI.DTO.Requests;
 using SiecaAPI.DTO.Response;
+using SiecaAPI.Errors;
 using SiecaAPI.Models.Services;
 using System.Net;
 
@@ -45,7 +46,10 @@ namespace SiecaAPI.Controllers
                     DtoLoginResp tResp = new(token);
                     response.Registros.Add(tResp);
                 }
-
+                else
+                {
+                    throw new NoDataFoundException("No se pudo crear el token");
+                }
                 return Ok(response);
             }
             catch (Exception ex)
