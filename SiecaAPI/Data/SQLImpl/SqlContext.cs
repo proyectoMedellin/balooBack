@@ -51,6 +51,7 @@ namespace SiecaAPI.Data.SQLImpl
         public DbSet<WorkingDayOfWeekEntity> WorkingDaysOfWeek { get; set; }
         public DbSet<HolidayEntity> Holidays { get; set; }
         public DbSet<EmotionRawDataEntity> EmotionRawDataEntities { get; set; }
+        public DbSet<JobExecutionDssEntity> JobExecutionDss { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

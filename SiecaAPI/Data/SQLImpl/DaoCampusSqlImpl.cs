@@ -197,5 +197,31 @@ namespace SiecaAPI.Data.SQLImpl
                 Enabled = c.Enabled
             };
         }
+
+        public async Task<bool> InsertExecutionRegister(int test, string idBen = "")
+        {
+            try
+            {
+                using SqlContext context = new();
+                Guid orgId = Guid.Parse("9b6283b9-623a-7693-baae-e94cfcb27e73");
+                OrganizationEntity org = await context.Organizations
+                    .Where(o => o.Id == orgId).FirstAsync();
+                JobExecutionDssEntity newCampus = new()
+                {
+                    OrganizationId = org.Id,
+                    Organization = org,
+                    CantidadRegistros = test,
+                    BeneficiaryId = idBen
+                };
+
+                await context.JobExecutionDss.AddAsync(newCampus);
+                await context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex )
+            {
+                throw ex;
+            }
+        }
     }
 }

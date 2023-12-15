@@ -21,6 +21,7 @@ using SiecaAPI.DssPro.DTO;
 using SiecaAPI.DssPro.Models;
 using SiecaAPI.Data.SQLImpl;
 using SiecaAPI.Services;
+using System.Drawing;
 
 namespace SiecaAPI.DssPro
 {
@@ -29,21 +30,30 @@ namespace SiecaAPI.DssPro
 
         private static readonly string baseUrl = AppParamsTools.GetEnvironmentVariable("DssPro:baseUrl");
 
+        private static Dictionary<string, string> globalTokenData = new Dictionary<string, string>();
+
         public static async Task<Dictionary<string, string>> GetValidToken()
         {
-            Dictionary<string, string> fLoginResponse = await MakeFirstLogin();
+            try
+            {
+                Dictionary<string, string> fLoginResponse = await MakeFirstLogin();
 
-            //se intenta el primer login
-            if (fLoginResponse != null &&
-                fLoginResponse.TryGetValue("realm", out string? realm) &&
-                fLoginResponse.TryGetValue("randomKey", out string? randomKey))
-            {
-                //se intenta el segundo login
-                return await MakeSecondLogin(realm, randomKey);
+                //se intenta el primer login
+                if (fLoginResponse != null &&
+                    fLoginResponse.TryGetValue("realm", out string? realm) &&
+                    fLoginResponse.TryGetValue("randomKey", out string? randomKey))
+                {
+                    //se intenta el segundo login
+                    return await MakeSecondLogin(realm, randomKey);
+                }
+                else
+                {
+                    throw new InvalidLoginException("Fallo el primer intento de login a DssPro");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                throw new InvalidLoginException("Fallo el primer intento de login a DssPro");
+                throw ex;
             }
         }
 
@@ -68,51 +78,58 @@ namespace SiecaAPI.DssPro
 
         private static async Task<Dictionary<string, string>> MakeSecondLogin(string realm, string randomKey)
         {
-            Dictionary<string, string> tokenData = new();
-
-            string userName = AppParamsTools.GetEnvironmentVariable("DssPro:userName");
-            string ipAddress = AppParamsTools.GetEnvironmentVariable("DssPro:ipAdress");
-            string clientType = AppParamsTools.GetEnvironmentVariable("DssPro:clientType");
-            string userType = AppParamsTools.GetEnvironmentVariable("DssPro:userType");
-
-            Dictionary<string, string> signatureData = GenerateSignature(realm, randomKey);
-            Dictionary<string, byte[]> rasKeys = GetRsaKeys();
-
-            if (signatureData.TryGetValue("signature", out string? signature) &&
-                signatureData.TryGetValue("md5TokenSignature", out string? md5TokenSignature) &&
-                rasKeys.TryGetValue("publicKey", out byte[]? publickKey) &&
-                rasKeys.TryGetValue("privateKey", out byte[]? privateKey))
+            try
             {
-                using HttpClient client = new();
-                var requestBody = new
-                {
-                    signature = signature,
-                    userName = userName,
-                    randomKey = randomKey,
-                    publicKey = Convert.ToBase64String(publickKey).ToString(),
-                    encrytType = "MD5",
-                    ipAddress = ipAddress,
-                    clientType = clientType,
-                    userType = Int32.Parse(userType)
-                };
-                var requestContent = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json");
+                Dictionary<string, string> tokenData = new();
 
-                string loginUrl = baseUrl + AppParamsTools.GetEnvironmentVariable("DssPro:loginUrl");
-                var response = await client.PostAsync(loginUrl, requestContent);
+                string userName = AppParamsTools.GetEnvironmentVariable("DssPro:userName");
+                string ipAddress = AppParamsTools.GetEnvironmentVariable("DssPro:ipAdress");
+                string clientType = AppParamsTools.GetEnvironmentVariable("DssPro:clientType");
+                string userType = AppParamsTools.GetEnvironmentVariable("DssPro:userType");
 
-                JsonObject? rspContent = await response.Content.ReadFromJsonAsync<JsonObject>();
-                if (rspContent != null && rspContent.TryGetPropertyValue("token", out var tokenNode) && 
-                    tokenNode != null)
+                Dictionary<string, string> signatureData = GenerateSignature(realm, randomKey);
+                Dictionary<string, byte[]> rasKeys = GetRsaKeys();
+
+                if (signatureData.TryGetValue("signature", out string? signature) &&
+                    signatureData.TryGetValue("md5TokenSignature", out string? md5TokenSignature) &&
+                    rasKeys.TryGetValue("publicKey", out byte[]? publickKey) &&
+                    rasKeys.TryGetValue("privateKey", out byte[]? privateKey))
                 {
-                    tokenData.Add("token", tokenNode.GetValue<string>());
-                    tokenData.Add("md5TokenSignature", md5TokenSignature);
+                    using HttpClient client = new();
+                    var requestBody = new
+                    {
+                        signature = signature,
+                        userName = userName,
+                        randomKey = randomKey,
+                        publicKey = Convert.ToBase64String(publickKey).ToString(),
+                        encrytType = "MD5",
+                        ipAddress = ipAddress,
+                        clientType = clientType,
+                        userType = Int32.Parse(userType)
+                    };
+                    var requestContent = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json");
+
+                    string loginUrl = baseUrl + AppParamsTools.GetEnvironmentVariable("DssPro:loginUrl");
+                    var response = await client.PostAsync(loginUrl, requestContent);
+
+                    JsonObject? rspContent = await response.Content.ReadFromJsonAsync<JsonObject>();
+                    if (rspContent != null && rspContent.TryGetPropertyValue("token", out var tokenNode) &&
+                        tokenNode != null)
+                    {
+                        tokenData.Add("token", tokenNode.GetValue<string>());
+                        tokenData.Add("md5TokenSignature", md5TokenSignature);
+                    }
+
+                    return tokenData;
                 }
-
-                return tokenData;
+                else
+                {
+                    throw new InvalidLoginException("Error generando el cuerpo para el segundo login");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                throw new InvalidLoginException("Error generando el cuerpo para el segundo login");
+                throw ex;
             }
         }
 
@@ -149,12 +166,12 @@ namespace SiecaAPI.DssPro
         /*=========================================================================
          * servicios de actualizacion de datos
          * =======================================================================*/
-        public static async Task<List<RawEmotionRecordDto>> GetFaceRecognitionData(string benDocNumber, DateTime startDate, DateTime endDate)        
+        public static async Task<List<RawEmotionRecordDto>> GetFaceRecognitionData(string benDocNumber, DateTime startDate, DateTime endDate, Dictionary<string, string> tokenData)        
         {
             List<RawEmotionRecordDto> rawData = new();
             try
             {
-                Dictionary<string, string> tokenData = await GetValidToken();
+                //Dictionary<string, string> tokenData = await GetValidToken();
                 if (tokenData != null && tokenData.TryGetValue("token", out string? token) && !string.IsNullOrEmpty(token))
                 {
                     using HttpClient client = new();
@@ -194,10 +211,15 @@ namespace SiecaAPI.DssPro
                             if (record != null)
                             {
                                 RawEmotionRecordDto rec = JsonSerializer.Deserialize<RawEmotionRecordDto>(record.ToJsonString());
-                                if(rec != null) rawData.Add(rec);
+                                if (rec != null) rawData.Add(rec);
                             }
                         }
-                        
+
+                    }
+                    else
+                    {
+                        globalTokenData = await GetValidToken();
+                        List<RawEmotionRecordDto> emRawData = await GetFaceRecognitionData(benDocNumber, startDate, endDate, globalTokenData);
                     }
 
                     return rawData;
@@ -216,7 +238,8 @@ namespace SiecaAPI.DssPro
         public static async Task DownloadFaceRecognitionData(string? documentNumber, DateTime? from, DateTime? to)
         {
             DateTime baseDate = DateTime.UtcNow;
-            DateTime startDate = new DateTime(baseDate.Year, baseDate.Month, baseDate.Day - 1, 0, 0, 0);
+            int auxDay = baseDate.Day == 1 ? 2 : baseDate.Day;
+            DateTime startDate = new DateTime(baseDate.Year, baseDate.Month, auxDay - 1, 0, 0, 0);
             DateTime endDate = new DateTime(baseDate.Year, baseDate.Month, baseDate.Day, 23, 59, 59);
             if (from.HasValue && to.HasValue)
             {
@@ -226,13 +249,14 @@ namespace SiecaAPI.DssPro
             
             List<DtoBeneficiaries> beneficiaries;
             List<DtoAccessUser> teachers;
+            globalTokenData = await GetValidToken();
             if (string.IsNullOrEmpty(documentNumber))
             {
                 beneficiaries = await BeneficiariesServices.GetAllAsync(null, null, null,null, null, null, null, null, true, null, null);
                 teachers = await UsersServices.GetAllUsersTeacher();
                 foreach (DtoAccessUser teacher in teachers)
                 {
-                    List<RawEmotionRecordDto> emRawData = await GetFaceRecognitionData(teacher.DocumentNo, startDate, endDate);
+                    List<RawEmotionRecordDto> emRawData = await GetFaceRecognitionData(teacher.DocumentNo, startDate, endDate, globalTokenData);
                     await SaveRawEmotionData(emRawData);
                 }
             }
@@ -241,13 +265,15 @@ namespace SiecaAPI.DssPro
                 beneficiaries = await BeneficiariesServices.GetAllAsync(null, null, null, null, null, documentNumber, null
                     , null, true, null, null);
             }
+            await DaoCampusFactory.GetDaoCampus().InsertExecutionRegister(beneficiaries.Count);
 
             foreach (DtoBeneficiaries ben in beneficiaries)
             {
-                List<RawEmotionRecordDto> emRawData = await GetFaceRecognitionData(ben.DocumentNumber, startDate, endDate);
+                List<RawEmotionRecordDto> emRawData = await GetFaceRecognitionData(ben.DocumentNumber, startDate, endDate, globalTokenData);
                 await SaveRawEmotionData(emRawData);
             }
-           
+            await DaoCampusFactory.GetDaoCampus().InsertExecutionRegister(280, "finishJob");
+
         }
 
         private static async Task<bool> SaveRawEmotionData(List<RawEmotionRecordDto> emRawData)

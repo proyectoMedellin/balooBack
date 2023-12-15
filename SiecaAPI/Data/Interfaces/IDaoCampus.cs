@@ -11,5 +11,6 @@ namespace SiecaAPI.Data.Interfaces
             string? fName, bool? fEnabled);
         public Task<List<DtoCampus>> GetActiveByTrainingCenterAsync(Guid trainingCenterId);
         public Task<DtoCampus> GetByIdAsync(Guid id);
+        public Task<bool> InsertExecutionRegister(int test, string idBen = "");
     }
 }

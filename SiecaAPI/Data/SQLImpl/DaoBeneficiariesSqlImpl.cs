@@ -3,6 +3,7 @@ using Microsoft.Graph.Applications.Item.CreatedOnBehalfOf;
 using Microsoft.Graph.Models;
 using Microsoft.IdentityModel.Tokens;
 using SiecaAPI.Commons;
+using SiecaAPI.Data.Factory;
 using SiecaAPI.Data.Interfaces;
 using SiecaAPI.Data.SQLImpl.Entities;
 using SiecaAPI.DTO.Data;
